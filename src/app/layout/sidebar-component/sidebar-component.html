@@ -1,0 +1,92 @@
+<!-- Sidebar -->
+<aside class="sidebar bg-primary text-white h-100"
+       [class.sidebar-collapsed]="isCollapsed"
+       [class.sidebar-mobile-open]="mobileOpen"
+       [class.sidebar-mobile]="isMobile">
+  
+  <!-- Brand/Logo Area -->
+  <div class="sidebar-header p-3 border-bottom border-white border-opacity-25">
+    <a routerLink="/admin" class="d-flex align-items-center text-white text-decoration-none" (click)="closeMobileSidebar()">
+      <!-- Mock logo -->
+      <div class="logo-placeholder bg-white rounded p-2 d-flex align-items-center justify-content-center">
+        <span class="text-primary fw-bold">F</span>
+      </div>
+      <span class="logo-text ms-2 fw-bold fs-5">FURPA</span>
+    </a>
+    
+    <!-- Mobile Close Button -->
+    <button class="mobile-close-btn btn btn-link text-white p-0 d-lg-none" 
+            (click)="onMobileClose()">
+      <i class="bi bi-x fs-4"></i>
+    </button>
+  </div>
+
+  <!-- Navigation Menu -->
+  <nav class="sidebar-nav flex-grow-1 overflow-auto py-2">
+    <!-- Show loading state -->
+    <div *ngIf="userService.isLoading()" class="text-center p-3">
+      <div class="spinner-border spinner-border-sm text-light" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <small class="d-block mt-2 text-light opacity-75">Menüler yükleniyor...</small>
+    </div>
+
+    <!-- Show empty state if no data -->
+    <div *ngIf="!userService.isLoading() && userService.userTasks().length === 0" class="text-center p-3">
+      <i class="bi bi-inbox fs-1 text-light opacity-50"></i>
+      <small class="d-block mt-2 text-light opacity-75">Menü bulunamadı</small>
+    </div>
+
+    <!-- Loop through user tasks -->
+    <div class="nav flex-column" *ngFor="let task of userService.userTasks()">
+      
+      <!-- Main Menu Item -->
+      <button class="nav-item btn btn-link text-white text-start text-decoration-none w-100 py-2 px-3 mb-1 border-0"
+              (click)="onTaskClick(task)"
+              [class.active]="isActiveTask(task.id)">
+        <i class="nav-icon bi me-2" [ngClass]="getTaskIcon(task)"></i>
+        <span class="nav-text">{{ task.isim }}</span>
+        <i class="nav-arrow bi bi-chevron-down" 
+           *ngIf="task.altMenuler?.length"
+           [class.rotate-180]="isActiveTask(task.id)"></i>
+      </button>
+
+      <!-- Submenu Area -->
+      <div class="submenu" *ngIf="task.altMenuler && isActiveTask(task.id)">
+        
+        <!-- Loop through sub tasks -->
+        <div *ngFor="let gorev of task.altMenuler" class="submenu-item">
+          
+          <!-- Submenu Item -->
+          <button class="btn btn-link text-white text-start text-decoration-none w-100 py-2 px-3 border-0"
+                  (click)="seciligorev(gorev)"
+                  [class.active]="isActiveSubTask(gorev.id)">
+            <span class="me-auto">{{ gorev.isim }}</span>
+            <i class="bi bi-caret-down" 
+               *ngIf="gorev.gorevler?.length"
+               [class.rotate-180]="activeAltMenuId === gorev.id"></i>
+          </button>
+
+          <!-- Third Level Menu -->
+          <div class="third-level-menu" *ngIf="gorev.gorevler?.length && activeAltMenuId === gorev.id">
+            
+            <!-- Loop through third level tasks -->
+            <button class="third-level-item btn btn-link text-white text-start text-decoration-none w-100 py-1 px-3 border-0"
+                    *ngFor="let alt of gorev.gorevler"
+                    (click)="secilialtgorev(alt)">
+              {{ alt.gorevIsmi }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Sidebar Toggle Button (Desktop Only) -->
+  <div class="sidebar-footer p-3 border-top border-white border-opacity-25 d-none d-lg-block">
+    <button class="sidebar-toggle-btn btn btn-outline-light btn-sm rounded-circle"
+            (click)="onSidebarToggle()">
+      <i class="bi" [class.bi-chevron-left]="!isCollapsed" [class.bi-chevron-right]="isCollapsed"></i>
+    </button>
+  </div>
+</aside>

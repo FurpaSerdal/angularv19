@@ -1,0 +1,260 @@
+<!-- Header Section -->
+<div class="dynamic-table-container">
+  <!-- Page Header -->
+  <header class="page-header">
+    <div class="header-content">
+      <div class="title-section">
+        <h1 class="page-title">
+          <i class="bi bi-table title-icon"></i>
+          {{ taskTitle() }}
+        </h1>
+        <p class="page-subtitle">{{ selectedCount() }} kayıt seçildi</p>
+      </div>
+      
+      <!-- Quick Actions -->
+      <div class="header-actions">
+        <button *ngIf="tableConfig().features?.createButton"
+                mat-raised-button
+                color="primary"
+                (click)="createNewDocument()"
+                class="create-btn">
+          <i class="bi bi-plus-circle"></i>
+          Yeni Evrak
+        </button>
+        
+        <button *ngIf="tableConfig().features?.exportButton"
+                mat-stroked-button
+                color="accent"
+                (click)="exportData()"
+                class="export-btn">
+          <i class="bi bi-download"></i>
+          Dışa Aktar
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Filter Section -->
+  <section class="filter-section" *ngIf="tableConfig().features?.dateFilter || tableConfig().features?.search">
+    <div class="filter-grid">
+      <!-- Search Box -->
+      <mat-form-field *ngIf="tableConfig().features?.search" 
+                      appearance="outline" 
+                      class="search-field">
+        <mat-label>{{ taskTitle() }} ara...</mat-label>
+        <input matInput 
+               [formControl]="filterForm.controls.searchTerm"
+               placeholder="Arama yapın...">
+        <i class="bi bi-search" matSuffix></i>
+      </mat-form-field>
+
+      <!-- Date Range -->
+      <div *ngIf="tableConfig().features?.dateFilter" 
+           class="date-range-container">
+        <mat-form-field appearance="outline">
+          <mat-label>Başlangıç Tarihi</mat-label>
+          <input matInput 
+                 [matDatepicker]="startPicker"
+                 [formControl]="filterForm.controls.startDate">
+          <mat-datepicker-toggle matSuffix [for]="startPicker">
+            <i class="bi bi-calendar"></i>
+          </mat-datepicker-toggle>
+          <mat-datepicker #startPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Bitiş Tarihi</mat-label>
+          <input matInput 
+                 [matDatepicker]="endPicker"
+                 [formControl]="filterForm.controls.endDate">
+          <mat-datepicker-toggle matSuffix [for]="endPicker">
+            <i class="bi bi-calendar"></i>
+          </mat-datepicker-toggle>
+          <mat-datepicker #endPicker></mat-datepicker>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Selection Actions -->
+    <div *ngIf="hasSelections()" class="selection-actions">
+      <mat-chip-set>
+        <mat-chip color="primary" selected>
+          <i class="bi bi-check-circle"></i>
+          {{ selectedCount() }} kayıt seçildi
+        </mat-chip>
+      </mat-chip-set>
+      
+      <button mat-button color="warn" (click)="clearSelection()">
+        <i class="bi bi-x-circle"></i>
+        Seçimi Temizle
+      </button>
+    </div>
+  </section>
+
+  <!-- Table Container -->
+  <section class="table-section">
+    <div class="table-wrapper mat-elevation-z8">
+      
+      <!-- Loading State -->
+      <div *ngIf="isLoading()" class="loading-state">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Veriler yükleniyor...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="isEmpty()" class="empty-state">
+        <i class="bi bi-inbox empty-icon"></i>
+        <h3>Henüz kayıt bulunmuyor</h3>
+        <p>İlk kaydınızı oluşturarak başlayın</p>
+        <button *ngIf="tableConfig().features?.createButton"
+                mat-raised-button
+                color="primary"
+                (click)="createNewDocument()">
+          <i class="bi bi-plus"></i>
+          İlk Kaydı Oluştur
+        </button>
+      </div>
+
+      <!-- Data Table -->
+      <table *ngIf="!isLoading() && !isEmpty()" 
+             mat-table 
+             [dataSource]="dataSource" 
+             matSort
+             class="data-table">
+
+        <!-- Checkbox Column -->
+        <ng-container *ngIf="tableConfig().features?.selection" matColumnDef="select">
+          <th mat-header-cell *matHeaderCellDef class="checkbox-header">
+            <mat-checkbox (change)="$event ? masterToggle() : null"
+                         [checked]="isAllSelected()"
+                         [indeterminate]="hasSelections() && !isAllSelected()">
+            </mat-checkbox>
+          </th>
+          <td mat-cell *matCellDef="let row" class="checkbox-cell">
+            <mat-checkbox (click)="$event.stopPropagation()"
+                         (change)="$event ? toggleRow(row) : null"
+                         [checked]="selectedRows.has(row)">
+            </mat-checkbox>
+          </td>
+        </ng-container>
+
+        <!-- Dynamic Data Columns -->
+        <ng-container *ngFor="let column of tableConfig().columns" 
+                     [matColumnDef]="column.key">
+          
+          <th mat-header-cell 
+              *matHeaderCellDef 
+              [mat-sort-header]="column.sortable ? column.key : ''"
+              [style.width]="column.width"
+              class="column-header">
+            {{ column.label }}
+            <i *ngIf="column.sortable" class="bi bi-arrow-down-up sort-icon"></i>
+          </th>
+          
+          <td mat-cell *matCellDef="let row" class="data-cell">
+            <ng-container [ngSwitch]="column.type">
+              
+              <!-- Status Badge -->
+              <span *ngSwitchCase="'status'" 
+                    [class]="getStatusClass(row[column.key])">
+                {{ row[column.key] }}
+              </span>
+              
+              <!-- Currency Format -->
+              <span *ngSwitchCase="'currency'" class="currency-value">
+                {{ formatCellValue(row[column.key], column) }}
+              </span>
+              
+              <!-- Date Format -->
+              <span *ngSwitchCase="'date'" class="date-value">
+                {{ formatCellValue(row[column.key], column) }}
+              </span>
+              
+              <!-- Default Format -->
+              <span *ngSwitchDefault class="text-value">
+                {{ formatCellValue(row[column.key], column) }}
+              </span>
+              
+            </ng-container>
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container *ngIf="hasActions()" matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef class="actions-header">
+            <i class="bi bi-gear"></i>
+            İşlemler
+          </th>
+          <td mat-cell *matCellDef="let row" class="actions-cell">
+            <div class="action-buttons">
+              
+              <!-- View Action -->
+              <button *ngIf="tableConfig().actions?.view"
+                      mat-icon-button
+                      color="primary"
+                      (click)="onAction('view', row)"
+                      matTooltip="Görüntüle">
+                <i class="bi bi-eye"></i>
+              </button>
+
+              <!-- Edit Action -->
+              <button *ngIf="tableConfig().actions?.edit"
+                      mat-icon-button
+                      color="accent"
+                      (click)="onAction('edit', row)"
+                      matTooltip="Düzenle">
+                <i class="bi bi-pencil"></i>
+              </button>
+
+              <!-- Download Action -->
+              <button *ngIf="tableConfig().actions?.download"
+                      mat-icon-button
+                      color="info"
+                      (click)="onAction('download', row)"
+                      matTooltip="PDF İndir">
+                <i class="bi bi-file-earmark-pdf"></i>
+              </button>
+
+              <!-- Delete Action -->
+              <button *ngIf="tableConfig().actions?.delete"
+                      mat-icon-button
+                      color="warn"
+                      (click)="onAction('delete', row)"
+                      matTooltip="Sil">
+                <i class="bi bi-trash"></i>
+              </button>
+
+              <!-- Custom Actions -->
+              <ng-container *ngIf="tableConfig().actions?.custom">
+                <button *ngFor="let customAction of tableConfig().actions?.custom"
+                        mat-icon-button
+                        [color]="customAction.color || 'primary'"
+                        (click)="onAction(customAction.action, row)"
+                        [matTooltip]="customAction.label">
+                  <i [class]="'bi bi-' + customAction.icon"></i>
+                </button>
+              </ng-container>
+
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Table Rows -->
+        <tr mat-header-row *matHeaderRowDef="displayedColumns()" class="table-header-row"></tr>
+        <tr mat-row 
+            *matRowDef="let row; columns: displayedColumns();" 
+            [class.row-selected]="selectedRows.has(row)"
+            class="table-data-row">
+        </tr>
+      </table>
+
+      <!-- Pagination -->
+      <mat-paginator *ngIf="tableConfig().features?.pagination && !isEmpty()"
+                     [pageSize]="tableConfig().pageSize || 10"
+                     [pageSizeOptions]="tableConfig().pageSizeOptions || [5, 10, 25]"
+                     showFirstLastButtons
+                     class="table-paginator">
+      </mat-paginator>
+    </div>
+  </section>
+</div>

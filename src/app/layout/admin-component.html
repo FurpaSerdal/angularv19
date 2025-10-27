@@ -1,0 +1,47 @@
+<!-- Page Wrapper -->
+<div class="d-flex min-vh-100">
+  
+  <!-- Sidebar Component -->
+  <app-sidebar 
+    [isCollapsed]="isSidebarCollapsed()"
+    [mobileOpen]="mobileSidebarOpen()"
+    (sidebarToggle)="onSidebarToggle()"
+    (mobileSidebarToggle)="onMobileSidebarToggle()"
+    (closeMobile)="closeMobileSidebar()">
+  </app-sidebar>
+
+  <!-- Content Wrapper -->
+  <div class="flex-grow-1 d-flex flex-column content-wrapper"
+       [class.content-collapsed]="isSidebarCollapsed() && !isMobile()"
+       [class.content-mobile]="isMobile()">
+    
+    <!-- Navbar Component -->
+    <app-navbar 
+      [mobileSidebarOpen]="mobileSidebarOpen()"
+      (sidebarToggle)="onMobileSidebarToggle()">
+    </app-navbar>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow-1 bg-light">
+      <div class="container-fluid py-4">
+        <!-- Page title for demo -->
+   
+        
+        <!-- Dynamic content will be loaded here -->
+        <router-outlet></router-outlet>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Mobile Overlay (shown when sidebar is open on mobile) -->
+<div class="mobile-overlay d-lg-none" 
+     [class.d-none]="!mobileSidebarOpen()"
+     (click)="toggleMobileSidebar()"></div>
+
+<!-- Scroll to Top Button -->
+<button class="scroll-to-top btn btn-primary rounded-circle shadow" 
+        [class.d-none]="!showScrollButton()"
+        (click)="scrollToTop()">
+  <i class="bi bi-chevron-up"></i>
+</button>

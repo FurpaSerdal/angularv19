@@ -1,0 +1,137 @@
+<div class="container-fluid text-center">
+  <div class="alert alert-primary d-inline-block">
+    {{ gorevadi() }}
+  </div>
+
+  <div class="row g-3 align-items-center ">
+
+    <div class="col-12 col-md-auto">
+      <button class="btn btn-info btn-md w-100 w-md-auto" >
+        <i class="bi bi-plus-circle me-2"></i>Yeni Evrak Oluştur
+      </button>
+    </div>
+
+    <!-- Date Range Picker - ms-auto eklendi -->
+    <div class="col-12 col-md-auto ms-md-auto">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Tarih Aralığı Seçiniz</mat-label>
+        <mat-date-range-input [formGroup]="dateRange" [rangePicker]="picker">
+          <input matStartDate formControlName="start" placeholder="Başlangıç" (dateChange)="onDateChanged()">
+          <input matEndDate formControlName="end" placeholder="Bitiş" (dateChange)="onDateChanged()">
+        </mat-date-range-input>
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-date-range-picker #picker></mat-date-range-picker>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div class="table-container mat-elevation-z8 ">
+  <div class="search-pagination-container d-flex justify-content-between align-items-center flex-wrap">
+
+    <!-- Filtreleme -->
+    <mat-form-field appearance="fill" class="custom-input">
+      <mat-label>Evrak Filtreleyin</mat-label>
+      <input matInput (keyup)="applyFilter($event)">
+    </mat-form-field>
+
+    <!-- Seçilen faturaları göster butonu -->
+    <div class="div my-3">
+      <button class="btn btn-danger" (click)="getSelectedInvoices()">
+        <i class="bi bi-check2-square me-1"></i> Seçilen Faturaları Göster
+      </button>
+    </div>
+
+    <!-- Sayfalama -->
+    <mat-paginator class="mat-paginator" [pageSize]="10" [pageSizeOptions]="[10, 15, 20]" showFirstLastButtons>
+    </mat-paginator>
+
+  </div>
+  
+
+    <div *ngIf="yukleniyor()" class="loading-spinner d-flex justify-content-center align-items-center"
+      style="height: 100px;">
+      <mat-spinner color="primary" diameter="50"></mat-spinner>
+    </div>
+    <!-- Tablonun responsive hale getirilmesi -->
+      <div class="table-responsive">
+      <table mat-table [dataSource]="DataSource" matSort >
+
+        <!-- Checkbox Column -->
+<ng-container matColumnDef="select">
+  <th mat-header-cell *matHeaderCellDef>
+    <mat-checkbox
+      (change)="$event ? masterToggle() : null"
+      [checked]="isAllSelected()"
+      [indeterminate]="selection.hasValue() && !isAllSelected()">
+    </mat-checkbox>
+  </th>
+  <td mat-cell *matCellDef="let row">
+    <mat-checkbox
+      (click)="$event.stopPropagation()"
+      (change)="toggleRow(row)"
+      [checked]="selection.isSelected(row)">
+    </mat-checkbox>
+  </td>
+</ng-container>
+        <!-- Evrak Seri -->
+        <ng-container matColumnDef="seri">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="ps-3">Evrak Seri</th>
+          <td mat-cell *matCellDef="let evrak" class="ps-3">{{ evrak.evrakNoSeri }}</td>
+        </ng-container>
+
+        <!-- Evrak Sira No -->
+        <ng-container matColumnDef="sira">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Sıra No</th>
+          <td mat-cell *matCellDef="let evrak">{{ evrak.evrakNoSira }}</td>
+        </ng-container>
+        <ng-container matColumnDef="belgeNo">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Belge No</th>
+          <td mat-cell *matCellDef="let evrak">{{ evrak.eBelgeNo }}</td>
+        </ng-container>
+        <!-- Tarih -->
+        <ng-container matColumnDef="tarih">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Tarih</th>
+          <td mat-cell *matCellDef="let evrak">{{ evrak.olusturmaTarihi | date: 'dd.MM.yyyy' }}</td>
+        </ng-container>
+
+        <!-- Kaynak -->
+        <ng-container matColumnDef="kaynak">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Kaynak</th>
+          <td mat-cell *matCellDef="let evrak">{{ evrak.depoNo }}</td>
+        </ng-container>
+
+        <!-- Hedef -->
+        <ng-container matColumnDef="hedef">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Hedef</th>
+          <td mat-cell *matCellDef="let evrak">{{ evrak.muhatapCariUnvan }}</td>
+        </ng-container>
+        <!-- Hedef -->
+        <ng-container matColumnDef="durum">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Durum</th>
+          <td mat-cell *matCellDef="let evrak">{{evrak.durum}}</td>
+        </ng-container>
+        <!-- İşlemler -->
+        <ng-container matColumnDef="islemler">
+          <th mat-header-cell *matHeaderCellDef class="text-center pe-3">İşlemler</th>
+          <td mat-cell *matCellDef="let evrak" class="text-center pe-3">
+            <div class="btn-group gap-2" role="group" aria-label="Basic example">
+              <button type="button" class="btn btn-outline-primary d-flex align-items-center gap-1"
+                 title="Görüntüle">
+                <i class="bi bi-eye"></i> Görüntüle
+              </button>
+              <button type="button" class="btn btn-outline-danger d-flex align-items-center gap-1"
+             title="PDF İndir">
+                <i class="bi bi-file-earmark-pdf"></i> PDF İndir
+              </button>
+
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-light"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="hover-highlight"></tr>
+      </table>
+    </div>
+
+  </div>
+</div>
