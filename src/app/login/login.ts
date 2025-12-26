@@ -10,7 +10,7 @@ import { AuthService } from '../../services/auth.service';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule],
+  imports: [CommonModule, FormsModule,FormsModule],
   templateUrl: './login.html',
   styleUrls: ['./login.css'],
 })
@@ -37,6 +37,7 @@ export class LoginComponent {
   login(): void {
     this.isFormSubmitted = true;
     this.errorMessage = '';
+           // this.router.navigate(['/admin']);
 
     if (this.email && this.password) {
       this.isLoading = true;
@@ -54,6 +55,7 @@ export class LoginComponent {
             this.router.navigate(['/admin']);
           }, 1000);
         },
+        
         error: (err) => {
           console.error('Giriş başarısız:', err);
           this.isLoading = false;

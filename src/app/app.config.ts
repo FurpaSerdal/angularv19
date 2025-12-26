@@ -1,37 +1,36 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection, importProvidersFrom } from '@angular/core';
+import { 
+  ApplicationConfig, 
+  provideBrowserGlobalErrorListeners, 
+  provideZoneChangeDetection 
+} from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-
-// Material modülleri
-import { MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatSortModule } from '@angular/material/sort';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-
-// Toastr
 import { provideToastr } from 'ngx-toastr';
+import { LOCALE_ID } from '@angular/core';
+import { registerLocaleData } from '@angular/common';
+import localeTr from '@angular/common/locales/tr';
+import 'zone.js'; // Angular 19 normal zone’lu yapı için gerekli
 
 import { routes } from './app.routes';
 import { TokenInterceptor } from '../interceptor/token.interceptor';
 
+// Türkçe yerel ayar kaydı
+registerLocaleData(localeTr);
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideZonelessChangeDetection(),
-    provideAnimations(),
+    provideAnimations(), // ✅ animasyonlar aktif
+    provideZoneChangeDetection({ eventCoalescing: true }),
     provideHttpClient(withInterceptors([TokenInterceptor])),
     provideRouter(routes),
-    
-    // ✅ Toastr konfigürasyonu
+    { provide: LOCALE_ID, useValue: 'tr-TR' },
+
+    // Toastr ayarları
     provideToastr({
-      timeOut: 3000,
-      positionClass: 'toast-top-right',
+      timeOut: 5000,
+      positionClass: 'toast-center-center', // ✅ tam ortada
       preventDuplicates: true,
       progressBar: true,
       closeButton: true,
@@ -39,18 +38,5 @@ export const appConfig: ApplicationConfig = {
       newestOnTop: true,
       maxOpened: 5
     }),
-    
-    // Material modülleri
-    importProvidersFrom(
-      MatTableModule,
-      MatPaginatorModule,
-      MatSortModule,
-      MatInputModule,
-      MatFormFieldModule,
-      MatIconModule,
-      MatButtonModule,
-      MatCardModule,
-      MatProgressSpinnerModule
-    )
   ]
 };

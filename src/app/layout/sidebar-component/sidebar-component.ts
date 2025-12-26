@@ -1,8 +1,8 @@
 import { Component, Input, Output, EventEmitter, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { Menu, AltMenu } from '../../../models/user';
 import { UserService } from '../../../services/data.service';
+import { AltMenu, Gorev, Menu } from '../../models/user';
 
 @Component({
   selector: 'app-sidebar',
@@ -59,32 +59,44 @@ export class SidebarComponent implements OnInit {
     
     if (this.activeTaskId === task.id && task.id) {
       this.userService.setMenu(task.isim);
+       localStorage.setItem('menu', JSON.stringify(task.isim));
     }
   }
+  
+seciligorev(gorev: AltMenu): void {
+  // Eğer alt menünün görevleri varsa, sadece aç/kapa yap
+if (gorev.evraklar && 
+    (gorev.evraklar.birinciAdimEvraki != null ||
+     gorev.evraklar.ikinciAdimEvraki != null ||
+     gorev.evraklar.ucuncuAdimEvraki != null)) {
+      
+     this.userService.setaltmenu(gorev)
+      localStorage.setItem('altmenu', JSON.stringify(gorev));
 
-  seciligorev(gorev: AltMenu): void {
-    if (gorev.gorevler && gorev.gorevler.length > 0) {
-      this.activeAltMenuId = this.activeAltMenuId === gorev.id ? null : gorev.id;
-      return;
-    }
+  this.activeAltMenuId =  this.activeAltMenuId === gorev.id ? null : gorev.id;
 
+}else {
+    // Eğer alt menünün görevleri yoksa, doğrudan navigasyon yap
     this.activeAltMenuId = null;
     this.selectedSubTaskId = gorev.id;
-    this.userService.seçiligörev(gorev.id);
-    this.userService.seçiliGörevAyarla(gorev.isim);
+    // this.userService.seçiligörev(gorev.id);
+    // this.userService.seçiliGörevAyarla(gorev.isim);
     
     this.router.navigate(['/admin', 'task', gorev.id]);
     this.closeMobileSidebar();
   }
-
-  secilialtgorev(gorev: any): void {
+}
+secilialtgorev(gorev: Gorev): void {
     this.selectedSubTaskId = gorev.id;
-    this.userService.seçiligörev(gorev.id);
-    this.userService.seçiliGörevAyarla(gorev.gorevIsmi);
+
+    // this.userService.seçiligörev(gorev.id);
+    // this.userService.seçiliGörevAyarla(gorev.isim); // gorevIsmi -> isim
+    this.userService.setgorev(gorev)
+     localStorage.setItem('gorev', JSON.stringify(gorev));
     
     this.router.navigate(['/admin', 'task', gorev.id]);
     this.closeMobileSidebar();
-  }
+}
 
   isActiveTask(taskId: number): boolean {
     return this.activeTaskId === taskId;
@@ -121,4 +133,5 @@ export class SidebarComponent implements OnInit {
   onMobileClose() {
     this.mobileSidebarToggle.emit();
   }
+
 }

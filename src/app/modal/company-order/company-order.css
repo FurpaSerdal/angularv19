@@ -1,0 +1,14 @@
+
+
+.company-order-page .card {
+  border-radius: 0.75rem;
+}
+
+.company-order-page .card-header {
+  border-bottom-width: 0;
+}
+
+.company-order-page .table > :not(caption) > * > * {
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
+}

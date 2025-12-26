@@ -1,0 +1,111 @@
+/* Component CSS */
+:host {
+  display: block;
+}
+
+.hover-scale {
+  transition: transform 0.2s ease;
+}
+
+.hover-scale:hover {
+  transform: translateX(5px);
+}
+
+.hover-lift {
+  transition: all 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.rounded-top-3 {
+  border-top-left-radius: 1rem !important;
+  border-top-right-radius: 1rem !important;
+}
+
+.border-light {
+  border-color: #f1f5f9 !important;
+}
+
+.shadow-sm {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+}
+
+.shadow-lg {
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+}
+
+.bg-opacity-10 {
+  background-color: rgba(var(--bs-primary-rgb), 0.1);
+}
+
+.transition-all {
+  transition: all 0.3s ease;
+}
+
+.hover-opacity-100:hover {
+  opacity: 1 !important;
+}
+
+.btn-outline-light.opacity-75 {
+  opacity: 0.75;
+}
+
+/* Input focus effects */
+.form-control:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+}
+
+/* Badge styles */
+.badge {
+  font-weight: 500;
+}
+
+/* Table row hover */
+.table-hover tbody tr:hover {
+  background-color: rgba(0, 123, 255, 0.05);
+}
+
+@keyframes pulse {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+
+.qr-reading {
+  animation: pulse 1.5s infinite;
+}
+
+/* Parse edilmiş kart */
+.border-success {
+  border-color: #198754 !important;
+}
+
+/* Responsive düzenlemeler */
+@media (max-width: 768px) {
+  .card-body {
+    padding: 1rem !important;
+  }
+  
+  .input-group-lg > .form-control {
+    font-size: 1rem !important;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .card-body {
+    padding: 1rem !important;
+  }
+  
+  .btn {
+    padding: 0.5rem 1rem !important;
+  }
+}

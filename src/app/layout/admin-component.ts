@@ -16,6 +16,7 @@ export class AdminComponent implements OnInit {
   // State signals
   showScrollButton = signal(false);
   isSidebarCollapsed = signal(false);
+  shownatification = signal(true);
   mobileSidebarOpen = signal(false);
   isMobile = signal(false);
 
@@ -41,9 +42,13 @@ export class AdminComponent implements OnInit {
   checkScreenSize() {
     const mobile = window.innerWidth < 992;
     this.isMobile.set(mobile);
-    
-    if (!mobile && this.mobileSidebarOpen()) {
+
+    if (mobile && !this.mobileSidebarOpen()) {
       this.mobileSidebarOpen.set(false);
+    }
+    // eger ekran mobile değilse shownatification true yap
+    if (mobile ) {
+     this.shownatification.set(true);
     }
     
     if (!mobile && this.isSidebarCollapsed()) {
@@ -55,9 +60,12 @@ export class AdminComponent implements OnInit {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+
   toggleSidebar() {
     if (!this.isMobile()) {
       this.isSidebarCollapsed.set(!this.isSidebarCollapsed());
+       
+
     }
   }
 
@@ -68,6 +76,7 @@ export class AdminComponent implements OnInit {
   }
 
   onSidebarToggle() {
+
     this.toggleSidebar();
   }
 

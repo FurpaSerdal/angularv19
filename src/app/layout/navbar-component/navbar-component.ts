@@ -11,6 +11,7 @@ import { UserService } from '../../../services/data.service';
 })
 export class NavbarComponent implements OnInit {
   @Input() mobileSidebarOpen: boolean = false;
+  @Input() shownatification: boolean = true;
   @Output() sidebarToggle = new EventEmitter<void>();
 
   constructor(

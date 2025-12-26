@@ -1,0 +1,460 @@
+/* ortak-menu.css */
+/* Genel Stiller */
+.header-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 2rem;
+  border-radius: 12px;
+  color: white;
+  margin-top: 1rem;
+}
+
+.header-section h1 {
+  color: white !important;
+  font-weight: 700;
+  font-size: 2rem;
+}
+
+/* Filtreler */
+.filters-section {
+  border-radius: 12px;
+  border: none;
+  background: white;
+}
+
+.filters-section .card-body {
+  padding: 1.5rem;
+}
+
+
+.loading-content {
+ 
+  padding: 2.5rem;
+  border-radius: 12px;
+
+  text-align: center;
+}
+
+/* Görünüm Toggle */
+.view-toggle .btn {
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+}
+
+.view-toggle .btn.active {
+  background-color: #2196f3;
+  color: white;
+  border-color: #2196f3;
+}
+
+.view-toggle .btn:not(.active):hover {
+  background-color: #f8f9fa;
+}
+
+/* Tablo Stilleri */
+.table-view .card {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.table-header {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.table-header th {
+  padding: 1rem;
+  font-size: 0.95rem;
+}
+
+.table-row {
+  transition: all 0.2s ease;
+}
+
+.table-row:hover {
+  background-color: #f8f9fa;
+  cursor: pointer;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.table-row.selected {
+  background-color: #e3f2fd;
+  border-left: 4px solid #2196f3;
+}
+
+.table-row td {
+  padding: 1rem;
+  vertical-align: middle;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* Durum Badge'leri */
+.status-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.875rem;
+  min-width: 120px;
+  justify-content: center;
+}
+
+.status-success {
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.status-warning {
+  background-color: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.status-pending {
+  background-color: #e0e7ff;
+  color: #3730a3;
+  border: 1px solid #c7d2fe;
+}
+
+/* İşlem Butonları */
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-view, .btn-edit, .btn-pdf {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.btn-view {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.btn-edit {
+  background-color: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.btn-pdf {
+  background-color: #ffebee;
+  color: #d32f2f;
+}
+
+.btn-view:hover {
+  background-color: #1976d2;
+  color: white;
+  transform: scale(1.05);
+}
+
+.btn-edit:hover {
+  background-color: #7b1fa2;
+  color: white;
+  transform: scale(1.05);
+}
+
+.btn-pdf:hover {
+  background-color: #d32f2f;
+  color: white;
+  transform: scale(1.05);
+}
+
+/* Kart Görünümü */
+.evrak-card {
+  border: 1px solid #e0e0e0;
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.evrak-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15) !important;
+  border-color: #2196f3;
+}
+
+.evrak-card .card-header {
+  border-bottom: 2px solid #f0f0f0;
+  border-radius: 12px 12px 0 0 !important;
+  padding: 1.25rem;
+  background: linear-gradient(to right, #f8f9fa, #e9ecef);
+}
+
+/* Depo Icon'ları */
+.depo-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.depo-icon.source {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  font-size: 1.2rem;
+}
+
+.depo-icon.target {
+  background-color: #e3f2fd;
+  color: #1565c0;
+  font-size: 1.2rem;
+}
+
+/* Durum Indicator */
+.status-indicator {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+}
+
+/* Transfer Bilgileri */
+.transfer-section {
+  padding: 0.5rem 0;
+}
+
+.depo-info {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.depo-details {
+  flex-grow: 1;
+}
+
+/* Kart Footer */
+.evrak-card .card-footer {
+  background: transparent;
+  padding: 1.25rem;
+  margin-top: auto;
+}
+
+.evrak-card .btn-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.evrak-card .btn {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+/* Sayfalama */
+.custom-paginator {
+  background: white;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e0e0e0;
+}
+
+/* Boş Durum */
+.empty-state {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-radius: 16px;
+  padding: 4rem 2rem;
+  margin: 2rem 0;
+}
+
+.empty-icon {
+  opacity: 0.7;
+}
+
+.empty-state h4 {
+  font-weight: 600;
+}
+
+.empty-state .btn {
+  padding: 0.75rem 2rem;
+  font-size: 1.1rem;
+  border-radius: 30px;
+}
+
+/* Transfer Bilgileri Tabloda */
+.transfer-info {
+  min-width: 250px;
+}
+
+/* Evrak No */
+.evrak-no .badge {
+  font-size: 0.95rem;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+}
+
+.btn-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-enabled {
+  opacity: 1;
+  cursor: pointer;
+}
+.row-danger {
+  background-color: #fdecea; /* açık kırmızı */
+}
+
+.row-danger:hover {
+  background-color: #f8d7da;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header-section {
+    padding: 1.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .header-section h1 {
+    font-size: 1.5rem;
+  }
+
+  .evrak-card {
+    margin-bottom: 1rem;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .btn-view, .btn-edit, .btn-pdf {
+    width: 35px;
+    height: 35px;
+  }
+
+  .filters-section .card-body {
+    padding: 1rem;
+  }
+
+  .table-row td {
+    padding: 0.75rem;
+  }
+
+  .status-badge {
+    min-width: 100px;
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .evrak-card .card-header,
+  .evrak-card .card-body,
+  .evrak-card .card-footer {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .header-section {
+    padding: 1rem;
+  }
+
+  .view-toggle .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .evrak-card .btn-group {
+    flex-direction: column;
+  }
+
+  .empty-state {
+    padding: 3rem 1rem;
+  }
+
+  .empty-state h4 {
+    font-size: 1.25rem;
+  }
+}
+
+/* Print Stilleri */
+@media print {
+  .filters-section,
+  .view-toggle,
+  .pagination-section,
+  .action-buttons,
+  .card-footer {
+    display: none !important;
+  }
+
+  .evrak-card {
+    break-inside: avoid;
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+  }
+
+  .header-section {
+    background: white !important;
+    color: black !important;
+  }
+
+  .header-section h1 {
+    color: black !important;
+  }
+}
+
+/* Animasyonlar */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.table-row,
+.evrak-card {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Tooltip Stilleri */
+.mat-tooltip {
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+}
+
+/* Scrollbar Stilleri */
+.table-responsive::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}

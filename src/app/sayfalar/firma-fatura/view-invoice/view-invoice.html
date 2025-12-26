@@ -1,0 +1,280 @@
+<h2 mat-dialog-title class="dialog-header bg-gradient text-white">
+  <div class="d-flex justify-content-between align-items-center">
+    <div>
+      <i class="bi bi-receipt me-2"></i>
+      Fatura Detayları
+      <small class="ms-2 opacity-75">#{{ data.evrakbilgi.evrakNo }}</small>
+    </div>
+    <div class="status-badges">
+      <span class="badge bg-success" *ngIf="data.evrakbilgi.eFaturaMukellefiMi">
+        <i class="bi bi-lightning-charge me-1"></i>e-Fatura
+      </span>
+      <span class="badge bg-warning text-dark" *ngIf="data.evrakbilgi.iade">
+        <i class="bi bi-arrow-return-left me-1"></i>İade Faturası
+      </span>
+      <span class="badge bg-info">
+        <i class="bi bi-calendar me-1"></i>{{ data.evrakbilgi.tarih | date:'dd.MM.yyyy' }}
+      </span>
+    </div>
+  </div>
+</h2>
+
+<mat-dialog-content class="p-0">
+  <div class="container-fluid p-4 invoice-container">
+    
+    <!-- Fatura Başlık Bilgileri -->
+    <div class="row mb-4">
+   <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-primary text-white py-2">
+            <h6 class="mb-0">
+              <i class="bi bi-person me-2"></i>Müşteri Bilgileri
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-4 mb-2">
+                <label class="text-muted small fw-bold">Müşteri Adı</label>
+                <p class="fw-bold text-dark mb-1">{{ data.evrakbilgi.musteriAdi }}</p>
+              </div>
+              <div class="col-md-4 mb-2">
+                <label class="text-muted small fw-bold">Müşteri Kodu</label>
+                <p class="fw-semibold mb-1">{{ data.evrakbilgi.musteriKodu }}</p>
+              </div>
+              <div class="col-md-4 mb-2">
+                <label class="text-muted small fw-bold">Vergi No</label>
+                <p class="mb-1">{{ data.evrakbilgi.vdNo }}</p>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-2">
+                <label class="text-muted small fw-bold">Vergi Dairesi</label>
+                <p class="mb-1">{{ data.evrakbilgi.vergiDairesi }}</p>
+              </div>
+              <div class="col-md-6 mb-2">
+                <label class="text-muted small fw-bold">Adres</label>
+                <p class="mb-1">
+                  {{ data.evrakbilgi.cadde }} {{ data.evrakbilgi.sokak }} 
+                  {{ data.evrakbilgi.ilce }}/{{ data.evrakbilgi.il }}
+                </p>
+              </div>
+            </div>
+            <div class="row" *ngIf="data.evrakbilgi.faturaMail">
+              <div class="col-12">
+                <label class="text-muted small fw-bold">E-Fatura Mail</label>
+                <p class="mb-0">
+                  <i class="bi bi-envelope text-primary me-1"></i>
+                  {{ data.evrakbilgi.faturaMail }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 text-end">
+        <div class="invoice-header p-3 rounded bg-light">
+          <h2 class="fw-bold text-dark mb-2">FATURA</h2>
+          <p class="mb-1"><strong>Fatura No:</strong> {{ data.evrakbilgi.evrakNo }}</p>
+          <p class="mb-1"><strong>Fatura Tarihi:</strong> {{ data.evrakbilgi.tarih | date:'dd.MM.yyyy' }}</p>
+          <p class="mb-0"><strong>İrsaliye No:</strong> {{ data.evrakbilgi.irsaliyeNo }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Müşteri Bilgileri -->
+    <div class="row mb-4">
+   
+    </div>
+
+    <!-- Kalemler Tablosu -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center py-2">
+            <h6 class="mb-0">
+              <i class="bi bi-cart-check me-2"></i>
+              Fatura Kalemleri
+            </h6>
+            <div>
+              <span class="badge bg-dark me-2">{{ getKalemler().length }} ürün</span>
+              <span class="badge bg-primary">Toplam: {{ getTotalQuantity() }} adet</span>
+            </div>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0 items-table">
+                <thead class="table-light">
+                  <tr>
+                    <th width="40" class="text-center">#</th>
+                    <th width="100">Stok Kodu</th>
+                    <th>Ürün Adı</th>
+                    <th width="80" class="text-center">Birim</th>
+                    <th width="100" class="text-end">Miktar</th>
+                    <th width="120" class="text-end">Birim Fiyat</th>
+                    <th width="120" class="text-end">İndirim</th>
+                    <th width="80" class="text-center">KDV</th>
+                    <th width="120" class="text-end">KDV Tutarı</th>
+                    <th width="120" class="text-end">Toplam</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of getKalemler(); let i = index" class="item-row">
+                    <td class="text-center text-muted small">{{ i + 1 }}</td>
+                    <td>
+                      <span class="badge bg-light text-dark font-monospace">{{ item.stokKodu }}</span>
+                    </td>
+                    <td>
+                      <div class="product-info">
+                        <div class="fw-semibold product-name">{{ item.stokAdi }}</div>
+                      </div>
+                    </td>
+                    <td class="text-center">
+                      <span class="badge bg-outline-secondary">{{ item.birimCins }}</span>
+                    </td>
+                    <td class="text-end font-monospace">
+                      {{ item.miktar | number:'1.0-0' }}
+                    </td>
+                    <td class="text-end font-monospace">
+                      {{ calculateUnitPrice(item) | number:'1.2-2' }} ₺
+                    </td>
+                    <td class="text-end">
+                      <div class="discount-info" *ngIf="getTotalDiscount(item) > 0">
+                        <span class="text-danger small font-monospace">-{{ getTotalDiscount(item) | number:'1.2-2' }} ₺</span>
+                        <br>
+                        <small class="text-muted">(%{{ getDiscountPercentage(item) | number:'1.1-1' }})</small>
+                      </div>
+                      <span class="text-muted small" *ngIf="getTotalDiscount(item) === 0">-</span>
+                    </td>
+                    <td class="text-center">
+                      <span class="badge" [ngClass]="getKdvBadgeClass(item.kdvCins)">
+                        %{{ getKdvRate(item.kdvCins) }}
+                      </span>
+                    </td>
+                    <td class="text-end font-monospace text-info">
+                      {{ item.kdvTutari | number:'1.2-2' }} ₺
+                    </td>
+                    <td class="text-end font-monospace fw-bold text-success">
+                      {{ item.tutar | number:'1.2-2' }} ₺
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Özet ve Toplamlar -->
+    <div class="row mt-4">
+      <div class="col-md-8">
+        <!-- Ek Bilgiler -->
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-info text-white py-2">
+            <h6 class="mb-0">
+              <i class="bi bi-info-circle me-2"></i>
+              Ek Bilgiler
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="text-muted small fw-bold">Evrak Tipi</label>
+                <p class="mb-0">{{ getEvrakTipi(data.evrakbilgi.evrakTip) }}</p>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="text-muted small fw-bold">Cari Hareket Cinsi</label>
+                <p class="mb-0">{{ data.evrakbilgi.cariHareketCins }}</p>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="text-muted small fw-bold">e-Belge Türü</label>
+                <p class="mb-0">{{ data.evrakbilgi.eBelgeTuru }}</p>
+              </div>
+              <div class="col-md-6 mb-3" *ngIf="data.evrakbilgi.aciklama">
+                <label class="text-muted small fw-bold">Açıklama</label>
+                <p class="mb-0">{{ data.evrakbilgi.aciklama }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-4">
+        <!-- Finansal Özet -->
+        <div class="card border-0 shadow-sm summary-card">
+          <div class="card-header bg-dark text-white py-2">
+            <h6 class="mb-0">
+              <i class="bi bi-calculator me-2"></i>
+              Finansal Özet
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="summary-item d-flex justify-content-between mb-2">
+              <span>Ara Toplam:</span>
+              <span class="fw-semibold">{{ data.evrakbilgi.araToplam | number:'1.2-2' }} ₺</span>
+            </div>
+            
+            <div class="summary-item d-flex justify-content-between mb-2" *ngIf="getTotalDiscountAll() > 0">
+              <span class="text-danger">Toplam İndirim:</span>
+              <span class="fw-semibold text-danger">-{{ getTotalDiscountAll() | number:'1.2-2' }} ₺</span>
+            </div>
+
+            <div class="summary-item d-flex justify-content-between mb-2">
+              <span>KDV Toplam:</span>
+              <span class="fw-semibold text-info">{{ calculateTotalKdv() | number:'1.2-2' }} ₺</span>
+            </div>
+
+            <div class="kdv-breakdown mb-3" *ngIf="hasMultipleKdvRates()">
+              <div class="kdv-item d-flex justify-content-between small py-1" 
+                   *ngFor="let rate of getKdvBreakdown()">
+                <span>KDV %{{ rate.rate }}:</span>
+                <span>{{ rate.total | number:'1.2-2' }} ₺</span>
+              </div>
+            </div>
+
+            <hr>
+
+            <div class="summary-total d-flex justify-content-between align-items-center mt-2">
+              <span class="fw-bold fs-5">GENEL TOPLAM:</span>
+              <span class="fw-bold fs-5 text-primary">{{ data.evrakbilgi.tutar | number:'1.2-2' }} ₺</span>
+            </div>
+
+            <div class="text-center mt-3">
+              <small class="text-muted">
+                {{ getKalemler().length }} kalem • {{ getTotalQuantity() }} adet
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-footer p-3 border-top bg-light">
+  <div class="d-flex flex-wrap gap-2 w-100 justify-content-between">
+    <div class="d-flex gap-2">
+      <button mat-button class="btn btn-outline-secondary" (click)="closeDialog()">
+        <i class="bi bi-x-circle me-1"></i>
+        Kapat
+      </button>
+    </div>
+    
+    <div class="d-flex gap-2">
+      <button mat-raised-button color="primary" class="btn btn-primary" (click)="printDocument()">
+        <i class="bi bi-printer me-1"></i>
+        Yazdır
+      </button>
+      <button mat-raised-button color="accent" class="btn btn-success" (click)="sendEmail()" 
+              *ngIf="data.evrakbilgi.faturaMail">
+        <i class="bi bi-envelope me-1"></i>
+        E-Posta
+      </button>
+      <button mat-raised-button color="warn" class="btn btn-info" (click)="exportPDF()">
+        <i class="bi bi-file-pdf me-1"></i>
+        PDF
+      </button>
+    </div>
+  </div>
+</mat-dialog-actions>

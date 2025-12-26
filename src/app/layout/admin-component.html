@@ -1,13 +1,14 @@
 <!-- Page Wrapper -->
-<div class="d-flex min-vh-100">
-  
+<div  class="d-flex min-vh-100">  
   <!-- Sidebar Component -->
   <app-sidebar 
     [isCollapsed]="isSidebarCollapsed()"
     [mobileOpen]="mobileSidebarOpen()"
     (sidebarToggle)="onSidebarToggle()"
     (mobileSidebarToggle)="onMobileSidebarToggle()"
-    (closeMobile)="closeMobileSidebar()">
+    (closeMobile)="closeMobileSidebar()"
+    >
+    
   </app-sidebar>
 
   <!-- Content Wrapper -->
@@ -18,11 +19,13 @@
     <!-- Navbar Component -->
     <app-navbar 
       [mobileSidebarOpen]="mobileSidebarOpen()"
+      [shownatification]="shownatification()"
       (sidebarToggle)="onMobileSidebarToggle()">
     </app-navbar>
 
+
     <!-- Main Content Area -->
-    <main class="flex-grow-1 bg-light">
+    <main   class="flex-grow-1 bg-light">
       <div class="container-fluid py-4">
         <!-- Page title for demo -->
    

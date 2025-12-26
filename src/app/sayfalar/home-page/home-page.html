@@ -1,0 +1,166 @@
+<div class="container-fluid p-4">
+  <!-- Header -->
+  <div class="row mb-5">
+    <div class="col-12 text-center">
+      <h1 class="display-4 text-primary">Admin Panel Dashboard</h1>
+      <p class="lead text-muted">Welcome to your business management system</p>
+    </div>
+  </div>
+
+  <!-- Quick Stats -->
+  <div class="row mb-5">
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-start border-primary border-4 shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                Sevk Emirleri
+              </div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">15</div>
+              <div class="text-muted">Bekleyen işlemler</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-box fa-2x text-gray-300">📦</i>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-sm mt-3 w-100" routerLink="/admin/task/11">
+            Yeni Oluştur
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-start border-success border-4 shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                Siparişler
+              </div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">28</div>
+              <div class="text-muted">Aktif siparişler</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-clipboard-list fa-2x text-gray-300">📋</i>
+            </div>
+          </div>
+          <button class="btn btn-success btn-sm mt-3 w-100" routerLink="/admin/task/21">
+            Yönet
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-start border-warning border-4 shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                Faturalar
+              </div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">42</div>
+              <div class="text-muted">Bu ay oluşturulan</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-receipt fa-2x text-gray-300">🧾</i>
+            </div>
+          </div>
+          <button class="btn btn-warning btn-sm mt-3 w-100" routerLink="/admin/task/41">
+            Fatura Oluştur
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-start border-info border-4 shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                Firma İşlemleri
+              </div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">8</div>
+              <div class="text-muted">Kayıtlı firmalar</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-building fa-2x text-gray-300">🏢</i>
+            </div>
+          </div>
+          <button class="btn btn-info btn-sm mt-3 w-100" routerLink="/admin/21">
+            Firma Faturaları
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Activities & Quick Actions -->
+  <div class="row">
+    <!-- Recent Activities -->
+    <div class="col-lg-8 mb-4">
+      <div class="card shadow">
+        <div class="card-header py-3">
+          <h6 class="m-0 font-weight-bold text-primary">Son İşlemler</h6>
+        </div>
+        <div class="card-body">
+          <div class="list-group list-group-flush">
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <span class="badge bg-primary me-2">Görev</span>
+                Sevk emri #TRK-1256 oluşturuldu
+              </div>
+              <small class="text-muted">2 dakika önce</small>
+            </div>
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <span class="badge bg-success me-2">Fatura</span>
+                Fatura #INV-7891 onaylandı
+              </div>
+              <small class="text-muted">1 saat önce</small>
+            </div>
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <span class="badge bg-warning me-2">Sipariş</span>
+                Sipariş #ORD-4567 tamamlandı
+              </div>
+              <small class="text-muted">3 saat önce</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="col-lg-4 mb-4">
+      <div class="card shadow">
+        <div class="card-header py-3">
+          <h6 class="m-0 font-weight-bold text-primary">Hızlı İşlemler</h6>
+        </div>
+        <div class="card-body">
+          <div class="d-grid gap-2">
+            <button class="btn btn-primary btn-lg" routerLink="/admin/task/11">
+              <i class="fas fa-box me-2">📦</i>
+              Sevk Emri Oluştur
+            </button>
+            <button class="btn btn-warning btn-lg" routerLink="/admin/task/41">
+              <i class="fas fa-receipt me-2">🧾</i>
+              Fatura Oluştur
+            </button>
+            <button class="btn btn-success btn-lg" routerLink="/admin/task/21">
+              <i class="fas fa-clipboard-list me-2">📋</i>
+              Sipariş Yönet
+            </button>
+            <button class="btn btn-info btn-lg" routerLink="/admin/21">
+              <i class="fas fa-building me-2">🏢</i>
+              Firma Faturaları
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

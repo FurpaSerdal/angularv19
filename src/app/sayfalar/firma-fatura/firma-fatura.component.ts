@@ -1,10 +1,11 @@
-import { Component, ViewChild, signal } from '@angular/core';
+// src/app/pages/firma-fatura/firma-fatura.component.ts
+import { Component, ViewChild, signal, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -12,14 +13,17 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatSelectModule } from '@angular/material/select';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { BreakpointObserver } from '@angular/cdk/layout';
 import { MatIconModule } from '@angular/material/icon';
-
 import { SelectionModel } from '@angular/cdk/collections';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { GenelİslemService } from '../../../services/geneli̇slem.service';
 import { UserService } from '../../../services/data.service';
 import { ToastrService } from 'ngx-toastr';
+import { PdfComponent } from '../../modal/pdf/pdf.component';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { CrudService } from '../../../services/crud.service';
+import { invoice, TopluCevirRequestDto } from '../../models/invoice';
 
 @Component({
   selector: 'app-firma-fatura',
@@ -42,182 +46,331 @@ import { ToastrService } from 'ngx-toastr';
     MatSortModule,
     MatSelectModule,
     MatIconModule,
-    MatCheckboxModule 
+    MatCheckboxModule,
+    MatProgressBarModule
   ],
   providers: [DatePipe]
 })
-export class FirmaFaturaComponent {
+export class FirmaFaturaComponent implements OnInit, AfterViewInit {
   dateRange = new FormGroup({
-    start: new FormControl<Date | null>(null),
-    end: new FormControl<Date | null>(null)
+    start: new FormControl<Date | null>(null, [Validators.required]),
+    end: new FormControl<Date | null>(null, [Validators.required])
   });
-selection = new SelectionModel<any>(true, []); // true => çoklu seçim
 
+  selection = new SelectionModel<any>(true, []);
+  gonderildi = signal(false);
+  efaturaMi = signal(true);
   yukleniyor = signal(false);
-  gorevid = signal(0);
+  gorevid = signal(21);
   gorevadi = signal('');
+  selectedCount = signal(0);
 
-  displayedColumns = ['select','seri', 'sira', 'belgeNo', 'tarih', 'kaynak', 'hedef', 'durum', 'islemler'];
+  displayedColumns = [
+    'select',
+    'evrakNo',
+    'tarih',
+    'belgeTarihi',
+    'irsaliyeTarihi',
+    'irsaliyeNo',
+    'eBelgeTuru',
+    'evrakTip',
+    'belgeNo',
+    'musteriAdi',
+    'aciklama',
+    'tutar',
+    'faturaMail',
+    'islemler'
+  ];
+
   DataSource: MatTableDataSource<any> = new MatTableDataSource<any>([]);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+
   constructor(
     private genelservice: GenelİslemService,
     private meservice: UserService,
     private dialog: MatDialog,
     private datePipe: DatePipe,
     private toastr: ToastrService,
-    private breakpointObserver: BreakpointObserver
-  ) {}
-  
- ngOnInit() {
-  // 1. Seçili görev ID'sini servisten dinleyip local değişkene set ediyoruz
-  this.meservice.SeçiliGörevid$.subscribe(data =>
-    this.gorevid.set(data)
-  );
+    private breakpointObserver: BreakpointObserver,
+    private crudservice: CrudService
+  ) { }
 
-  // 2. Seçili görev adını servisten dinleyip local değişkene set ediyoruz
-  this.meservice.selectedGörevadi$.subscribe(data =>
-    this.gorevadi.set(data)
-  );
+  ngOnInit() {
 
-  // 3. Sayfa yüklendiğinde veri çekme işlemi
-//  this.loadData();
-}
+    // CRUD Service testi
+//     this.crudservice.taskList(26,  new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 gün önce
+//  new Date(), 109).subscribe(data => {
+//       console.log('CRUD Service Data:');
+//       console.log('CRUD Service Data:', data);
+//     });
+;
+    // Sinyallerle görevid ve görevadi güncelleme
+    this.meservice.SeçiliGörevid$.subscribe(data => {
+      if (data && data > 0) this.gorevid.set(data);
+    });
+
+    this.meservice.selectedGörevadi$.subscribe(data => {
+      if (data) this.gorevadi.set(data);
+    });
+  }
 
   ngAfterViewInit() {
     this.DataSource.sort = this.sort;
     this.DataSource.paginator = this.paginator;
+
+    this.DataSource.sortingDataAccessor = (item: any, property: string) => {
+      switch (property) {
+        case 'tarih':
+        case 'belgeTarihi':
+        case 'irsaliyeTarihi':
+          if (!item[property]) return 0;
+          const time = new Date(item[property]).getTime();
+          return Number.isFinite(time) ? time : 0;
+
+        case 'tutar':
+          return typeof item.tutar === 'number' ? item.tutar : Number(String(item.tutar).replace(/\s/g, '')) || 0;
+
+        case 'musteriAdi':
+        case 'aciklama':
+        case 'faturaMail':
+        case 'belgeNo':
+        case 'evrakNo':
+          return (item[property] ?? '').toString().replace(/\u00A0/g, ' ').trim().toLocaleLowerCase('tr');
+
+        case 'eBelgeTuru':
+        case 'evrakTip':
+          return Number(item[property]) || 0;
+
+        default:
+          return item[property] ?? '';
+      }
+    };
+
+    this.DataSource.sortData = (data: any[], sort) => {
+      const active = sort.active;
+      const dir = sort.direction === 'asc' ? 1 : -1;
+      if (!active || !sort.direction) return data;
+
+      return [...data].sort((a, b) => {
+        const va = this.DataSource.sortingDataAccessor(a, active);
+        const vb = this.DataSource.sortingDataAccessor(b, active);
+
+        const aEmpty = va === null || va === undefined || va === '' || va === 0;
+        const bEmpty = vb === null || vb === undefined || vb === '' || vb === 0;
+        if (aEmpty && !bEmpty) return 1;
+        if (!aEmpty && bEmpty) return -1;
+        if (aEmpty && bEmpty) return 0;
+
+        if (typeof va === 'number' && typeof vb === 'number') {
+          return (va - vb) * dir;
+        }
+
+        return String(va).localeCompare(String(vb), 'tr', { numeric: true }) * dir;
+      });
+    };
   }
 
-  loadData(): void {
+  loadInitialData(): void {
+    const today = new Date();
+    this.dateRange.patchValue({ start: today, end: today });
+    this.onDateChanged();
+  }
+
+  onDateChanged(): void {
+    console.log('Tarih aralığı değişti:', this.dateRange.value);
+    this.selection.clear();
+    this.selectedCount.set(0);
+
+    const baslangic = this.datePipe.transform(this.dateRange.get('start')?.value, 'yyyy-MM-dd');
+    const bitis = this.datePipe.transform(this.dateRange.get('end')?.value, 'yyyy-MM-dd');
+
+    if (baslangic && bitis && this.gorevid() > 0) {
+      this.yukleniyor.set(true);
+      this.genelservice
+        .bekleyeEbelgeListele(this.gorevid(), `aralik-${baslangic}-${bitis}`, this.gonderildi(), this.efaturaMi())
+        .subscribe({
+          next: (data: any) => {
+            this.DataSource.data = data.evrakListesi ?? [];
+            this.DataSource.sort = this.sort;
+            this.DataSource.paginator = this.paginator;
+            this.yukleniyor.set(false);
+          },
+          error: (error) => {
+            console.error('Filtreleme hatası:', error);
+            this.toastr.error('Filtreleme sırasında hata oluştu', 'Hata');
+            this.yukleniyor.set(false);
+          }
+        });
+    }
+  }
+
+  applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
+
+    this.DataSource.filterPredicate = (data: any, filter: string) => {
+      if (!data) return false;
+      return Object.keys(data).some(key => {
+        const value = (data as any)[key];
+        if (value == null) return false;
+        if (typeof value === 'string') return value.toLowerCase().includes(filter);
+        if (typeof value === 'number') return value.toString().includes(filter);
+        if (typeof value === 'boolean') return value.toString().includes(filter);
+        return false;
+      });
+    };
+
+    this.DataSource.filter = filterValue;
+  }
+
+  applyColumnFilter(event: Event, column: string) {
+    const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
+    this.DataSource.filterPredicate = (data: any, filter: string) => {
+      const value = (data as any)[column];
+      if (value == null) return false;
+      if (typeof value === 'string') return value.toLowerCase().includes(filter);
+      if (typeof value === 'number') return value.toString().includes(filter);
+      if (typeof value === 'boolean') return value.toString().includes(filter);
+      return false;
+    };
+
+    this.DataSource.filter = filterValue;
+  }
+
+  // 👇 Yeni fonksiyon: görünürdeki veriyi al
+getVisibleRows(): any[] {
+  let data = this.DataSource._orderData(this.DataSource.filteredData); // sıralı veri
+  if (this.DataSource.paginator) {
+    const start = this.DataSource.paginator.pageIndex * this.DataSource.paginator.pageSize;
+    return data.slice(start, start + this.DataSource.paginator.pageSize);
+  }
+  return data;
+}
+  isAllSelected(): boolean {
+    const visibleRows = this.getVisibleRows();
+    return visibleRows.length > 0 && visibleRows.every(row => this.selection.isSelected(row));
+  }
+
+  masterToggle(): void {
+    const visibleRows = this.getVisibleRows();
+    if (this.isAllSelected()) {
+      visibleRows.forEach(row => this.selection.deselect(row));
+    } else {
+      visibleRows.forEach(row => this.selection.select(row));
+    }
+    this.selectedCount.set(this.selection.selected.length);
+  }
+
+  toggleRow(row: any) {
+    this.selection.toggle(row);
+    this.selectedCount.set(this.selection.selected.length);
+  }
+
+
+  sorguyuCalistir() {
     this.yukleniyor.set(true);
-    this.genelservice.listele(this.gorevid(), 'bugun').subscribe({
-      next: (data: any[]) => {
-        this.DataSource.data = data;
+    this.toastr.info(` sorgu çalısıyor...`);
+
+    this.genelservice.sorguCalistir().subscribe({
+      next: (data: any) => {
+        const mesaj = `Eklenen belge sayısı: ${data.eklenenBelgeNoSayisi}, İade alış faturası: ${data.iadeyeKonuAlisFaturasiSayisi}`;
+        this.toastr.success(`Sorgu başarıyla çalıştırıldı. ${mesaj}`, 'Başarılı');
         this.yukleniyor.set(false);
       },
-      error: () => {
-        this.toastr.error('Veri yüklenirken hata oluştu', 'Hata');
+      error: (error) => {
+        console.error('Sorgu hatası:', error);
+        this.toastr.error('Sorgu çalıştırılırken hata oluştu', 'Hata');
         this.yukleniyor.set(false);
       }
     });
   }
 
-  onDateChanged(): void {
-    const baslangic = this.datePipe.transform(this.dateRange.get('start')?.value, 'yyyy-MM-dd');
-    const bitis = this.datePipe.transform(this.dateRange.get('end')?.value, 'yyyy-MM-dd');
+  PostSelectedInvoices() {
+    const selected = this.selection.selected;
+    if (selected.length === 0) {
+      this.toastr.warning('Lütfen en az bir fatura seçin.', 'Uyarı');
+      return;
+    }
 
-    if (baslangic && bitis) {
+    const evraklar: TopluCevirRequestDto = { CevirilecekEvraklar: selected };
+    this.toastr.info(`${selected.length} fatura işleniyor...`);
+    this.yukleniyor.set(true);
+
+    this.genelservice.topluEvrakCevir(this.gorevid(), evraklar).subscribe({
+      next: (data: any) => {
+        this.toastr.success(
+          `Faturalar başarıyla görevler arası çevrildi.\nEklenen belge sayısı: ${data.faturaSayisi || 0}`,
+          'Başarılı'
+        );
+        this.DataSource.data = this.DataSource.data.filter(item => !this.selection.isSelected(item));
+        this.selection.clear();
+        this.selectedCount.set(0);
+        // veri değişti -> sort/paginator koru
+        this.DataSource.sort = this.sort;
+        this.DataSource.paginator = this.paginator;
+        this.yukleniyor.set(false);
+      },
+      error: (error) => {
+        console.error('Toplu evrak çevirme hatası:', error);
+        this.toastr.error('Faturalar görevler arası çevrilemedi', error || 'Hata');
+        this.yukleniyor.set(false);
+      }
+    });
+  }
+
+  durumDegisti() {
+    this.gonderildi.set(!this.gonderildi());
+    this.onDateChanged();
+  }
+
+  efaturaDurumDegisti() {
+    this.efaturaMi.set(!this.efaturaMi());
+    this.onDateChanged();
+  }
+
+  viewInvoice(evrak: invoice): void {
+    if (evrak.belgeNo) {
       this.yukleniyor.set(true);
-      this.genelservice.bekleyeEbelgeListele(this.gorevid(), `aralik-${baslangic}-${bitis}`,true).subscribe({
-        next: (data: any) => {
-          this.DataSource.data = data.evrakListesi;
+      this.genelservice.getPdfFromUyumsoft(this.gorevid(), evrak.fatGuid.toLowerCase()).subscribe({
+        next: (res) => {
+          const dialogRef = this.dialog.open(PdfComponent, {
+            width: '70vw',
+            height: '80vh',
+            data: { url: res }
+          });
           this.yukleniyor.set(false);
+          dialogRef.afterClosed().subscribe(() => URL.revokeObjectURL(res));
         },
-        error: () => {
-          this.toastr.error('Filtreleme sırasında hata oluştu', 'Hata');
+        error: (error) => {
+          console.error('PDF alma hatası:', error);
+          this.toastr.error('Fatura PDF\'i alınırken hata oluştu', 'Hata');
+          this.yukleniyor.set(false);
+        }
+      });
+      return;
+    }
+
+    else {
+
+      this.yukleniyor.set(true);
+      this.genelservice.createPdf(this.gorevid(), evrak).subscribe({
+        next: (res: Blob) => {
+          const url = URL.createObjectURL(res);
+          const dialogRef = this.dialog.open(PdfComponent, {
+            width: '70vw',
+            height: '80vh',
+            data: { url: url }
+          });
+          this.yukleniyor.set(false);
+          dialogRef.afterClosed().subscribe(() => URL.revokeObjectURL(url));
+        },
+        error: (error) => {
+          console.error('PDF oluşturma hatası:', error);
+          this.toastr.error('Fatura oluşturulurken hata oluştu', 'Hata');
           this.yukleniyor.set(false);
         }
       });
     }
   }
-
-  // evrakdetay(sth_Guid: string): void {
-  //   this.dialog.open(EvrakdetayComponent, {
-  //     width: '40vw',
-  //     height: '80vh',
-  //     data: { gorevadi: this.gorevadi(), sth_Guid }
-  //   });
-  // }
-
-  // yeniEvrak(): void {
-  //   const isMobile = this.breakpointObserver.isMatched(Breakpoints.Handset);
-
-  //   this.dialog.open(YeniEvrakEkleComponent, {
-  //     width: isMobile ? '100vw' : '40vw',
-  //     height: isMobile ? '100vh' : '70vh',
-  //     maxWidth: '100vw',
-  //     panelClass: isMobile ? 'full-screen-dialog' : '',
-  //     data: [this.gorevid()],
-  //   });
-  // }
-
-  // pdfindir(id: string) {
-  //   this.genelservice.PDFİndir(id, this.gorevadi()).subscribe({
-  //     next: (pdfUrl) => {
-  //       this.dialog.open(PdfComponent, {
-  //         width: '50vw',
-  //         height: '80vh',
-  //         data: { url: pdfUrl }
-  //       });
-  //     },
-  //     error: () => {
-  //       this.toastr.error('PDF indirilirken hata oluştu', 'Hata');
-  //     }
-  //   });
-  // }
-
-  applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
-    this.DataSource.filterPredicate = (data: any, filter: string) => {
-      return Object.keys(data).some(key => {
-        const value = data[key as keyof any];
-        if (typeof value === 'string') {
-          return value.toLowerCase().includes(filter);
-        } else if (typeof value === 'number') {
-          return value.toString().includes(filter);
-        }
-        return false;
-      });
-    };
-    this.DataSource.filter = filterValue;
-  }
-
-
-  /** Tablodaki tüm satırlar seçili mi kontrolü */
-isAllSelected() {
-  const numSelected = this.selection.selected.length;
-  const numRows = this.DataSource.data.length;
-  return numSelected === numRows;
-}
-
-/** Tüm satırları seçme / temizleme */
-masterToggle() {
-  this.isAllSelected()
-    ? this.selection.clear()
-    : this.DataSource.data.forEach(row => this.selection.select(row));
-}
-
-/** Tek satır seçimini toggle et */
-toggleRow(row: any) {
-  this.selection.toggle(row);
-}
-
-/** Seçilen fatura ID’lerini görmek için */
-getSelectedInvoices() {
-  const selected = this.selection.selected;
-  const evraklar: TopluCevirRequestDto = {
-    evrakIdleri: selected.map(item => item.id)
-  };
-
-  console.log('Gönderilen JSON:', evraklar);
-
-  this.genelservice.topluEvrakCevir(this.gorevid(), evraklar).subscribe({
-    next: () => {
-      this.toastr.success('Faturalar görevler arası başarıyla çevrildi', 'Başarılı');
-    },
-    error: () => {
-      this.toastr.error('Faturalar görevler arası çevrilemedi', 'Hata');
-    }
-  });
-
-  this.toastr.info(`${selected.length} fatura seçildi`);
-}
-
-
-}
-export interface TopluCevirRequestDto {
-  evrakIdleri: string[];
 }
