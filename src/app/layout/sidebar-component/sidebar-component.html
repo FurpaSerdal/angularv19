@@ -57,51 +57,25 @@
                          <div class="submenu-item">
                               <!-- ALT MENÜ BUTONU -->
                               <button class="btn btn-link text-white text-decoration-none w-100 py-2 px-3 border-0"
-                                   (click)="seciligorev(altMenu)"
+                                   (click)="seciliAltMenu(altMenu)"
                                    [class.altmenuactive]="activeAltMenuId === altMenu.id"
                                    [class.active]="isActiveSubTask(altMenu.id)">
                                    <span class="me-auto submenu-text">{{ altMenu.isim }}</span>
-                                   @if (altMenu.evraklar) {
+                                   @if (altMenu.evrakMenuleri) {
                                    <i class="nav-arrow bi bi-chevron-down ms-2" 
                                       [class.rotate-180]="activeAltMenuId === altMenu.id"></i>
                                    }
                               </button>
 
                               <!-- ALT MENÜ İÇİNDEKİ GÖREVLER -->
-                              @if (altMenu.evraklar && activeAltMenuId === altMenu.id) {
+                              @if (altMenu.evrakMenuleri && activeAltMenuId === altMenu.id) {
                               <div class="third-level-menu">
-                                   <!-- 1. Adım Görevi -->
-                                   @if (altMenu.evraklar.birinciAdimEvraki; as gorev1) {
-                                   <div class="third-level-section">
-                                        <button class="third-level-item  text-white w-100 "
-                                             (click)="secilialtgorev(gorev1)"
-                                             [class.active]="selectedSubTaskId === gorev1.id">
-                                             <i class="bi bi-circle me-2" style="font-size: 6px;"></i>
-                                             {{ gorev1.isim }}
-                                        </button>
-                                   </div>
-                                   }
-
-                                   <!-- 2. Adım Görevi -->
-                                   @if (altMenu.evraklar.ikinciAdimEvraki; as gorev2) {
-                                   <div class="third-level-section">
-                                        <button class="third-level-item text-white w-100 "
-                                             (click)="secilialtgorev(gorev2)"
-                                             [class.active]="selectedSubTaskId === gorev2.id">
-                                             <i class="bi bi-circle me-2" style="font-size: 6px;"></i>
-                                             {{ gorev2.isim }}
-                                        </button>
-                                   </div>
-                                   }
-
-                                   <!-- 3. Adım Görevi -->
-                                   @if (altMenu.evraklar.ucuncuAdimEvraki; as gorev3) {
-                                   <div class="third-level-section">
-                                        <button class="third-level-item  text-white w-100 "
-                                             (click)="secilialtgorev(gorev3)"
-                                             [class.active]="selectedSubTaskId === gorev3.id">
-                                             <i class="bi bi-circle me-2" style="font-size: 6px;"></i>
-                                             {{ gorev3.isim }}
+                                   @for (gorev of altMenu.evrakMenuleri; track gorev.kimlik) {
+                                   <div class="third-level-item">
+                                        <button class="btn btn-link text-white text-decoration-none w-100 py-2 px-4 border-0"
+                                             (click)="seciligorev(gorev)"
+                                             [class.active]="selectedSubTaskId === gorev.kimlik">
+                                             <span class="third-level-text">{{ gorev.isim }}</span>
                                         </button>
                                    </div>
                                    }

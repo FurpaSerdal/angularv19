@@ -1,16 +1,22 @@
-import { Component, HostListener, signal, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { fromEvent } from 'rxjs';
+import { auditTime } from 'rxjs/operators';
+
 import { SidebarComponent } from './sidebar-component/sidebar-component';
 import { NavbarComponent } from './navbar-component/navbar-component';
-import { UserService } from '../../services/data.service';
+import { MeService } from '../services/meservice.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
 
 
 @Component({
   selector: 'app-admin',
   standalone: true,
   imports: [RouterModule, CommonModule, SidebarComponent, NavbarComponent],
-  templateUrl: './admin-component.html'
+  templateUrl: './admin-component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AdminComponent implements OnInit {
   // State signals
@@ -21,24 +27,20 @@ export class AdminComponent implements OnInit {
   isMobile = signal(false);
 
   constructor(
-    public userService: UserService // UserService inject
+    public userService: MeService, // MeService inject
+    private destroyRef: DestroyRef
   ) {
     this.checkScreenSize();
+    this.initEventStreams();
   }
 
   ngOnInit() {
-    // Kullanıcı verisini çek - UserService zaten localStorage'dan yüklüyor
+    // Kullanıcı verisini çek - MeService zaten localStorage'dan yüklüyor
     if (!this.userService.userSignal()) {
       this.userService.fetchMe();
     }
   }
 
-  @HostListener('window:scroll')
-  onWindowScroll() {
-    this.showScrollButton.set(window.pageYOffset > 300);
-  }
-
-  @HostListener('window:resize')
   checkScreenSize() {
     const mobile = window.innerWidth < 992;
     this.isMobile.set(mobile);
@@ -54,6 +56,16 @@ export class AdminComponent implements OnInit {
     if (!mobile && this.isSidebarCollapsed()) {
       this.isSidebarCollapsed.set(false);
     }
+  }
+
+  private initEventStreams() {
+    fromEvent(window, 'scroll')
+      .pipe(auditTime(100), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.showScrollButton.set(window.pageYOffset > 300));
+
+    fromEvent(window, 'resize')
+      .pipe(auditTime(150), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.checkScreenSize());
   }
 
   scrollToTop() {

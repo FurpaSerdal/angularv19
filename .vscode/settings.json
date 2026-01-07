@@ -1,0 +1,7 @@
+{
+    "editor.defaultFormatter": null,
+    "chat.extensionUnification.enabled": true,
+    "chat.disableAIFeatures": false,
+    "github.copilot.chat.agent.autoFix": true,
+
+}

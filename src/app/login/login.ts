@@ -3,8 +3,8 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { UserService } from '../../services/data.service';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../services/auth.service';
+import { MeService } from '../services/meservice.service';
 
 
 @Component({
@@ -24,7 +24,7 @@ export class LoginComponent {
 
   constructor(
     private authService: AuthService, 
-    private meService: UserService, 
+    private meService: MeService, 
     private router: Router
   ) {}
 
@@ -37,7 +37,7 @@ export class LoginComponent {
   login(): void {
     this.isFormSubmitted = true;
     this.errorMessage = '';
-           // this.router.navigate(['/admin']);
+         //   this.router.navigate(['/admin']);
 
     if (this.email && this.password) {
       this.isLoading = true;
@@ -46,7 +46,7 @@ export class LoginComponent {
         next: (response: any) => {
           console.log('Giriş başarılı:', response);
           
-          this.authService.saveToken(response.accessToken);
+          this.authService.saveTokens(response.accessToken, response.refreshToken);
           this.meService.fetchMe(); // Kullanıcı bilgilerini çek
           
           // Başarı animasyonu için kısa bekleme

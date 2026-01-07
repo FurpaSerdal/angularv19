@@ -1,14 +1,19 @@
-import { Component, Input, Output, EventEmitter, HostListener, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, Output, EventEmitter, OnInit, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { UserService } from '../../../services/data.service';
-import { AltMenu, Gorev, Menu } from '../../models/user';
+import { fromEvent } from 'rxjs';
+import { auditTime } from 'rxjs/operators';
 
+import { AltMenu, Gorev, Menu } from '../../models/user';
+import { MeService } from '../../services/meservice.service';
+import { RouterHelperService } from '../../services/helper/router-helper.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 @Component({
   selector: 'app-sidebar',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  templateUrl: './sidebar-component.html'
+  templateUrl: './sidebar-component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SidebarComponent implements OnInit {
   @Input() isCollapsed: boolean = false;
@@ -23,37 +28,30 @@ export class SidebarComponent implements OnInit {
   isMobile = false;
 
   constructor(
-    public userService: UserService, // UserService inject
-    private router: Router
+    public userService: MeService, // MeService inject
+    private routerHelperService: RouterHelperService,
+    private router: Router,
+    private destroyRef: DestroyRef
   ) {
     this.checkMobile();
+    this.initResizeWatcher();
   }
 
   ngOnInit() {
     // Data is automatically handled by the service
   }
 
-  @HostListener('window:resize')
-  onResize() {
-    this.checkMobile();
-  }
-
   private checkMobile() {
     this.isMobile = window.innerWidth < 992;
   }
 
-  onTaskClick(task: Menu): void {
-    const specialNavigations: Record<string, string> = {
-      'Sayim Girişi ve Döküm': '/admin/sayim',
-      'Fatura Gönderim': '/admin/fatura',
-      'E-Fatura': '/admin/e-fatura'
-    };
+  private initResizeWatcher() {
+    fromEvent(window, 'resize')
+      .pipe(auditTime(150), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.checkMobile());
+  }
 
-    if (specialNavigations[task.isim]) {
-      this.router.navigate([specialNavigations[task.isim]]);
-      this.closeMobileSidebar();
-      return;
-    }
+  onTaskClick(task: Menu): void {
 
     this.activeTaskId = this.activeTaskId === task.id ? 0 : task.id;
     
@@ -63,39 +61,39 @@ export class SidebarComponent implements OnInit {
     }
   }
   
-seciligorev(gorev: AltMenu): void {
+seciliAltMenu(altMenu: AltMenu): void {
   // Eğer alt menünün görevleri varsa, sadece aç/kapa yap
-if (gorev.evraklar && 
-    (gorev.evraklar.birinciAdimEvraki != null ||
-     gorev.evraklar.ikinciAdimEvraki != null ||
-     gorev.evraklar.ucuncuAdimEvraki != null)) {
+if (altMenu.evrakMenuleri && 
+    altMenu.evrakMenuleri.length > 0) {
       
-     this.userService.setaltmenu(gorev)
-      localStorage.setItem('altmenu', JSON.stringify(gorev));
+     this.userService.setaltmenu(altMenu)
+      localStorage.setItem('altmenu', JSON.stringify(altMenu));     
+      this.activeAltMenuId =  this.activeAltMenuId === altMenu.id ? null : altMenu.id;
 
-  this.activeAltMenuId =  this.activeAltMenuId === gorev.id ? null : gorev.id;
-
-}else {
+}
+else {
     // Eğer alt menünün görevleri yoksa, doğrudan navigasyon yap
     this.activeAltMenuId = null;
-    this.selectedSubTaskId = gorev.id;
-    // this.userService.seçiligörev(gorev.id);
-    // this.userService.seçiliGörevAyarla(gorev.isim);
-    
-    this.router.navigate(['/admin', 'task', gorev.id]);
+    this.selectedSubTaskId = altMenu.id;
+    // this.userService.seçiligörev(altMenu.id);
+    // this.userService.seçiliGörevAyarla(altMenu.isim);
+
+    this.router.navigate(['/admin', 'task', altMenu.id]);
     this.closeMobileSidebar();
   }
 }
-secilialtgorev(gorev: Gorev): void {
-    this.selectedSubTaskId = gorev.id;
+seciligorev(gorev: Gorev): void {
+  this.selectedSubTaskId = gorev.kimlik;
 
-    // this.userService.seçiligörev(gorev.id);
-    // this.userService.seçiliGörevAyarla(gorev.isim); // gorevIsmi -> isim
-    this.userService.setgorev(gorev)
-     localStorage.setItem('gorev', JSON.stringify(gorev));
-    
-    this.router.navigate(['/admin', 'task', gorev.id]);
-    this.closeMobileSidebar();
+  this.userService.setgorev(gorev);
+  localStorage.setItem('gorev', JSON.stringify(gorev));
+
+  // RouterHelper üzerinden yönlendirme
+const altMenu = this.userService.selectedAltMenu();
+if (altMenu) {
+  this.routerHelperService.navigateByGorev( gorev);
+}
+  this.closeMobileSidebar();
 }
 
   isActiveTask(taskId: number): boolean {

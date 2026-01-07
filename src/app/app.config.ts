@@ -13,7 +13,8 @@ import localeTr from '@angular/common/locales/tr';
 import 'zone.js'; // Angular 19 normal zone’lu yapı için gerekli
 
 import { routes } from './app.routes';
-import { TokenInterceptor } from '../interceptor/token.interceptor';
+import { TokenInterceptor } from './core/interceptor/token.interceptor';
+
 
 // Türkçe yerel ayar kaydı
 registerLocaleData(localeTr);

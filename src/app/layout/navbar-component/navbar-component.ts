@@ -1,13 +1,13 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { UserService } from '../../../services/data.service';
-
+import { MeService } from '../../services/meservice.service';
 @Component({
   selector: 'app-navbar',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  templateUrl: './navbar-component.html'
+  templateUrl: './navbar-component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NavbarComponent implements OnInit {
   @Input() mobileSidebarOpen: boolean = false;
@@ -15,7 +15,7 @@ export class NavbarComponent implements OnInit {
   @Output() sidebarToggle = new EventEmitter<void>();
 
   constructor(
-    public userService: UserService, // UserService inject
+    public userService: MeService, // MeService inject
     private router: Router
   ) {}
 

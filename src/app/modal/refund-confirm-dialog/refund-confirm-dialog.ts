@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { Kalem } from '../../models/evrak_ekle';
+import { Kalem } from '../../models/evrakKaydet';
 import { CommonModule } from '@angular/common';
 
 @Component({

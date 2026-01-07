@@ -7,14 +7,14 @@
     Evrak Bilgileri
   </div>
 
-  <div class="d-flex gap-2">
+  <!-- <div class="d-flex gap-2">
     <button *ngIf="veri.malKabulFazlasiVar==true" class="btn btn-secondary" (click)="alinanSipOlustur()">
       Alınan Sipariş Oluştur
     </button>
     <button class="btn btn-danger" (click)="kapat()">
       Kapat
     </button>
-  </div>
+  </div> -->
 </div>
     <div class="card-body">
       <div class="row g-3 mb-3">
@@ -238,7 +238,7 @@
             <th>Mal Kabul Miktarı</th>
             <th>Fark</th>
             <th>Son Kullanım</th>
-            <th>Fiyat</th>
+            <!-- <th>Fiyat</th> -->
             <th>Açıklama</th>
           </tr>
         </thead>
@@ -265,13 +265,13 @@
               </span>
             </td>
             <td>{{ kalem.sonKullanimTarihi | date:'dd.MM.yyyy' }}</td>
-            <td>
-              {{ kalem.stok.fiyat.fiyati | currency:'TRY':'symbol':'1.2-2' }}
-            </td>
+            <!-- <td>
+              {{ kalem.stok.fiyat.fiyat | currency:'TRY':'symbol':'1.2-2' }}
+            </td> -->
             <td>{{ kalem.aciklama || '-' }}</td>
           </tr>
         </tbody>
-        <tfoot class="table-secondary">
+        <!-- <tfoot class="table-secondary">
           <tr>
             <td colspan="6" class="text-end"><strong>Toplam:</strong></td>
             <td><strong>{{ getToplamSiparisMiktari() }}</strong></td>
@@ -280,7 +280,7 @@
             <td><strong>{{ getToplamFarkMiktari() }}</strong></td>
             <td colspan="3"></td>
           </tr>
-        </tfoot>
+        </tfoot> -->
       </table>
     </div>
 

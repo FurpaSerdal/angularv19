@@ -1,0 +1,306 @@
+<div class="container-fluid">
+    
+
+    <div class="row">
+        <div class="col-12 d-flex justify-content-center my-4">
+            <h2>Envanter Sayım Sonuçları</h2>
+        </div>
+    </div>
+
+    <!-- DATE FILTER SECTION -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <!-- Filter Type Selection -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Dönem Seç:</label>
+                            <div class="btn-group w-100" role="group">
+                                <input 
+                                    type="radio" 
+                                    class="btn-check" 
+                                    name="filterType" 
+                                    id="bugun" 
+                                    value="bugun"
+                                    [(ngModel)]="dateFilterType"
+                                    (change)="onFilterTypeChange()">
+                                <label class="btn btn-outline-primary" for="bugun">Bugün</label>
+
+                                <input 
+                                    type="radio" 
+                                    class="btn-check" 
+                                    name="filterType" 
+                                    id="dun" 
+                                    value="dun"
+                                    [(ngModel)]="dateFilterType"
+                                    (change)="onFilterTypeChange()">
+                                <label class="btn btn-outline-primary" for="dun">Dün</label>
+
+                                <input 
+                                    type="radio" 
+                                    class="btn-check" 
+                                    name="filterType" 
+                                    id="bu-hafta" 
+                                    value="bu-hafta"
+                                    [(ngModel)]="dateFilterType"
+                                    (change)="onFilterTypeChange()">
+                                <label class="btn btn-outline-primary" for="bu-hafta">Bu Hafta</label>
+
+                                <input 
+                                    type="radio" 
+                                    class="btn-check" 
+                                    name="filterType" 
+                                    id="bu-ay" 
+                                    value="bu-ay"
+                                    [(ngModel)]="dateFilterType"
+                                    (change)="onFilterTypeChange()">
+                                <label class="btn btn-outline-primary" for="bu-ay">Bu Ay</label>
+
+                                <input 
+                                    type="radio" 
+                                    class="btn-check" 
+                                    name="filterType" 
+                                    id="ozel-tarih" 
+                                    value="aralik"
+                                    [(ngModel)]="dateFilterType"
+                                    (change)="onFilterTypeChange()">
+                                <label class="btn btn-outline-primary" for="ozel-tarih">Tarih Aralığı</label>
+                            </div>
+                        </div>
+
+                        <!-- Date Picker (only shown when custom date is selected) -->
+                        <div class="col-md-6" *ngIf="dateFilterType() === 'aralik'">
+                            <label class="form-label fw-bold">Tarih Aralığı:</label>
+                            <div class="row g-2" [formGroup]="dateRange">
+                                <div class="col-6">
+                                    <label for="startDate" class="form-label">Başlangıç:</label>
+                                    <input 
+                                        type="date" 
+                                        class="form-control" 
+                                        id="startDate"
+                                        formControlName="start"
+                                        (change)="onDateRangeChange()">
+                                </div>
+                                <div class="col-6">
+                                    <label for="endDate" class="form-label">Bitiş:</label>
+                                    <input 
+                                        type="date" 
+                                        class="form-control" 
+                                        id="endDate"
+                                        formControlName="end"
+                                        (change)="onDateRangeChange()">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 d-flex justify-content-start mb-3">
+            <button class="btn btn-primary" (click)="newInventoryCount()">
+                <i class="bi bi-plus-circle me-1"></i>
+                Yeni Sayım
+            </button>
+        </div>
+    </div>
+    
+
+
+
+
+    <div class="row">
+        <div class="col-12">
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered align-middle">
+                    <thead class="table-primary">
+                        <tr>
+                            <th (click)="sortBy('sym_evrakno')" style="cursor:pointer" class="text-center">
+                                <div class="d-flex align-items-center justify-content-center">
+                                    Evrak No
+                                    <i *ngIf="sortColumn === 'sym_evrakno'" class="bi ms-1" [ngClass]="{
+         'bi-caret-up-fill': sortDirection === 'asc',
+         'bi-caret-down-fill': sortDirection === 'desc'
+       }">
+                                    </i>
+                                </div>
+                            </th>
+
+                            <th (click)="sortBy('sayan')" style="cursor:pointer">
+                                <div class="d-flex align-items-center">
+                                    Sayan
+                                    <i *ngIf="sortColumn === 'sayan'" class="bi ms-1" [ngClass]="{
+         'bi-caret-up-fill': sortDirection === 'asc',
+         'bi-caret-down-fill': sortDirection === 'desc'
+       }">
+                                    </i>
+                                </div>
+                            </th>
+
+                            <th (click)="sortBy('sym_depono')" style="cursor:pointer" class="text-center">
+                                <div class="d-flex align-items-center justify-content-center">
+                                    Depo No
+                                    <i *ngIf="sortColumn === 'sym_depono'" class="bi ms-1" [ngClass]="{
+         'bi-caret-up-fill': sortDirection === 'asc',
+         'bi-caret-down-fill': sortDirection === 'desc'
+       }">
+                                    </i>
+                                </div>
+                            </th>
+
+                            <th (click)="sortBy('sym_tarihi')" style="cursor:pointer" class="text-center">
+                                <div class="d-flex align-items-center justify-content-center">
+                                    Sayım Tarihi
+                                    <i *ngIf="sortColumn === 'sym_tarihi'" class="bi ms-1" [ngClass]="{
+         'bi-caret-up-fill': sortDirection === 'asc',
+         'bi-caret-down-fill': sortDirection === 'desc'
+       }">
+                                    </i>
+                                </div>
+                            </th>
+
+                            <th (click)="sortBy('seri')" style="cursor:pointer" class="text-center">
+                                <div class="d-flex align-items-center justify-content-center">
+                                    Seri
+                                    <i *ngIf="sortColumn === 'seri'" class="bi ms-1" [ngClass]="{
+         'bi-caret-up-fill': sortDirection === 'asc',
+         'bi-caret-down-fill': sortDirection === 'desc'
+       }">
+                                    </i>
+                                </div>
+                            </th>
+
+                            <th class="text-center" style="width: 120px;">İşlemler</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody *ngIf="listOfData.length; else noData">
+                        <tr *ngFor="let item of listOfData">
+                            <td class="text-center fw-bold">
+                                <span class="badge bg-secondary">{{ item.sym_evrakno }}</span>
+                            </td>
+                            <td>
+                                <i class="bi bi-person-fill text-primary me-2"></i>
+                                {{ item.sayan }}
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-info text-dark">{{ item.sym_depono }}</span>
+                            </td>
+                            <td class="text-center">
+                                <i class="bi bi-calendar-event text-success me-2"></i>
+                                {{ item.sym_tarihi | date:'dd/MM/yyyy' }}
+                            </td>
+                            <td class="text-center">
+                                {{ item.seri || '-' }}
+                            </td>
+                            <td class="text-center">
+                                <button 
+                                    class="btn btn-sm btn-primary" 
+                                    (click)="showDetail(item)"
+                                    title="Detayları Görüntüle">
+                                    <i class="bi bi-eye me-1"></i>
+                                    Detay
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <ng-template #noData>
+                    <div class="text-center text-muted py-3">
+                        <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                        <p class="mt-2">Kayıt bulunamadı</p>
+                    </div>
+                </ng-template>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- BOOTSTRAP DETAIL MODAL -->
+    <div class="modal fade" [class.show]="showDetailModal()" [style.display]="showDetailModal() ? 'block' : 'none'" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Sayım Detayı</h5>
+                    <button 
+                        type="button" 
+                        class="btn-close" 
+                        (click)="closeDetailModal()"
+                        aria-label="Close">
+                    </button>
+                </div>
+                <div class="modal-body" *ngIf="detailData()">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title fw-bold">Genel Bilgiler</h6>
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <p><strong>Seri:</strong> {{ detailData().seri || '-' }}</p>
+                                    <p><strong>Evrak No:</strong> {{ detailData().sym_evrakno }}</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <p><strong>Tarih:</strong> {{ detailData().sym_tarihi | date:'dd/MM/yyyy' }}</p>
+                                    <p><strong>Depo No:</strong> {{ detailData().sym_depono }}</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <p><strong>Sayan:</strong> {{ detailData().sayan }}</p>
+                                </div>
+                            </div>
+
+                            <!-- Items Table if available -->
+                            <div *ngIf="detailData().kalemler && detailData().kalemler.length > 0">
+                                <h6 class="card-title fw-bold mt-4">Kalemler</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover table-striped">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Stok Kodu</th>
+                                                <th>Stok Adı</th>
+                                                <th class="text-end">Miktar</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let kalem of detailData().kalemler; let i = index">
+                                                <td>{{ i + 1 }}</td>
+                                                <td>{{ kalem.stokkodu }}</td>
+                                                <td>{{ kalem.stokAti || '-' }}</td>
+                                                <td class="text-end">{{ kalem.miktar1 }}</td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot class="table-light">
+                                            <tr>
+                                                <th colspan="3" class="text-end">Toplam Kalem Sayısı:</th>
+                                                <th class="text-end">{{ detailData().kalemler.length }}</th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button 
+                        type="button" 
+                        class="btn btn-secondary" 
+                        (click)="closeDetailModal()">
+                        Kapat
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal Backdrop -->
+    <div 
+        class="modal-backdrop fade" 
+        [class.show]="showDetailModal()" 
+        *ngIf="showDetailModal()">
+    </div>
+
+</div>

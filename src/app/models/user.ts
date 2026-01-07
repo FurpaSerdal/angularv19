@@ -16,17 +16,11 @@ export interface Menu {
 export interface AltMenu {
   id: number;
   isim: string;
-  evraklar?: Gorevler;  // Görevler alt menü içinde olmalı
-}
-
-export interface Gorevler {
-  birinciAdimEvraki?: Gorev;
-  ikinciAdimEvraki?: Gorev;
-  ucuncuAdimEvraki?: Gorev | null;
+  evrakMenuleri?: Gorev[];  // Görevler alt menü içinde olmalı
 }
 
 export interface Gorev {
-  id: number;
+  kimlik: number;
   isim: string;
 }
 
