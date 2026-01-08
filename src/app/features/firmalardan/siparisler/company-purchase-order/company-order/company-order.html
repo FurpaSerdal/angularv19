@@ -1,281 +1,310 @@
 <!-- pages/company-order/company-order.html -->
-<div class="container-fluid py-3 company-order-page">
+<div class="container-fluid py-3">
 
-  <!-- SAYFA BAŞLIĞI -->
-  <div class="row mb-3 align-items-center">
-    <div class="col-md-8">
-      <h4 class="mb-1 fw-semibold">
-        <i class="bi bi-bag-check me-2"></i>
-        Firma Sipariş Oluşturma
-      </h4>
-      <p class="text-muted mb-0">
-        Firma seç, ürünleri ekle ve teslimat bilgilerini doldurup siparişi kaydet.
-      </p>
-    </div>
-    <div class="col-md-4 text-md-end mt-2 mt-md-0">
-      <span class="badge bg-primary-subtle text-primary px-3 py-2">
-        Toplam Kalem: <strong>{{ toplamKalemSayisi }}</strong>
-      </span>
-      <span class="badge bg-success-subtle text-success px-3 py-2 ms-2">
-        Toplam Tutar: 
-        <strong>{{ toplamTutar | number:'1.2-2' }} ₺</strong>
-      </span>
+  <!-- BAŞLIK -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex align-items-center mb-3">
+        <i class="bi bi-bag-plus fs-3 text-primary me-3"></i>
+        <div>
+          <h3 class="mb-1">Firma Siparişi</h3>
+          <p class="text-muted mb-0">Yeni sipariş oluştur</p>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- FORM & ÖZET -->
-  <div class="row g-3 mb-3">
-    <!-- SOL BÖLÜM: FORM -->
-    <div class="col-lg-8">
-      <div class="card shadow-sm h-100">
-        <div class="card-header bg-white border-0 pb-0">
-          <ul class="nav nav-tabs card-header-tabs small">
-            <li class="nav-item">
-              <span class="nav-link active">
-                Temel Bilgiler
-              </span>
-            </li>
-            <li class="nav-item">
-              <span class="nav-link disabled">
-                Teslimat & Evrak Bilgileri
-              </span>
-            </li>
-          </ul>
-        </div>
-
-        <!-- <div class="card-body">
-            <div class="row">
-              <div class="col-md-4">
-                    <label for="">muhattapyetkili</label>
-            <input type="text" class="form-control"  [(ngModel)]="postorder.muhatapFirma.sofor!.adi">
+  <!-- FIRMA SEÇİMİ -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title mb-3">
+            <i class="bi bi-building me-2"></i>
+            Firma Seçimi
+          </h5>
           
+          <div class="row align-items-end mb-4">
+            <div class="col-md-8">
+              <label class="form-label">Firma Ara</label>
+              <div class="input-group">
+                <input type="text"
+                       class="form-control"
+                       [(ngModel)]="searchInput"
+                       (ngModelChange)="firmaAra()"
+                       placeholder="Firma kodu veya ünvanı girin...">
+                <button class="btn btn-outline-secondary" type="button">
+                  <i class="bi bi-search"></i>
+                </button>
               </div>
             </div>
-        
-       
-  
-        </div> -->
-      </div>
-    </div>
-
-    <!-- SAĞ BÖLÜM: SEÇİLİ FİRMA & ÖZET -->
-    <div class="col-lg-4">
-      <div class="card shadow-sm mb-3">
-        <div class="card-header bg-primary text-white py-2">
-          <small class="fw-semibold">
-            <i class="bi bi-building me-2"></i>Seçili Firma
-          </small>
-        </div>
-        <div class="card-body small">
-          <div *ngIf="seciliFirma; else noFirma">
-            <div class="mb-2">
-              <div class="fw-semibold">{{ seciliFirma.cariKod }}</div>
-              <div>{{ seciliFirma.cariUnvan }}</div>
-            </div>
-            <div class="text-muted">
-              Vergi No: {{ seciliFirma.vergiKimlikNo }}
+            <div class="col-md-4">
+              <div class="d-grid">
+                <button class="btn btn-outline-secondary" (click)="temizle()">
+                  <i class="bi bi-x-lg me-1"></i> Temizle
+                </button>
+              </div>
             </div>
           </div>
-          <ng-template #noFirma>
-            <div class="text-muted">
-              Henüz firma seçilmedi. Soldan firma arayarak seçim yapın.
+
+          <!-- Seçili Firma -->
+          <div *ngIf="seciliFirma" class="alert alert-success mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <strong>{{ seciliFirma.cariUnvan }}</strong>
+                <div class="text-muted small mt-1">
+                  Kod: {{ seciliFirma.cariKod }} • Vergi No: {{ seciliFirma.vergiKimlikNo }}
+                </div>
+              </div>
+              <button class="btn btn-sm btn-outline-danger" (click)="seciliFirma = null">
+                <i class="bi bi-x"></i>
+              </button>
             </div>
-          </ng-template>
-        </div>
-      </div>
-
-      <div class="card shadow-sm">
-        <div class="card-header bg-light py-2">
-          <small class="fw-semibold">
-            <i class="bi bi-clipboard-data me-2"></i>Sipariş Özeti
-          </small>
-        </div>
-        <div class="card-body small">
-          <div class="d-flex justify-content-between mb-2">
-            <span>Toplam Kalem</span>
-            <span class="fw-semibold">{{ toplamKalemSayisi }}</span>
           </div>
-          <div class="d-flex justify-content-between mb-2">
-            <span>Toplam Tutar</span>
-            <span class="fw-semibold text-success">
-              {{ toplamTutar | number:'1.2-2' }} ₺
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- FIRMA & ÜRÜN ARAMA -->
-  <div class="row g-3 mb-3">
-    <!-- Firma Arama -->
-    <div class="col-md-6">
-      <div class="card shadow-sm h-100">
-        <div class="card-header bg-light py-2">
-          <small class="fw-semibold">
-            <i class="bi bi-search me-2"></i>Firma Arama
-          </small>
-        </div>
-        <div class="card-body">
-          <label class="form-label small">Firma Ara</label>
-          <input type="search"
-                 class="form-control form-control-sm"
-                 [(ngModel)]="searchInput"
-                 name="firmaSearch"
-                 (ngModelChange)="firmaAra()"
-                 placeholder="Firma kodu veya ünvanı girin...">
 
           <!-- Arama Sonuçları -->
-          <div class="mt-2" *ngIf="bulunanFirmalar.length > 0">
-            <div class="list-group list-group-flush small">
+          <div *ngIf="bulunanFirmalar.length > 0" class="mt-3">
+            <h6 class="text-muted mb-2">Bulunan Firmalar</h6>
+            <div class="list-group">
               <button type="button"
                       class="list-group-item list-group-item-action"
                       *ngFor="let firma of bulunanFirmalar"
                       (click)="firmaSec(firma)">
-                <div class="fw-semibold">
-                  {{ firma.cariKod }} - {{ firma.cariUnvan }}
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <strong>{{ firma.cariUnvan }}</strong>
+                    <div class="text-muted small">{{ firma.cariKod }}</div>
+                  </div>
+                  <i class="bi bi-chevron-right text-muted"></i>
                 </div>
-                <small class="text-muted">
-                  Vergi No: {{ firma.vergiKimlikNo }}
-                </small>
               </button>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Ürün Arama -->
-    <div class="col-md-6">
-      <div class="card shadow-sm h-100">
-        <div class="card-header bg-light py-2">
-          <small class="fw-semibold">
-            <i class="bi bi-box-seam me-2"></i>Ürün Arama
-          </small>
-        </div>
-        <div class="card-body">
-          <label class="form-label small">Ürün Ara</label>
-          <input type="text"
-                 class="form-control form-control-sm"
-                 [(ngModel)]="arananUrun"
-                 name="urunSearch"
-                 (ngModelChange)="urunAra()"
-                 placeholder="Ürün adı veya kodu girin..."
-                 [disabled]="!postorder.muhatapFirma.no">
-
-          <div *ngIf="!postorder.muhatapFirma.no" class="mt-1">
-            <small class="text-warning">Önce firma seçmelisiniz.</small>
-          </div>
-
-          <!-- Arama Sonuçları -->
-          <div class="mt-2" *ngIf="bulunanUrunler.length > 0">
-            <div class="list-group list-group-flush small">
-              <button type="button"
-                      class="list-group-item list-group-item-action"
-                      *ngFor="let urun of bulunanUrunler"
-                      (click)="urunSec(urun)">
-                <div class="fw-semibold">
-                  {{ urun.stokKod }} - {{ urun.stokIsim }}
-                </div>
-                <small class="text-muted">
-                  Barkod: {{ urun.barKodu }} •
-                  Fiyat: {{ urun.fiyati | number:'1.2-2' }} ₺
-                </small>
-              </button>
-            </div>
+          <!-- Firma Seçilmedi Uyarısı -->
+          <div *ngIf="!seciliFirma && !bulunanFirmalar.length" class="text-center py-4 text-muted">
+            <i class="bi bi-building fs-1 mb-2 d-block"></i>
+            <p>Lütfen firma seçin</p>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- KALEMLER TABLOSU -->
-  <div class="row mb-3" *ngIf="postorder.kalemler.length > 0">
+  <!-- ÜRÜN EKLEME -->
+  <div class="row mb-4" *ngIf="seciliFirma">
     <div class="col-12">
-      <div class="card shadow-sm">
-        <div class="card-header bg-white py-2 d-flex justify-content-between align-items-center">
-          <small class="fw-semibold">
-            <i class="bi bi-list-ul me-2"></i>Sipariş Kalemleri
-          </small>
-          <small class="text-muted">
-            {{ toplamKalemSayisi }} kalem • {{ toplamTutar | number:'1.2-2' }} ₺
-          </small>
-        </div>
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-striped table-hover mb-0 align-middle table-sm">
-              <thead class="table-light">
-                <tr>
-                  <th>Stok Adı</th>
-                  <th>Stok Kodu</th>
-                  <th>Barkod</th>
-                  <th>Birim</th>
-                  <th class="text-end">Fiyat</th>
-                  <th class="text-center" width="120">Miktar</th>
-                  <th width="60"></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let kalem of postorder.kalemler; let i = index; trackBy: trackByKalemIndex">
-                  <td>{{ kalem.stok.stokIsim }}</td>
-                  <td>{{ kalem.stok.stokKod }}</td>
-                  <td>{{ kalem.stok.barkodlar[0]?.barKodu }}</td>
-                  <td>{{ kalem.stok.birimAd }}</td>
-                  <td class="text-end">
-                    {{ kalem.stok.fiyat.fiyati| number:'1.2-2' }}
-                  </td>
-                  <td class="text-center">
-                    <input type="number"
-                           class="form-control form-control-sm text-center"
-                           [(ngModel)]="kalem.miktar"
-                           name="miktar{{i}}"
-                           min="1">
-                  </td>
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title mb-3">
+            <i class="bi bi-box me-2"></i>
+            Ürün Ekle
+          </h5>
           
-                  <td class="text-center">
-                    <button type="button"
-                            class="btn btn-sm btn-outline-danger"
-                            (click)="kalemSil(i)"
-                            title="Sil">
-                      <i class="bi bi-trash"></i>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-              <tfoot class="table-light">
-                <tr>
-                  <th colspan="6" class="text-end">Genel Toplam</th>
-                  <th class="text-end">
-                    {{ toplamTutar | number:'1.2-2' }} ₺
-                  </th>
-                  <th></th>
-                </tr>
-              </tfoot>
-            </table>
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <label class="form-label">Ürün Ara</label>
+              <input type="text"
+                     class="form-control"
+                     [(ngModel)]="arananUrun"
+                     (ngModelChange)="urunAra()"
+                     placeholder="Ürün adı veya kodu girin...">
+            </div>
+          </div>
+
+          <!-- Ürün Arama Sonuçları -->
+          <div *ngIf="bulunanUrunler.length > 0" class="mb-4">
+            <div class="row g-2">
+              <div class="col-md-6" *ngFor="let urun of bulunanUrunler">
+                <div class="border rounded p-3 d-flex justify-content-between align-items-center hover-shadow">
+                  <div>
+                    <strong>{{ urun.stokIsim }}</strong>
+                    <div class="text-muted small">
+                      {{ urun.stokKod }} • {{ urun.fiyati | number:'1.2-2' }} ₺
+                    </div>
+                  </div>
+                  <button class="btn btn-sm btn-primary" (click)="urunSec(urun)">
+                    <i class="bi bi-plus-lg"></i> Ekle
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Kalemler -->
+          <div *ngIf="postorder.kalemler.length > 0" class="mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="mb-0">Sipariş Kalemleri</h6>
+              <span class="badge bg-primary">{{ getToplamTutar() | number:'1.2-2' }} ₺</span>
+            </div>
+            
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Ürün</th>
+                    <th class="text-center">Miktar</th>
+                    <th class="text-end">Birim Fiyat</th>
+                    <th class="text-end">Tutar</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let kalem of postorder.kalemler; let i = index">
+                    <td>
+                      <div>
+                        <strong>{{ kalem.stok?.stokIsim }}</strong>
+                        <div class="text-muted small">
+                          {{ kalem.stok?.stokKod }}
+                        </div>
+                      </div>
+                    </td>
+                    <td class="text-center">
+                      <div class="d-flex align-items-center justify-content-center">
+                        <button class="btn btn-sm btn-outline-secondary" 
+                                (click)="kalemMiktarAzalt(i)"
+                                [disabled]="(kalem.siparisMiktari || 0) <= 1">
+                          <i class="bi bi-dash"></i>
+                        </button>
+                        <input type="number"
+                               class="form-control form-control-sm text-center mx-2"
+                               style="width: 70px;"
+                               [ngModel]="kalem.siparisMiktari || 0"
+                               (ngModelChange)="kalemMiktarDegistir(i, $event)"
+                               min="1">
+                        <button class="btn btn-sm btn-outline-secondary" 
+                                (click)="kalemMiktarArttir(i)">
+                          <i class="bi bi-plus"></i>
+                        </button>
+                      </div>
+                    </td>
+                    <td class="text-end">
+                      {{ kalem.stok?.fiyat?.fiyati | number:'1.2-2' }} ₺
+                    </td>
+                    <td class="text-end fw-bold">
+                      {{ getKalemTutar(kalem) | number:'1.2-2' }} ₺
+                    </td>
+                    <td class="text-end">
+                      <button class="btn btn-sm btn-outline-danger" 
+                              (click)="kalemSil(i)"
+                              title="Sil">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Ürün Yok -->
+          <div *ngIf="postorder.kalemler.length === 0" class="text-center py-4 text-muted">
+            <i class="bi bi-cart fs-1 mb-2 d-block"></i>
+            <p>Henüz ürün eklenmedi</p>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- KAYDET BUTONU & MESAJLAR -->
-  <div class="row">
-    <div class="col-md-8">
-      <div *ngIf="saveError" class="alert alert-danger py-2">
-        {{ saveError }}
-      </div>
-      <div *ngIf="saveSuccess" class="alert alert-success py-2">
-        Sipariş başarıyla kaydedildi.
+  <!-- SİPARİŞ BİLGİLERİ -->
+  <div class="row mb-4" *ngIf="seciliFirma && postorder.kalemler.length > 0">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title mb-3">
+            <i class="bi bi-info-circle me-2"></i>
+            Sipariş Bilgileri
+          </h5>
+          
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Teslimat Tarihi</label>
+              <input type="date"
+                     class="form-control"
+                     [(ngModel)]="postorder.teslimTarihi">
+            </div>
+            
+            <div class="col-md-6">
+              <label class="form-label">İade Tipi</label>
+              <select class="form-select"
+                      [(ngModel)]="postorder.noksanFazlaIadesi">
+                <option [value]="0">Eksik Düzeltme İadesi</option>
+                <option [value]="1">Fazla İadesi</option>
+                <option [value]="2">Fazla Düzeltme Sevki</option>
+              </select>
+            </div>
+            
+            <div class="col-md-6">
+              <label class="form-label">Siparişi Veren</label>
+              <input type="text"
+                     class="form-control"
+                     [(ngModel)]="postorder.siparisEden"
+                     placeholder="Adı soyadı">
+            </div>
+            
+            <div class="col-md-6">
+              <label class="form-label">Siparişi Alan</label>
+              <input type="text"
+                     class="form-control"
+                     [(ngModel)]="postorder.siparisAlan"
+                     placeholder="Adı soyadı">
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="col-md-4 text-md-end mt-2 mt-md-0">
-      <button class="btn btn-primary px-4"
-              (click)="kaydet()"
-              [disabled]="isSaving">
-        <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-2"></span>
-        <i class="bi bi-check-lg me-2" *ngIf="!isSaving"></i>
-        Siparişi Kaydet
-      </button>
+  </div>
+
+  <!-- ÖZET VE KAYDET -->
+  <div class="row" *ngIf="seciliFirma && postorder.kalemler.length > 0">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="mb-1">Sipariş Özeti</h6>
+              <p class="text-muted mb-0">
+                {{ postorder.kalemler.length }} kalem • 
+                Toplam: {{ getToplamTutar() | number:'1.2-2' }} ₺
+              </p>
+            </div>
+            
+            <div class="d-flex gap-2">
+              <button class="btn btn-secondary"
+                      (click)="temizle()"
+                      [disabled]="isSaving">
+                <i class="bi bi-x-lg me-1"></i> İptal
+              </button>
+              
+              <button class="btn btn-primary px-4"
+                      (click)="kaydet()"
+                      [disabled]="isSaving">
+                <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-2"></span>
+                <i class="bi bi-check-lg me-1" *ngIf="!isSaving"></i>
+                {{ isSaving ? 'Kaydediliyor...' : 'Siparişi Kaydet' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HATA/BAŞARI MESAJLARI -->
+  <div class="row mt-3">
+    <div class="col-12">
+      <div *ngIf="saveError" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        {{ saveError }}
+        <button type="button" class="btn-close" (click)="saveError = null"></button>
+      </div>
+      
+      <div *ngIf="saveSuccess" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>
+        Sipariş başarıyla kaydedildi.
+        <button type="button" class="btn-close" (click)="saveSuccess = false"></button>
+      </div>
     </div>
   </div>
 </div>

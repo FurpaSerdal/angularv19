@@ -1,6 +1,5 @@
 <div class="container my-3">
     <div class="card shadow-sm border-0 rounded-3">
-
         <!-- Header -->
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
             <div class="d-flex align-items-center">
@@ -10,212 +9,176 @@
                     <small class="opacity-75">Mal kabul işlemlerinizi buradan yapabilirsiniz</small>
                 </div>
             </div>
-
             <button class="btn btn-sm btn-light" (click)="kapat()">
                 <i class="bi bi-x me-1"></i> Kapat
             </button>
         </div>
 
         <div class="card-body">
+            <!-- Depo Seçimi -->
+          <div class="card shadow-sm border-0 mb-4">
+  <div class="card-body">
+    <div class="row g-4 align-items-center">
 
-            <!-- Evrak Bilgileri -->
-            <div class="text-center mb-4">
-                <div class="d-inline-flex align-items-center bg-primary bg-opacity-10 p-2 rounded-circle me-2">
-                    <i class="bi bi-file-earmark-text text-primary fs-5"></i>
-                </div>
-                <h4 class="fw-semibold text-primary mb-0">Evrak Bilgileri</h4>
-            </div>
+      <!-- Depo Seçimi -->
+      <div class="col-md-6">
+        <label class="form-label fw-semibold text-primary mb-2">
+          <i class="bi bi-shop me-2"></i>Depo Seçimi
+        </label>
 
-            <div class="row g-3">
+        <select
+          class="form-select border-primary border-2 rounded-3"
+          [(ngModel)]="karsiDepo"
+        >
+          <option value="0" disabled>Depo seçiniz</option>
+          <option value="50">Merkez</option>
+          <option value="55">Unlu</option>
+          <option value="56">Manav</option>
+        </select>
+      </div>
 
-                <!-- Depo -->
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold">
-                        <i class="bi bi-shop me-2"></i>Depo Seçimi
-                    </label>
-                    <select class="form-select" [(ngModel)]="karsiDepo">
-                        <option value="0" disabled selected>Depo seçiniz</option>
-                        <option value="50">Merkez</option>
-                        <option value="55">Unlu</option>
-                        <option value="56">Manav</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="form-label fw-semibold">
-                        <i class="bi bi-arrow-repeat me-2"></i>İade
-                    </label>
-                    <input type="checkbox" class="form-check-input"
-                           [(ngModel)]="iade">
-                </div>
+      <!-- İade Switch -->
+      <div class="col-md-6 d-flex justify-content-md-end">
+        <div class="form-check form-switch d-flex align-items-center">
+          <input
+            class="form-check-input fs-5"
+            type="checkbox"
+            role="switch"
+            [(ngModel)]="iade"
+            id="iadeSwitch"
+          />
+          <label
+            class="form-check-label fw-semibold text-primary ms-3"
+            for="iadeSwitch"
+          >
+            <i class="bi bi-arrow-repeat me-2"></i>İade
+          </label>
+        </div>
+      </div>
 
-                <!-- Düzenleyen -->
-                <!-- <div class="col-md-6">
-                    <label class="form-label fw-semibold">
-                        <i class="bi bi-person me-2"></i>Düzenleyen
-                    </label>
-                    <input type="text" class="form-control"
-                           [(ngModel)]="postorder.depo.isim"
-                           placeholder="Ad soyad giriniz">
-                </div> -->
+    </div>
+  </div>
+</div>
 
-                <!-- Muhatap -->
-                <!-- <div class="col-md-6">
-                    <label class="form-label fw-semibold">
-                        <i class="bi bi-person-check me-2"></i>Muhatap
-                    </label>
-                    <input type="text" class="form-control"
-                           [(ngModel)]="postorder.muhatapDepo.isim"
-                           placeholder="Ad soyad giriniz">
-                </div> -->
 
-                <!-- Şoför Adı -->
-                <!-- <div class="col-md-6">
-                    <label class="form-label fw-semibold">
-                        <i class="bi bi-person-vcard me-2"></i>Şoför Adı
-                    </label>
-                    <input type="text" class="form-control"
-                           [(ngModel)]="postorder.depo.sofor!.adi"
-                           placeholder="Şoför adı">
-                </div> -->
-
-                <!-- Şoför Soyadı -->
-                <!-- <div class="col-md-6">
-                    <label class="form-label fw-semibold">
-                        <i class="bi bi-person-vcard me-2"></i>Şoför Soyadı
-                    </label>
-                    <input type="text" class="form-control"
-                           [(ngModel)]="postorder.depo.sofor!.soyAdi"
-                           placeholder="Şoför soyadı">
-                </div> -->
-
-                <!-- Plaka -->
-                <!-- <div class="col-md-6">
-                    <label class="form-label fw-semibold">
-                        <i class="bi bi-truck me-2"></i>Araç Plakası
-                    </label>
-                    <input type="text" class="form-control"
-                           [(ngModel)]="postorder.depo.sofor!.aracPlakasi"
-                           placeholder="Plaka giriniz">
-                </div> -->
-
-            </div>
-
-            <!-- Line -->
-            <hr class="my-4">
-
-            <!-- Ürün İşlemleri Header -->
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h4 class="fw-semibold text-primary mb-0">
-                    <i class="bi bi-box-seam me-2"></i>Ürün İşlemleri
-                </h4>
-                <span class="badge bg-primary px-3 py-2">
-                    {{ dataSource.data.length }} ürün
-                </span>
-            </div>
-
-            <!-- Arama Kutusu -->
-            <div class="card mb-3 border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="input-group">
-                        <span class="input-group-text">
-                            <i class="bi bi-search"></i>
+            <!-- Ürün İşlemleri -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="fw-semibold text-primary mb-0">
+                            <i class="bi bi-box-seam me-2"></i>Ürün İşlemleri
+                        </h4>
+                        <span class="badge bg-primary px-3 py-2">
+                            {{ dataSource.data.length }} ürün
                         </span>
-                        <input type="text" class="form-control"
-                               [(ngModel)]="aramaGirdisi"
-                               (keyup.enter)="urunAra(aramaGirdisi())"
-                               placeholder="Ürün adı veya kodu ile arayın">
-
-                        <button class="btn btn-success" (click)="urunAra(aramaGirdisi())">
-                            Ara
-                        </button>
                     </div>
-
-                    <!-- Arama Sonuçları -->
-                    <div *ngIf="bulunanUrunler().length > 0" class="mt-3">
-                        <div class="list-group">
-                            <button *ngFor="let urun of bulunanUrunler()"
-                                    class="list-group-item list-group-item-action"
-                                    (click)="urunSec(urun)">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <strong>{{ urun.stokIsim }}</strong>
-                                        <div class="small text-muted">{{ urun.stokKod }}</div>
-                                    </div>
-                                    <span class="badge bg-info">
-                                        {{ urun.birimAd }}
-                                    </span>
-                                </div>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Arama -->
+                    <div class="mb-4">
+                        <div class="input-group shadow-sm">
+                            <span class="input-group-text bg-white border-end-0">
+                                <i class="bi bi-search text-primary"></i>
+                            </span>
+                            <input type="text" class="form-control border-start-0" 
+                                   [(ngModel)]="aramaGirdisi"
+                                   (keyup.enter)="urunAra(aramaGirdisi())"
+                                   placeholder="Ürün adı veya kodu ile arayın">
+                            <button class="btn btn-primary" (click)="urunAra(aramaGirdisi())">
+                                <i class="bi bi-search me-1"></i>Ara
                             </button>
                         </div>
+
+                        <!-- Arama Sonuçları -->
+                        <div *ngIf="bulunanUrunler().length > 0" class="mt-3">
+                            <div class="list-group shadow-sm">
+                                <button *ngFor="let urun of bulunanUrunler()"
+                                        class="list-group-item list-group-item-action border-start-0 border-end-0 py-2"
+                                        (click)="urunSec(urun)">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong class="text-primary">{{ urun.stokIsim }}</strong>
+                                            <div class="small text-muted mt-1">
+                                                <i class="bi bi-upc-scan me-1"></i>{{ urun.stokKod }}
+                                            </div>
+                                        </div>
+                                        <span class="badge bg-info">
+                                            {{ urun.birimAd }}
+                                        </span>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ürün Tablosu -->
+                    <div class="table-responsive rounded shadow-sm">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-primary">
+                                <tr>
+                                    <th class="border-0">Ürün Adı</th>
+                                    <th class="border-0">Kod</th>
+                                    <th class="border-0">Birim</th>
+                                    <th class="border-0">Sevk Miktarı</th>
+                                    <th class="border-0 text-end">İşlem</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngIf="dataSource.data.length === 0" class="text-center">
+                                    <td colspan="5" class="py-5 text-muted border-0">
+                                        <i class="bi bi-inbox display-6 d-block mb-2 opacity-25"></i>
+                                        Henüz ürün eklenmedi
+                                    </td>
+                                </tr>
+
+                                <tr *ngFor="let element of dataSource.data; let i = index"
+                                    class="border-bottom">
+                                    <td class="py-3">
+                                        <strong class="d-block">{{ element.UrunAdi }}</strong>
+                                        <small class="text-muted">
+                                            <i class="bi bi-upc me-1"></i>{{ element.barkodu }}
+                                        </small>
+                                    </td>
+                                    <td class="py-3">{{ element.UrunKodu }}</td>
+                                    <td class="py-3">
+                                        <span class="badge bg-info px-3 py-2">{{ element.sto_birim_ad }}</span>
+                                    </td>
+                                    <td class="py-3" style="max-width: 120px;">
+                                        <input type="number" class="form-control border-primary" 
+                                               [(ngModel)]="element.sevkMiktari"
+                                               min="0" step="1">
+                                    </td>
+                                    <td class="py-3 text-end">
+                                        <button class="btn btn-sm btn-outline-danger" 
+                                                (click)="urunSil(i)">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-            </div>
-
-            <!-- Ürün Tablosu -->
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Ürün Adı</th>
-                            <th>Kod</th>
-                            <th>Birim</th>
-                            <th>sevk Miktarı</th>
-                            <th class="text-end">İşlem</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        <tr *ngIf="dataSource.data.length === 0">
-                            <td colspan="5" class="text-center py-4 text-muted">
-                                Henüz ürün eklenmedi.
-                            </td>
-                        </tr>
-
-                        <tr *ngFor="let element of dataSource.data; let i = index">
-                            <td>
-                                <strong>{{ element.UrunAdi }}</strong><br>
-                                <small class="text-muted">{{ element.barkodu }}</small>
-                            </td>
-
-                            <td>{{ element.UrunKodu }}</td>
-
-                            <td>
-                                <span class="badge bg-info">{{ element.sto_birim_ad }}</span>
-                            </td>
-
-                            <td style="max-width: 150px;">
-                                <input type="number" class="form-control"
-                                       [(ngModel)]="element.sevkMiktari"
-                                       min="0" step="1">
-                            </td>
-
-                            <td class="text-end">
-                                <button class="btn btn-sm btn-outline-danger"
-                                        (click)="urunSil(i)">
-                                    <i class="bi bi-trash me-1"></i>Sil
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
             </div>
 
             <!-- Butonlar -->
-            <div class="d-flex justify-content-between align-items-center mt-4">
-                <small class="text-muted">
-                    Toplam <strong>{{ dataSource.data.length }}</strong> ürün
-                </small>
-
+            <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                <div>
+                    <small class="text-muted">
+                        Toplam <strong class="text-primary">{{ dataSource.data.length }}</strong> ürün
+                    </small>
+                </div>
+                
                 <div class="d-flex gap-2">
-                    <button class="btn btn-outline-secondary" (click)="temizle()">
+                    <button class="btn btn-outline-secondary px-4" (click)="temizle()">
                         <i class="bi bi-eraser me-2"></i>Temizle
                     </button>
-
-                    <button class="btn btn-primary px-4"
+                    <button class="btn btn-primary px-4 shadow-sm"
                             (click)="kaydet()"
                             [disabled]="gonderiliyor() || dataSource.data.length === 0">
                         <span *ngIf="!gonderiliyor()">
-                            <i class="bi bi-save me-2"></i>Evrakı Kaydet
+                            <i class="bi bi-save me-2"></i>Kaydet
                         </span>
                         <span *ngIf="gonderiliyor()">
                             <div class="spinner-border spinner-border-sm me-2"></div>
@@ -224,7 +187,6 @@
                     </button>
                 </div>
             </div>
-
         </div>
     </div>
 </div>

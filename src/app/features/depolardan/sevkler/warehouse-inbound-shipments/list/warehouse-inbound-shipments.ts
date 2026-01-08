@@ -16,9 +16,9 @@ import { SharedImports } from '../../../../../core/pipes/shared-imports';
 import { User } from '../../../../../models/user';
 import { MeService } from '../../../../../services/meservice.service';
 import { GoodsReceiptNotesService } from '../../../../../services/receipts/goods-receipt-notes.service';
-import { Detail } from '../../../../../modal/detail/detail';
 import { WarehouseGoodsReceipt } from '../warehouse-goods-receipt/warehouse-goods-receipt';
 import { ReceiveMode } from '../../../../../models/depoMalKabulModel';
+import { Detail } from '../detail/detail';
 
 
 
@@ -171,14 +171,16 @@ constructor(
   }
 
   taskDetay(seri: string, sira: number): void {
+    this.toastr.show('Task Detayları Alınıyor', 'Bilgi' ,
+      { timeOut: 10000, progressBar: true, progressAnimation: 'increasing' , }
+     );
     this.goodsReceiptNotesService.detailsBranchReceipt(this.gorevid(), seri, sira).subscribe({
       next: (data: any) => {
         this.dialog.open(Detail, {
           width: "50%",
           height: "70%",
-          data: data
+          data: data.malKabulIrsaliyesi.malKabul
         });
-        console.log('Task Detay:', data);
       },
       error: () => {
         this.toastr.error('Task detayı alınırken hata oluştu', 'Hata');
@@ -200,6 +202,9 @@ constructor(
 
   // EVRAK ÇEVİR
   return(evrak: any) {
+     this.toastr.show('Evrak Çevirme İşlemi Başlatıldı irsaliye bilgileri alınıyor', 'Bilgi' ,
+      { timeOut: 10000, progressBar: true, progressAnimation: 'increasing' , }
+     );
     this.goodsReceiptNotesService.detailsBranchReceipt(this.altmenuid(), evrak.evrakNoSeri, evrak.evrakNoSira).subscribe({
       next: (data: any) => {
         this.dialog.open(WarehouseGoodsReceipt, {

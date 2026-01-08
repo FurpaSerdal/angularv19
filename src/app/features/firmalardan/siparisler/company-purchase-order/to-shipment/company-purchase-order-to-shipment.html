@@ -1,0 +1,112 @@
+<div class="container my-3">
+    <div class="card shadow-sm border-0 rounded-3">
+
+        <!-- Header -->
+        <div class="card-header bg-light text-dark d-flex justify-content-between align-items-center py-3">
+            <div>
+                <h5 class="mb-0 fw-semibold">
+                    <i class="bi bi-inbox-fill me-2"></i> Siparişi sevk et
+                </h5>
+                <small class="opacity-75">
+                    Sipariş sevk işlemlerinizi buradan yapabilirsiniz
+                </small>
+
+                <!-- <small class="opacity-75">
+                    (Sevk edilecek depo: {{karsiDepo().no}},{{ karsiDepo()?.isim }} )
+                </small> -->
+            </div>
+
+            <button class="btn btn-sm btn-danger" (click)="kapat()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <div class="card-body">
+
+            <!-- Ürün İşlemleri -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-semibold text-primary mb-0">
+                    <i class="bi bi-box-seam me-2"></i> Ürün İşlemleri
+                </h5>
+                <span class="badge bg-primary">
+                    {{ dataSource.data.length }} ürün
+                </span>
+            </div>
+            <div class="d-flex gap-2 mb-4">
+                <input type="text" class="form-control" placeholder="Ürün ara..."
+                    [(ngModel)]="urunAraMetni"
+                    (keyup.enter)="urunEkle()"/>
+
+                <button class="btn btn-primary" (click)="urunEkle()">
+                    <i class="bi bi-plus-lg me-1"></i> Ürün Ekle
+                </button>
+            </div>
+
+            <!-- Tablo -->
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Ürün</th>
+                            <th>Kod</th>
+                            <th>Sipariş</th>
+                            <th>Sevk</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr *ngIf="dataSource.data.length === 0">
+                            <td colspan="5" class="text-center text-muted py-4">
+                                Henüz ürün eklenmedi
+                            </td>
+                        </tr>
+
+                        <tr *ngFor="let element of dataSource.data">
+                            <td>
+                                <strong>{{ element.UrunAdi }}</strong><br>
+                                <small class="text-muted">{{ element.stok.stokIsim }}</small>
+                            </td>
+
+                            <td>{{ element.stok.stokKod }}</td>
+                            <td>{{ element.siparisMiktari }}</td>
+
+                            <td style="max-width:140px">
+                                <input type="number" class="form-control form-control-sm"
+                                    [(ngModel)]="element.sevkMiktari"
+                                    [min]="element.stok?.barkodlar?.[0]?.birimKatSayisi"
+                                    [step]="element.stok?.barkodlar?.[0]?.birimKatSayisi" />
+                            </td>
+
+                            <td>
+                                <button class="btn btn-sm btn-outline-danger"
+                                    (click)="urunCikar(element)">
+                                    <i class="bi bi-trash3-fill"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Footer Buttons -->
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <button class="btn btn-outline-secondary" (click)="temizle()">
+                    <i class="bi bi-eraser me-1"></i> Temizle
+                </button>
+
+                <button class="btn btn-primary" (click)="kaydet()"
+                    [disabled]="gonderiliyor() || dataSource.data.length === 0">
+                    <span *ngIf="!gonderiliyor()">
+                        <i class="bi bi-save me-1"></i> Kaydet
+                    </span>
+                    <span *ngIf="gonderiliyor()">
+                        <span class="spinner-border spinner-border-sm me-1"></span>
+                        Kaydediliyor
+                    </span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>

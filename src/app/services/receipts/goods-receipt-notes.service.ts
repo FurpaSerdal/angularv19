@@ -15,8 +15,8 @@ export class GoodsReceiptNotesService extends BaseApiService {
     return this.get(`${API_PATHS.GOODS_RECEIPTS}/${taskId}/firmalardan/mal-kabul/${seri}/${sira}`);
   }
 
-   createCompanyReceipt(payload: any): Observable<any> {
-    return this.post(`${API_PATHS.GOODS_RECEIPTS}/firmalardan/mal-kabul/yap`, payload);
+   createCompanyReceipt(taskId: number,payload: any): Observable<any> {
+    return this.post(`${API_PATHS.GOODS_RECEIPTS}/${taskId}/firmalardan/mal-kabul/yap`, payload);
   }
 
   // subelerden mal kabul işlemleri

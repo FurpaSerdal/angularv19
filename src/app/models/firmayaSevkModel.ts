@@ -1,9 +1,9 @@
 import { Kalem } from "./ortakModeller";
 
 
-export interface SubeyeSevketDto {
+export interface FirmayaSevketDto {
 
   iadedir: boolean ;
-  muhatapDepoNo: number;
+  muhattapfirmaNo: string;
   kalemler?: Kalem[] 
 }

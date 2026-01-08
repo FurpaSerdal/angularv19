@@ -102,3 +102,27 @@ export interface Evrak {
   aciklama?: string;
   kalemler?: Kalem[];
 }
+
+export interface Kalem {
+  id: string;
+
+  stok?: StokVin;
+  siparisGuid?: string;
+  sevkGuid?: string;
+  faturaGuid?: string;
+  eIrsaliyeEttn?: string;
+  eFaturaEttn?: string;
+  iadeyeKonuIrsaliyeGuidi?: string;
+
+  siparisMiktari?: number;
+  onerilenSiparisMiktari?: number;
+  sevkMiktari?: number;
+  malKabulMiktari?: number;
+  sevkMalKabulFarkMiktari?: number;
+
+  aciklama?: string;
+  sonKullanimTarihi?: string | Date;
+
+  evrakId?: string;
+  evrak?: Evrak;
+}

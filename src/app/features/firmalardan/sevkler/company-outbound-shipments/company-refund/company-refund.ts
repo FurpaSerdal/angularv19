@@ -1,12 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, Inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatDialog } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { EvrakEkleDto, StokAraCT } from '../../../../../models/evrakKaydet';
 import { CompanyService } from '../../../../../services/company.service';
+import { FirmayaSevketDto } from '../../../../../models/firmayaSevkModel';
+import { Kalem } from '../../../../../models/ortakModeller';
 
 @Component({
   selector: 'app-company-refund',
@@ -26,13 +28,9 @@ export class CompanyRefund {
   aramaGirdisi = signal<string>('');
   gonderiliyor = signal<boolean>(false);
   
-  // QR için yeni sinyaller
-  qrIrsaliyeNo = signal<string>("");
-  qrGorunurVeri = signal<string>("");
-  qrParsed = signal<boolean>(false);
-  qrOkunuyor = signal<boolean>(false);
+
   
-  postorder: EvrakEkleDto = this.initializeForm();
+  postorder: FirmayaSevketDto = this.initializeForm();
   urunListesi = signal<any[]>([]);
   bulunanUrunler = signal<StokAraCT[]>([]);
   secilenUrun = signal<StokAraCT | null>(null);
@@ -44,39 +42,14 @@ export class CompanyRefund {
     
     private dialog: MatDialog,
     private toastr: ToastrService,
+   public dialogRef: MatDialogRef<CompanyRefund>,
+     
   ) {}
 
-private initializeForm(): EvrakEkleDto {
+private initializeForm(): FirmayaSevketDto {
     return {
-      kareKod: null,
-      kareKodIrsaliyenindir: null,
-      evrakNoSeri: null,
-      evrakNoSira: null,
-      teslimTarihi: null,
-      belgeNo: "",
-      iadedir: null,
-      teslimAlan: null,
-      teslimEden: null,
-      muhatabiFirmadir: null,
-      sfdsEvrakidir:null,
-
-      depo: {
-        no: null,
-        isim: ""
-      },
-
-      muhatapDepo: {
-        no: null,
-        isim: "",
-      },
-
-      muhatapFirma: {
-        no: "",
-        isim: "",
-        adresi: ""
-      },
-
-      aciklama: null,
+      iadedir: true,
+      muhattapfirmaNo: "",
       kalemler: []
     };
   }
@@ -95,7 +68,7 @@ private initializeForm(): EvrakEkleDto {
     const aranacakKelime = aranacak.toLocaleLowerCase();
     
     const dto = {
-      CariKod: this.postorder.muhatapFirma?.no ?? '',
+      CariKod: this.postorder.muhattapfirmaNo ?? '',
       Bul: aranacakKelime
     };
 
@@ -108,7 +81,7 @@ private initializeForm(): EvrakEkleDto {
   }
 
   firmaAra() {
-    const query = this.postorder.muhatapFirma?.no ?? '';
+    const query = this.postorder.muhattapfirmaNo ?? '';
     this.companyservice.searchCustomerAccount(query).subscribe(data => {
       this.bulunancariler.set(data);
       console.log(data);
@@ -116,16 +89,8 @@ private initializeForm(): EvrakEkleDto {
   }
 
 firmaSec(firma: any) {
-  if (!this.postorder.muhatapFirma) {
-    this.postorder.muhatapFirma = {
-      no: '',
-      isim: '',
-      adresi: ''
-    };
-  }
 
-  this.postorder.muhatapFirma.no = firma.cariKod;
-  this.postorder.muhatapFirma.isim = firma.cariIsim;
+  this.postorder.muhattapfirmaNo = firma.cariKod;
 
   this.secilencari.set(firma.id);
   this.bulunancariler.set([]);
@@ -151,7 +116,7 @@ firmaSec(firma: any) {
       onerilenMiktar: null,
       verilenSiparisMiktari: null,
       malKabulIrsaliyesiMiktari: null,
-      MalKabulMiktari: 1,
+      SevkMMiktari: 1,
       tedarikciStokKod: '',
       aciklama: '',
       fark: '',
@@ -186,46 +151,41 @@ firmaSec(firma: any) {
   kaydet() {
     this.gonderiliyor.set(true);
 
-    const kalemler = this.urunListesi().map(item => ({
-  aciklama: null,
-    evrak: null,
-    evrakId: null,
+const kalemler: Kalem[] = this.urunListesi().map(urun => {
+  console.log('ÜRÜN', urun);
 
-    faturaGuid: null,
-    sevkGuid: null,
-    siparisGuid: null,
-    iadeyeKonuIrsaliyeGuidi: null,
+  return {
+    id: crypto.randomUUID(),
 
-    miktar: 0,
-    sonKullanimTarihi: null,
+    aciklama: urun.aciklama || '',
 
-    eFaturaEttn: null,
-    eIrsaliyeEttn: null,
+    sevkMiktari: urun.SevkMMiktari ?? 0,
+   
+    siparisGuid: urun.sipId || undefined,
 
     stok: {
-      stokKod: item.stokKod,
-      stokIsim: item.stokIsim,
-      birimAd: item.birimAd,
-      birimKatSayisi: item.birimKatsayisi ?? 1,
+      stokKod: urun.UrunKodu,
+      stokIsim: urun.UrunAdi,
+      birimAd: urun.sto_birim_ad,
 
-      barkodlar: item.barKodu
-        ? [{
-            barKodu: item.barKodu,
-            stokKod: item.stokKod,
-            birimAd: item.birimAd,
-            birimKatSayisi: item.birimKatsayisi ?? 1
-          }]
+      tedarikciStokKod: urun.tedarikciStokKod || undefined,
+
+      barkodlar: urun.barkodu
+        ? [
+            {
+              barKodu: urun.barkodu,
+              stokKod: urun.UrunKodu,
+              birimAd: urun.sto_birim_ad,
+              birimKatSayisi: urun.birimkatsayisi ?? 1
+            }
+          ]
         : [],
 
-      fiyat: {
-        depoNo: 0,
-        fiyati: 0,
-        satisDursun: 0,
-        sipDursun: 0,
-        malKabulDursun: 0
-      }
+
     }
-    }));
+  };
+});
+
 
     this.postorder.kalemler = kalemler;
     console.log("POST ORDER", this.postorder);
@@ -264,12 +224,8 @@ firmaSec(firma: any) {
   }
 
   kapat() {
-    // Dialog kapatma veya sayfadan çıkma işlemi
+this.dialogRef.close();
   }
 
-  get formValid(): boolean {
-    return !!this.postorder.muhatapFirma?.no && 
-           this.dataSource.data.length > 0 &&
-           this.dataSource.data.every(item => (item.MalKabulMiktari ?? 0) > 0);
-  }
+
 }

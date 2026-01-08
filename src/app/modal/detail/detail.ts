@@ -16,7 +16,6 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class Detail {
   veri!: any;
-  postorder!: EvrakEkleDto 
 
   constructor(
     private toastr: ToastrService,

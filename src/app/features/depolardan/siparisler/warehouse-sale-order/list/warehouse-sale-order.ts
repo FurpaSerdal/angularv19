@@ -19,9 +19,9 @@ import { BaseComponent } from '../../../../../core/base/base-component/base-comp
 import { User } from '../../../../../models/user';
 import { MeService } from '../../../../../services/meservice.service';
 import { SalesOrdersService } from '../../../../../services/orders/sales-orders.service';
-import { Detail } from '../../../../../modal/detail/detail';
 import { WarehouseOrderComponent } from '../create/warehouse-order';
 import { warehouseSalesOrderToShipment } from '../to-shipment/warehouse-sales-order-to-shipment';
+import { Detail } from '../detail/detail';
 
 
 

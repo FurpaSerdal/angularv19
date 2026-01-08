@@ -172,7 +172,8 @@
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="['evrakNo', 'tarih', 'transfer', 'durum', 'islemler']"
-              class="table-header"></tr>
+              class="table-header">
+            </tr>
             <tr mat-row *matRowDef="let row; columns: ['evrakNo', 'tarih', 'transfer', 'durum', 'islemler'];"
               class="table-row" [class.selected]="selectedRow === row"
               [ngClass]="{ 'row-danger': row.malKabulFazlasiVar === true || isSFDS(row) }" (click)="selectRow(row)">

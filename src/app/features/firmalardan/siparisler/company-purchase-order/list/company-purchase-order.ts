@@ -12,13 +12,15 @@ import { ActivatedRoute } from '@angular/router';
 
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { startWith } from 'rxjs';
-import { SharedImports } from '../../../../core/pipes/shared-imports';
-import { User } from '../../../../models/user';
-import { PurchaseOrdersService } from '../../../../services/orders/purchase-orders.service';
-import { MeService } from '../../../../services/meservice.service';
-import { Evrak } from '../../../../models/evrakDetay';
-import { Detail } from '../../../../modal/detail/detail';
-import { CompanyOrder } from './company-order/company-order';
+import { SharedImports } from '../../../../../core/pipes/shared-imports';
+import { User } from '../../../../../models/user';
+import { PurchaseOrdersService } from '../../../../../services/orders/purchase-orders.service';
+import { MeService } from '../../../../../services/meservice.service';
+import { Detail } from '../../../../../modal/detail/detail';
+import { CompanyOrder } from '../company-order/company-order';
+import { CompanyGoodsReceipt } from '../company-goods-receipt/company-goods-receipt';
+import { ReceiveMode } from '../../../../../models/depoMalKabulModel';
+
 
 @Component({
   selector: 'app-company-purchase-order',
@@ -115,8 +117,6 @@ constructor(
 
 
   ngOnInit() {
-    console.log('Company Purchase Order Component Initialized');
-
   }
 
   ngAfterViewInit() {
@@ -180,6 +180,7 @@ constructor(
   }
 
   yeniEvrak(): void {
+    console.log('Yeni Evrak Oluşturma');
     const isMobile = this.breakpointObserver.isMatched(Breakpoints.Handset);
 
     this.dialog.open(CompanyOrder, {
@@ -193,12 +194,17 @@ constructor(
 
   // EVRAK ÇEVİR
   return(evrak: any) {
-    this.purchaseOrdersService.detailsCompanyOrder(this.gorevid(), evrak.evrakNoSeri, evrak.evrakNoSira).subscribe({
-      next: (data: Evrak) => {
-        this.dialog.open(CompanyOrder, {
+    console.log('Evrak Çevir:', evrak);
+    this.purchaseOrdersService.detailsCompanyOrder(this.altmenuid(), evrak.evrakNoSeri, evrak.evrakNoSira).subscribe({
+      next: (data: any) => {
+        this.dialog.open(CompanyGoodsReceipt, {
           width: '50vw',
           height: '70vh',
-          data: data
+           data: {
+                          shipment: data,
+                          mode: 'select' as ReceiveMode,
+                          iadeGorevId: data.iadeGorevId
+                          }
         });
       },
       error: () => {

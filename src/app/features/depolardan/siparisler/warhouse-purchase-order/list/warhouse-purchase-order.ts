@@ -21,8 +21,8 @@ import { SharedImports } from '../../../../../core/pipes/shared-imports';
 import { User } from '../../../../../models/user';
 import { MeService } from '../../../../../services/meservice.service';
 import { PurchaseOrdersService } from '../../../../../services/orders/purchase-orders.service';
-import { Detail } from '../../../../../modal/detail/detail';
 import { WarehouseOrderComponent } from '../create/warehouse-order';
+import { Detail } from '../detail/detail';
 
 
 @Component({

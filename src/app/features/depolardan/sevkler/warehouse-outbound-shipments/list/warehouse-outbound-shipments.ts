@@ -15,8 +15,8 @@ import { SharedImports } from '../../../../../core/pipes/shared-imports';
 import { User } from '../../../../../models/user';
 import { MeService } from '../../../../../services/meservice.service';
 import { ShipmentNotesService } from '../../../../../services/shipments/shipment-notes.service';
-import { Detail } from '../../../../../modal/detail/detail';
 import { WarehouseSend } from '../warehouse-send/warehouse-send';
+import { Detail } from '../detail/detail';
 
 
 
@@ -163,12 +163,13 @@ const baslangic = this.datePipe.transform(this.dateRange.get('start')?.value, 'y
   }
 
   taskDetay(seri: string, sira: number): void {
+    this.toastr.show('Task detayı yükleniyor...', '', { tapToDismiss: false, extendedTimeOut: 1000, progressBar: true});
     this.shipmentNotesService.detailsBranchShipment(this.gorevid(), seri, sira).subscribe({
       next: (data: any) => {
         this.dialog.open(Detail, {
           width: "50%",
           height: "70%",
-          data: data
+          data: data.sevk
         });
         console.log('Task Detay:', data);
       },
@@ -185,6 +186,7 @@ const baslangic = this.datePipe.transform(this.dateRange.get('start')?.value, 'y
       width: isMobile ? '100vw' : '40vw',
       height: isMobile ? '100vh' : '70vh',
       maxWidth: '100vw',
+      disableClose: true,
       panelClass: isMobile ? 'full-screen-dialog' : '',
       data: [this.gorevadi(), this.gorevid()]
     });

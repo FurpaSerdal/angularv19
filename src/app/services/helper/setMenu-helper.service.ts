@@ -1,8 +1,15 @@
 import { inject } from "@angular/core";
 import { Menu, User } from "../../models/user";
+import { MeService } from "../meservice.service";
 
 export class SetMenuHelperService {
 
+  /**
+   *
+   */
+  constructor(private meservice : MeService) {
+      
+  }
 newmenu: User[] = [
   {
     isim: "Serdal",
@@ -145,4 +152,11 @@ newmenu: User[] = [
 getNewMenu(): User[] {
   return this.newmenu;
 }
+updateMenu(): void {
+  this.meservice.userSignal.set(this.newmenu[0]);
+}
+
+
+
+
 }

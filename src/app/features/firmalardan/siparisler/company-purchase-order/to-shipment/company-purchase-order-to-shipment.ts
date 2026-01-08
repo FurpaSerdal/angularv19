@@ -14,12 +14,12 @@ import Swal from 'sweetalert2';
 
 
 @Component({
-  selector: 'app-warheosue-receipt',
+  selector: 'app-company-purchase-order-to-shipment',
   imports: [CommonModule, MatTableModule, FormsModule, MatIconModule],
-  templateUrl: './warehouse-sales-order-to-shipment.html',
-  styleUrl: './warehouse-sales-order-to-shipment.css',
+  templateUrl: './company-purchase-order-to-shipment.html',
+  styleUrls: ['./company-purchase-order-to-shipment.css'],
 })
-export class warehouseSalesOrderToShipment {
+export class companyPurchaseOrderToShipment {
   urunAraMetni: string = '';
   kendiDepom = signal<number>(0);
   karsiDepo = signal<any>(null);
@@ -35,7 +35,7 @@ export class warehouseSalesOrderToShipment {
     private shipmentnoteservice: ShipmentNotesService,
     private warehouseService: WarehouseService,
     private toastr: ToastrService,
-    public dialogRef: MatDialogRef<warehouseSalesOrderToShipment>,
+    public dialogRef: MatDialogRef<companyPurchaseOrderToShipment>,
   @Inject(MAT_DIALOG_DATA) public data: any,
   ) 
   {
@@ -55,7 +55,9 @@ export class warehouseSalesOrderToShipment {
   }
 
   ngOnInit(): void {
+    console.log('Gelen Data:', this.data);
 this.dataSource.data = this.data.siparis.kalemler || [];
+console.log('DataSource:', this.dataSource.data);
 this.karsiDepo.set(this.data.siparis.muhatapDepo);
   }
   urunEkle() {

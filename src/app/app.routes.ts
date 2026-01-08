@@ -5,7 +5,6 @@ import { LoginComponent } from './login/login';
 import { CompanyInboundShipments } from './features/firmalardan/sevkler/company-inbound-shipments/company-inbound-shipments';
 import { CompanyOutboundShipments } from './features/firmalardan/sevkler/company-outbound-shipments/company-outbound-shipments';
 import { CompanySaleOrder } from './features/firmalardan/siparisler/company-sale-order/company-sale-order';
-import { CompanyPurchaseOrder } from './features/firmalardan/siparisler/company-purchase-order/company-purchase-order';
 import { HomePage } from './features/home-page/home-page';
 import { FirmaFaturaComponent } from './features/firmalardan/firma-fatura/firma-fatura.component';
 import { InventoryCountResults } from './features/sayımlar/inventory-count-results/inventory-count-results';
@@ -13,6 +12,7 @@ import { WarehouseSaleOrder } from './features/depolardan/siparisler/warehouse-s
 import { WarhousePurchaseOrder } from './features/depolardan/siparisler/warhouse-purchase-order/list/warhouse-purchase-order';
 import { WarehouseOutboundShipments } from './features/depolardan/sevkler/warehouse-outbound-shipments/list/warehouse-outbound-shipments';
 import { WarehouseInboundShipments } from './features/depolardan/sevkler/warehouse-inbound-shipments/list/warehouse-inbound-shipments';
+import { CompanyPurchaseOrder } from './features/firmalardan/siparisler/company-purchase-order/list/company-purchase-order';
 
 
 
