@@ -1,7 +1,7 @@
 import { DestroyRef, inject, signal } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 
-export abstract class BaseComponent {
+export  class BaseComponent {
 
   protected destroyRef = inject(DestroyRef);
   protected toastr = inject(ToastrService);

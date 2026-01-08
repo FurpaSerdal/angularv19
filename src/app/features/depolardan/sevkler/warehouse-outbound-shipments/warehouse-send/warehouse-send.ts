@@ -1,36 +1,43 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, effect, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 
 
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
-import { EvrakEkleDto, StokAraCT } from '../../../../../models/evrakKaydet';
 import { WarehouseService } from '../../../../../services/warehouse.service';
+import { SubeyeSevketDto } from '../../../../../models/subeyeSevkModel';
+import { MeService } from '../../../../../services/meservice.service';
+import { StokAraCT } from '../../../../../models/genelModel';
+import { ShipmentNotesService } from '../../../../../services/shipments/shipment-notes.service';
 
 
 
 @Component({
   selector: 'app-warehouse-send',
-  imports: [CommonModule, MatTableModule, FormsModule, MatIconModule],
+  standalone: true,
+  imports: [CommonModule, MatTableModule, FormsModule, MatIconModule, MatDialogModule],
   templateUrl: './warehouse-send.html',
-  styleUrl: './warehouse-send.css',
+  styleUrls: ['./warehouse-send.css'],
 })
 export class WarehouseSend {
 
- karsidepo: number = 109 // default seçili depo
-
-  kendiDepom = signal<number>(0);
-  seciliGorev = signal<number>(0);
+  karsiDepo :number=0;
+  seciliAltMenu = signal<number>(0);
+  iade = signal<boolean>(false);
   gorevAdi = signal<string>('');
   aramaGirdisi = signal<string>('');
   gonderiliyor = signal<boolean>(false);
   
 
   
-  postorder: EvrakEkleDto = this.initializeForm();
+  postorder: SubeyeSevketDto = {
+    iadedir: false,
+    muhatapDepoNo: 0,
+    kalemler: []
+  }
   urunListesi = signal<any[]>([]);
   bulunanUrunler = signal<StokAraCT[]>([]);
   secilenUrun = signal<StokAraCT | null>(null);
@@ -39,60 +46,26 @@ export class WarehouseSend {
 
   constructor(
     private warehouseservice: WarehouseService,
-    
+    private meservice: MeService,
+    private shipmentnoteservice: ShipmentNotesService,
     private dialog: MatDialog,
     private toastr: ToastrService,
-  ) {}
-
-  private initializeForm(): EvrakEkleDto {
-    return {
-      kareKod: null,
-      kareKodIrsaliyenindir: null,
-      evrakNoSeri: null,
-      evrakNoSira: null,
-      teslimTarihi: null,
-      belgeNo: "",
-      iadedir: null,
-      teslimAlan: null,
-      teslimEden: null,
-      muhatabiFirmadir: null,
-      sfdsEvrakidir:null,
-
-      depo: {
-        no: null,
-        isim: ""
-      },
-
-      muhatapDepo: {
-        no: null,
-        isim: "",
-      },
-
-      muhatapFirma: {
-        no: "",
-        isim: "",
-        adresi: ""
-      },
-
-      aciklama: null,
-      kalemler: []
-    };
+  ) {
+     effect(() => {
+      this.seciliAltMenu.set(this.meservice.selectedAltMenu()?.id ?? 0);
+    });
   }
+
+
 
   ngOnInit(): void {
-    const depom = localStorage.getItem('depoNo');
-    const seciliGorevId = localStorage.getItem('seçiliGörevid');
-    const gorevAdi = localStorage.getItem('seçiliGörevadi');
-    this.seciliGorev.set(Number(seciliGorevId));
-    this.kendiDepom.set(Number(depom));
-    this.gorevAdi.set(gorevAdi ?? '');
+  
   }
 
+  
 
   urunAra(aranacak: string) {
     const aranacakKelime = aranacak.toLocaleLowerCase();
-    
- ;
 
     this.warehouseservice
       .searchStock(aranacakKelime)
@@ -158,49 +131,44 @@ export class WarehouseSend {
   kaydet() {
     this.gonderiliyor.set(true);
 
-        const kalemler = this.urunListesi().map(item => ({
-  aciklama: null,
-    evrak: null,
-    evrakId: null,
+ 
+    this.shipmentnoteservice.createBranchShipment(this.seciliAltMenu(),
+    {
+      iadedir: this.iade(), 
+      muhatapDepoNo: this.karsiDepo,
+         kalemler: this.urunListesi().map(k => ({
+                id: k.id,
+                siparisGuid: k.siparisGuid,
+                siparisMiktari: Math.abs(k.sevkMalKabulFarkMiktari ?? 0),
+                sevkMiktari: k.sevkMiktari,
+                malKabulMiktari: k.malKabulMiktari,
+                sevkMalKabulFarkMiktari: k.sevkMalKabulFarkMiktari,
+                iadeyeKonuIrsaliyeGuidi: k.iadeyeKonuIrsaliyeGuidi,
+                 aciklama: 'Fazla mal iade sevkiyatı',
+                 barkodlar: [k.barkodu],
+                 fiyat: k.fiyat,
+                 birimkatsayisi: k.birimkatsayisi,
+                  stok: {
+                    stokKod: k.UrunKodu,
+                     stokIsim: k.UrunAdi, 
+                       birimAd: k.sto_birim_ad,
+                  
+                 }
+              }))
+    })
+      .subscribe({
+        next: (res) => {
+          this.toastr.success('Başarıyla kaydedildi!');
+          this.gonderiliyor.set(false);
+        },
+        error: (err) => {
+          this.toastr.error('Kaydedilirken hata oluştu!');
+          console.error(err);
+          this.gonderiliyor.set(false);
+        }
+      });
+    
 
-    faturaGuid: null,
-    sevkGuid: null,
-    siparisGuid: null,
-    iadeyeKonuIrsaliyeGuidi: null,
-
-    miktar: 0,
-    sonKullanimTarihi: null,
-
-    eFaturaEttn: null,
-    eIrsaliyeEttn: null,
-
-    stok: {
-      stokKod: item.stokKod,
-      stokIsim: item.stokIsim,
-      birimAd: item.birimAd,
-      birimKatSayisi: item.birimKatsayisi ?? 1,
-
-      barkodlar: item.barKodu
-        ? [{
-            barKodu: item.barKodu,
-            stokKod: item.stokKod,
-            birimAd: item.birimAd,
-            birimKatSayisi: item.birimKatsayisi ?? 1
-          }]
-        : [],
-
-      fiyat: {
-        depoNo: 0,
-        fiyati: 0,
-        satisDursun: 0,
-        sipDursun: 0,
-        malKabulDursun: 0
-      }
-    }
-    }));
-
-    this.postorder.kalemler = kalemler;
-    this.postorder.muhatapDepo.no = this.karsidepo;
     console.log("POST ORDER", this.postorder);
 
     const toastRef = this.toastr.show('Gönderiliyor...', '', {
@@ -211,27 +179,17 @@ export class WarehouseSend {
       toastClass: 'ngx-toastr info-toast'
     });
 
-  //   this.crudservice.documentSave(2, this.postorder)
-  //     .subscribe({
-  //       next: (res) => {
-  //         this.toastr.clear(toastRef.toastId);
-  //         this.toastr.success('Başarıyla kaydedildi!');
-  //         this.gonderiliyor.set(false);
-  //       },
-  //       error: (err) => {
-  //         this.toastr.clear(toastRef.toastId);
-  //         this.toastr.error('Kaydedilirken hata oluştu!');
-  //         console.error(err);
-  //         this.gonderiliyor.set(false);
-  //       }
-  //     });
    }
 
   temizle() {
     this.urunListesi.set([]);
     this.dataSource.data = [];
     this.bulunanUrunler.set([]);
-    this.postorder = this.initializeForm();
+    this.postorder = {
+      iadedir: false,
+      muhatapDepoNo: 0,
+      kalemler: []
+    };
     this.toastr.info('Form temizlendi', '', { timeOut: 2000 });
   }
 

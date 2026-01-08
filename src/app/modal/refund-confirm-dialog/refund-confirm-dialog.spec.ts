@@ -1,18 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { RefundConfirmDialog } from './refund-confirm-dialog';
+import { RefundConfirmDialogComponent } from './refund-confirm-dialog';
 
 describe('RefundConfirmDialog', () => {
-  let component: RefundConfirmDialog;
-  let fixture: ComponentFixture<RefundConfirmDialog>;
-
+  let component: RefundConfirmDialogComponent;
+  let fixture: ComponentFixture<RefundConfirmDialogComponent>;
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RefundConfirmDialog]
+      imports: [  RefundConfirmDialogComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(RefundConfirmDialog);
+    fixture = TestBed.createComponent(RefundConfirmDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

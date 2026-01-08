@@ -49,7 +49,7 @@ export class CompanyPurchaseOrder {
   selectedRow: any = null;
   
   // Tablo kolonları güncellendi
-  displayedColumns = ['evrakNo', 'tarih', 'transfer', 'durum', 'islemler'];
+  displayedColumns = ['evrakNo', 'tarih', 'transfer', 'durum', 'onay', 'islemler'];
   DataSource: MatTableDataSource<any> = new MatTableDataSource<any>([]);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;

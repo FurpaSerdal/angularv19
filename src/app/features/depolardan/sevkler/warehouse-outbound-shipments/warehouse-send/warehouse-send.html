@@ -33,33 +33,40 @@
                     <label class="form-label fw-semibold">
                         <i class="bi bi-shop me-2"></i>Depo Seçimi
                     </label>
-                    <select class="form-select" [(ngModel)]="karsidepo">
+                    <select class="form-select" [(ngModel)]="karsiDepo">
                         <option value="0" disabled selected>Depo seçiniz</option>
                         <option value="50">Merkez</option>
                         <option value="55">Unlu</option>
                         <option value="56">Manav</option>
                     </select>
                 </div>
+                <div>
+                    <label class="form-label fw-semibold">
+                        <i class="bi bi-arrow-repeat me-2"></i>İade
+                    </label>
+                    <input type="checkbox" class="form-check-input"
+                           [(ngModel)]="iade">
+                </div>
 
                 <!-- Düzenleyen -->
-                <div class="col-md-6">
+                <!-- <div class="col-md-6">
                     <label class="form-label fw-semibold">
                         <i class="bi bi-person me-2"></i>Düzenleyen
                     </label>
                     <input type="text" class="form-control"
                            [(ngModel)]="postorder.depo.isim"
                            placeholder="Ad soyad giriniz">
-                </div>
+                </div> -->
 
                 <!-- Muhatap -->
-                <div class="col-md-6">
+                <!-- <div class="col-md-6">
                     <label class="form-label fw-semibold">
                         <i class="bi bi-person-check me-2"></i>Muhatap
                     </label>
                     <input type="text" class="form-control"
                            [(ngModel)]="postorder.muhatapDepo.isim"
                            placeholder="Ad soyad giriniz">
-                </div>
+                </div> -->
 
                 <!-- Şoför Adı -->
                 <!-- <div class="col-md-6">
@@ -152,7 +159,7 @@
                             <th>Ürün Adı</th>
                             <th>Kod</th>
                             <th>Birim</th>
-                            <th>Mal Kabul Miktarı</th>
+                            <th>sevk Miktarı</th>
                             <th class="text-end">İşlem</th>
                         </tr>
                     </thead>
@@ -178,8 +185,8 @@
 
                             <td style="max-width: 150px;">
                                 <input type="number" class="form-control"
-                                       [(ngModel)]="element.MalKabulMiktari"
-                                       min="0" step="0.01">
+                                       [(ngModel)]="element.sevkMiktari"
+                                       min="0" step="1">
                             </td>
 
                             <td class="text-end">

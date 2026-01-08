@@ -76,8 +76,6 @@ export class WarehouseGoodsReceipt {
 
   }
 
-
-
   tabloMap(data: any) {
 
     const veri = data?.kalemler?.map((urun: Kalem) => {
@@ -482,8 +480,5 @@ export class WarehouseGoodsReceipt {
     this.dialogRef.close();
   }
 
-  get formValid(): boolean {
-    return this.dataSource.data.length > 0 &&
-      this.dataSource.data.every(item => (item.MalKabulMiktari ?? 0) > 0);
-  }
+ 
 }

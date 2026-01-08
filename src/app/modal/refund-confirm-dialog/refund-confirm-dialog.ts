@@ -20,10 +20,12 @@ import { CommonModule } from '@angular/common';
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let k of data.kalemler">
-            <td>{{ k.stok.stokIsim }}</td>
-            <td>{{ k.miktar }}</td>
-          </tr>
+          @for (k of data.kalemler; track k) {
+            <tr>
+              <td>{{ k.stok.stokIsim }}</td>
+              <td>{{ k.miktar }}</td>
+            </tr>
+          }
         </tbody>
       </table>
 

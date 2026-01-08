@@ -19,7 +19,7 @@ import { MeService } from '../../../../../services/meservice.service';
   styleUrl: './warehouse-sales-order-to-shipment.css',
 })
 export class warehouseSalesOrderToShipment {
-
+  urunAraMetni: string = '';
   kendiDepom = signal<number>(0);
   karsiDepo = signal<any>(null);
   seciliAltMenu = signal<number>(0);
@@ -32,9 +32,10 @@ export class warehouseSalesOrderToShipment {
   constructor(
     private meservice: MeService,
     private shipmentnoteservice: ShipmentNotesService,
+    private warehouseService: WarehouseService,
+    private toastr: ToastrService,
     public dialogRef: MatDialogRef<warehouseSalesOrderToShipment>,
   @Inject(MAT_DIALOG_DATA) public data: any,
-    private toastr: ToastrService,
   ) 
   {
     effect(() => {
@@ -56,16 +57,62 @@ export class warehouseSalesOrderToShipment {
 this.dataSource.data = this.data.siparis.kalemler || [];
 this.karsiDepo.set(this.data.siparis.muhatapDepo);
   }
+  urunEkle() {
+    const aranacak = this.urunAraMetni.trim();
+    if (!aranacak) {
+      this.toastr.warning('Lütfen bir ürün kodu veya adı girin.', '', { timeOut: 2000 });
+      return;
+    }
+    this.warehouseService.searchStock(aranacak).subscribe({
+      next: (stoklar: StokAraCT[]) => {
+        if (stoklar.length === 0) {
+          this.toastr.info('Aranan kriterlere uygun ürün bulunamadı.', '', { timeOut: 2000 });
+          return;
+        }
+        const secilenStok = stoklar[0];
+        const mevcutUrun = this.dataSource.data.find(item => item.UrunKodu === secilenStok.stokKod);
+        if (mevcutUrun) {
+         this.dataSource.data = this.dataSource.data.map(item => {
+            if (item.UrunKodu === secilenStok.stokKod) {
+              return {
+                ...item,
+                MalKabulMiktari: (item.MalKabulMiktari || 0) + (secilenStok.birimKatsayisi || 1)
+              };
+            }
+            return item;
+          });
+          this.toastr.info('Ürün zaten listede mevcut, miktarı güncellendi.', '', { timeOut: 2000 });
+
+          return;
+        }
+        const yeniUrun = {
+          UrunKodu: secilenStok.stokKod,
+          UrunAdi: secilenStok.stokIsim,
+          MalKabulMiktari: secilenStok.birimKatsayisi || 1
+        };
+        this.dataSource.data = [...this.dataSource.data, yeniUrun];
+        this.toastr.success('Ürün başarıyla eklendi.', '', { timeOut: 2000 });
+      },
+      error: (err) => {
+        this.toastr.error('Ürün aranırken bir hata oluştu.', '', { timeOut: 2000 });
+        console.error(err);
+      }
+    });
+    this.urunAraMetni = '';
+  }
+  urunCikar(urun: any) {
+     const onay = confirm('Bu ürünü listeden çıkarmak istediğinize emin misiniz?')
+    if (onay) {
+      this.dataSource.data = this.dataSource.data.filter(item => item.UrunKodu !== urun.UrunKodu);
+      this.toastr.info('Ürün listeden çıkarıldı.', '', { timeOut: 2000 });
+    }
+  }
 
 
   kaydet() {
     this.gonderiliyor.set(true);
     this.postorder.muhatapDepoNo = this.karsiDepo().no;
     this.postorder.kalemler = this.dataSource.data;
-
- 
-  
-    console.log("POST ORDER", this.postorder);
 
     const toastRef = this.toastr.show('Gönderiliyor...', '', {
       disableTimeOut: true,
@@ -101,8 +148,4 @@ this.karsiDepo.set(this.data.siparis.muhatapDepo);
     this.dialogRef.close();
   }
 
-  get formValid(): boolean {
-    return this.dataSource.data.length > 0 &&
-           this.dataSource.data.every(item => (item.MalKabulMiktari ?? 0) > 0);
-  }
 }
