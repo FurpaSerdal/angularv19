@@ -1,24 +1,26 @@
 import { CommonModule } from '@angular/common';
-import { Component, effect, ElementRef, Inject, signal, ViewChild } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, effect, ElementRef, Inject, signal, ViewChild, computed } from '@angular/core';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { WarehouseService } from '../../../../../services/warehouse.service';
-import { depoMalKabulModel } from '../../../../../models/depoMalKabulModel';
 import { MeService } from '../../../../../services/meservice.service';
-import { Kalem, NoksanFazlaIadesi, StokAraCT } from '../../../../../models/genelModel';
 
 import { ShipmentNotesService } from '../../../../../services/shipments/shipment-notes.service';
 import { GoodsReceiptNotesService } from '../../../../../services/receipts/goods-receipt-notes.service';
 import { SalesOrdersService } from '../../../../../services/orders/sales-orders.service';
 import { RefundConfirmDialogComponent } from '../../../../../modal/refund-confirm-dialog/refund-confirm-dialog';
-import { SubeSiparisiAlDto } from '../../../../../models/depoSipAlModel';
 import { ExcessConfirmDialogComponent } from '../../../../../modal/ExcessConfirmDialogComponent';
 import { ConfirmDialogComponent } from '../../../../../modal/ConfirmDialogComponent';
 import { MatProgressSpinner } from "@angular/material/progress-spinner";
+import { CompanyService } from '../../../../../services/company.service';
+import { FirmayaSevketDto } from '../../../../../models/firmayaSevkModel';
+import { finalize } from 'rxjs';
 import { FirmaMalKabulModel } from '../../../../../models/firmaMalKabulModel';
+import { Kalem, StokAraCT, StokBulDto } from '../../../../../models/ortakModeller';
+import Swal from 'sweetalert2';
 
 
 @Component({
@@ -29,10 +31,12 @@ import { FirmaMalKabulModel } from '../../../../../models/firmaMalKabulModel';
 })
 export class CompanyGoodsReceipt {
 
+  bulunancariler = signal<any[]>([]);
+  secilencari = signal<number | null>(null);
   seriNoGirdisi = signal<string>('');
   siraNoGirdisi = signal<number>(0);
   evrakdetay = signal<any>(null);
-  muhatapDepoNo = signal<number>(0);
+  firmaNo = signal<number>(0);
   barkodGirdisi = signal<string>('');
   altmenu = signal(0);
   aramaGirdisi = signal<string>('');
@@ -52,7 +56,10 @@ export class CompanyGoodsReceipt {
   postorder: FirmaMalKabulModel = {
     evrakNoSeri: '',
     evrakNoSira: null,
-    qrstring: '',
+    cariKod:"",
+      teslimEdenAdSoyad: '',
+      qrData: '',
+   
     kalemler: []
   };
   urunListesi = signal<any[]>([]);
@@ -65,9 +72,11 @@ export class CompanyGoodsReceipt {
     private meservice: MeService,
     private goodsReceiptNotesService: GoodsReceiptNotesService,
     private salesOrdersService: SalesOrdersService,
+    private shipmentnoteservice: ShipmentNotesService,
     private dialog: MatDialog,
 
     private warehouseservice: WarehouseService,
+    private companyService: CompanyService,
     public dialogRef: MatDialogRef<CompanyGoodsReceipt>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private toastr: ToastrService,
@@ -80,12 +89,63 @@ export class CompanyGoodsReceipt {
   }
 
   ngOnInit(): void {
-    if (this.data && this.data.shipment) {
-      this.evrakdetay.set(this.data.shipment);
-      console.log('Gelen Data Shipment:', this.data.shipment);
+
+    const hasOtherOrdersForCompany = this.data && this.data.otherOrdersForCompany;
+    if (hasOtherOrdersForCompany.length > 0) 
+      {
+  const htmlContent = `
+  <p>Bu firmaya ait <b>${hasOtherOrdersForCompany.length}</b> adet başka sipariş bulunmaktadır.</p>
+  <form id="orderForm">
+    ${hasOtherOrdersForCompany.map((order:any) => `
+      <input type="checkbox" name="orders" value="${order.siparisNo}" id="order-${order.siparisNo}">
+      <label for="order-${order.siparisNo}">${order.siparisNo}</label><br>
+    `).join('')}
+  </form>
+`;
+
+Swal.fire({
+  title: 'Dikkat!',
+  html: htmlContent,
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonText: 'Seçilenleri Onayla',
+  preConfirm: () => {
+    const checkedOrders = Array.from(
+      (document.querySelectorAll('input[name="orders"]:checked') as NodeListOf<HTMLInputElement>)
+    ).map(el => el.value);
+    return checkedOrders;
+  }
+}).then((result) => {
+  if (result.isConfirmed) {
+    console.log('Seçilen siparişler:', result.value); // seçilen siparişler
+
+    // Seçilen siparişlere ait kalemleri al
+    const secilenKalemler = this.evrakdetay().kalemler.filter((kalem: any) =>
+      result.value.includes(kalem.siparisNo)
+    );
+
+    // Mevcut kalemlerin sonuna ekle (aynı kalemi tekrar eklememek için kontrol edebilirsin)
+    const mevcutSiparisNo = this.evrakdetay().kalemler.map((k:any) => k.siparisNo);
+    const yeniKalemler = secilenKalemler.filter((k:any) => !mevcutSiparisNo.includes(k.siparisNo));
+    
+    this.evrakdetay().kalemler.push(...yeniKalemler);
+
+    // Tabloyu güncelle
+    this.tabloMapForReturn(this.evrakdetay().kalemler);
+  }
+});
+
+
+      }
+
+
+    if (this.data && this.data.order) {
+      this.evrakdetay.set(this.data.order);
+      this.postorder.cariKod = this.evrakdetay().siparis.muhatapFirma?.no ?? 0 .toString();
       this.tabloMapForReturn(this.evrakdetay());
 
     }
+    console.log('Gelen Data:', this.evrakdetay());
 
   }
 
@@ -94,29 +154,28 @@ export class CompanyGoodsReceipt {
     console.log('Tablo Map Data:', data);
     const veri = data?.siparis.kalemler?.map((urun: Kalem) => {
       const sevkMiktari = urun.sevkMiktari ?? 0;
-       const siparisMiktari = urun.siparisMiktari ?? 0;
       const malKabulMiktari = 0;
 
       return {
-        UrunAdi: urun.stok.stokIsim,
-        UrunKodu: urun.stok.stokKod,
+        UrunAdi: urun.stok?.stokIsim,
+        UrunKodu: urun.stok?.stokKod,
         verilenSiparisMiktari: urun.siparisMiktari,
         sevkmiktari: sevkMiktari,
         MalKabulMiktari: malKabulMiktari,
         barkodu: urun.stok?.barkodlar?.[0]?.barKodu ?? '',
-        fiyat: urun.stok.fiyat?.fiyati ?? 0,
-        birimkatsayisi: urun.stok.barkodlar?.[0]?.birimKatSayisi ?? 1,
-        sto_birim_ad: urun.stok.birimAd,
+        fiyat: urun.stok?.fiyat?.fiyati ?? 0,
+        birimkatsayisi: urun.stok?.barkodlar?.[0]?.birimKatSayisi ?? 1,
+        sto_birim_ad: urun.stok?.birimAd,
         aciklama: '',
         stok: urun.stok,
 
         sipId: urun.siparisGuid,
 
-        fark: malKabulMiktari - siparisMiktari
+        fark: malKabulMiktari - sevkMiktari
       };
     }) ?? [];
     this.urunListesi.set(veri);
-    this.dataSource.data = veri
+     this.dataSource.data = veri
   }
   tabloMap(data: any) {
 
@@ -126,15 +185,15 @@ export class CompanyGoodsReceipt {
       const malKabulMiktari = 0;
       console.log('Sevk Miktari:', sevkMiktari, 'Mal Kabul Miktari:', malKabulMiktari);
       return {
-        UrunAdi: urun.stok.stokIsim,
-        UrunKodu: urun.stok.stokKod,
+        UrunAdi: urun.stok?.stokIsim,
+        UrunKodu: urun.stok?.stokKod,
         verilenSiparisMiktari: urun.siparisMiktari,
         sevkmiktari: sevkMiktari,
         MalKabulMiktari: malKabulMiktari,
         barkodu: urun.stok?.barkodlar?.[0]?.barKodu ?? '',
-        fiyat: urun.stok.fiyat?.fiyati ?? 0,
-        birimkatsayisi: urun.stok.barkodlar?.[0]?.birimKatSayisi ?? 1,
-        sto_birim_ad: urun.stok.birimAd,
+        fiyat: urun.stok?.fiyat?.fiyati ?? 0,
+        birimkatsayisi: urun.stok?.barkodlar?.[0]?.birimKatSayisi ?? 1,
+        sto_birim_ad: urun.stok?.birimAd,
         aciklama: '',
         stok: urun.stok,
 
@@ -154,7 +213,7 @@ export class CompanyGoodsReceipt {
       .subscribe({
         next: value => {
           this.evrakdetay.set(value);
-          this.muhatapDepoNo.set(value.muhatapDepoNo);
+          this.firmaNo.set(value.firmaNo);
           this.tabloMap(this.evrakdetay());
 
           this.barkodGirdisi.set('');
@@ -173,7 +232,7 @@ export class CompanyGoodsReceipt {
       .subscribe({
         next: value => {
           this.evrakdetay.set(value);
-          this.muhatapDepoNo.set(value.muhatapDepoNo);
+          this.firmaNo.set(value.firmaNo);
           this.tabloMap(this.evrakdetay());
           this.seriNoGirdisi.set('');
           this.siraNoGirdisi.set(0);
@@ -187,17 +246,68 @@ export class CompanyGoodsReceipt {
       });
     }
 
-  urunAra(aranacak: string) {
-    const aranacakKelime = aranacak.toLocaleLowerCase();
+urunAra(aranacak: string) {
+  if (!aranacak?.trim()) return;
 
+  const aranacakKelime = aranacak.toLowerCase();
 
-    this.warehouseservice
-      .searchStock(aranacakKelime)
-      .subscribe({
-        next: value => this.bulunanUrunler.set(value),
-        error: err => console.error('StokAra hatası:', err)
-      });
-  }
+  // const kalem = this.urunListesi().find(urun =>
+  //   urun.UrunKodu?.toLowerCase().includes(aranacakKelime) ||
+  //   urun.UrunAdi?.toLowerCase().includes(aranacakKelime)
+  // );
+
+  // if (kalem) {
+  //   this.toastr.success(
+  //     'Aranan ürün mevcut sipariş kalemleri arasında bulundu ve eklendi.',
+  //     'Başarılı',
+  //     { timeOut: 3000 }
+  //   );
+
+  //   const varmi = this.dataSource.data.find(
+  //     u => u.UrunKodu === kalem.UrunKodu
+  //   );
+
+  //   if (varmi) {
+  //     this.dataSource.data = this.dataSource.data.map(u =>
+  //       u.UrunKodu === kalem.UrunKodu
+  //         ? { ...u, MalKabulMiktari: (u.MalKabulMiktari ?? 0) + 1 }
+  //         : u
+  //     );
+  //   } else {
+  //     this.dataSource.data = [
+  //       ...this.dataSource.data,
+  //       { ...kalem, MalKabulMiktari: 1 }
+  //     ];
+  //   }
+
+  //   return;
+  // }
+
+  // // 🔍 Siparişte yok → stoktan ara
+  // this.toastr.info(
+  //   'Aranan ürün sipariş kalemlerinde bulunamadı. Stoktan aranıyor...',
+  //   'Bilgi',
+  //   { timeOut: 3000 }
+  // );
+
+const dto: StokBulDto = {
+  CariKod:this.postorder.cariKod ?? '',
+  Bul: aranacakKelime
+};
+  this.companyService.searchStockByCustomerCode(dto).subscribe({
+    next: value =>{
+      const isMobile = window.innerWidth <= 768;
+      if (isMobile) {
+        this.secilenUrun.set(value[0]);
+      }
+      else {
+
+      this.bulunanUrunler.set(value)
+      }
+    },
+    error: err => console.error('StokAra hatası:', err)
+  });
+}
 
 
   urunSec(urun: StokAraCT) {
@@ -223,8 +333,8 @@ export class CompanyGoodsReceipt {
       MalKabulMiktari: 1,
       tedarikciStokKod: '',
       aciklama: '',
-      fark: '',
-      sipId: ''
+      fark: 0,
+
     };
 
     const existingIndex = this.urunListesi().findIndex(
@@ -252,281 +362,306 @@ export class CompanyGoodsReceipt {
     this.dataSource.data = this.urunListesi();
   }
 
-  kaydet() {
-    this.gonderiliyor.set(true);
-
-    /* ============================
-     * 1️⃣ Kalemleri oluştur
-     * ============================ */
-    const kalemler: Kalem[] = this.urunListesi().map(urun => ({
-      id: crypto.randomUUID(),
-      stok: {
-        stokKod: urun.UrunKodu,
-        stokIsim: urun.UrunAdi,
-        birimAd: urun.sto_birim_ad
-      },
-      siparisGuid: urun.siparisGuid,
-      sevkGuid: urun.sevkGuid,
-      siparisMiktari: urun.siparisMiktari ?? 0,
-      sevkMiktari: urun.sevkMiktari ?? 0,
-      malKabulMiktari: urun.MalKabulMiktari ?? 0,
-      sevkMalKabulFarkMiktari: urun.fark ?? 0,
-      aciklama: ''
-    }));
-
-    /* ============================
-     * 2️⃣ Fark analizleri
-     * ============================ */
-    const malkabulFarkiPozitifler = kalemler.filter(
-      k => (k.sevkMalKabulFarkMiktari ?? 0) > 0
-    );
-
-    const malkabulFarkiNegatifler = kalemler.filter(
-      k => (k.sevkMalKabulFarkMiktari ?? 0) < 0
-    );
-
-    if (malkabulFarkiPozitifler.length > 0) {
-      this.toastr.warning(
-        'Mal kabul miktarı sevk miktarından fazla olan kalemler var',
-        'Uyarı'
-      );
+   firmaAra() {
+      const query = this.postorder.cariKod ?? this.secilencari()?.toLocaleString() ?? '';
+      this.companyService.searchCustomerAccount(query).subscribe(data => {
+        this.bulunancariler.set(data);
+      });
     }
+  
+    firmaSec(firma: any) {
+      this.postorder.cariKod = firma.cariKod;
+      this.secilencari.set(firma.id);
+      this.firmaNo.set(firma.id);
+    
+    
+      this.bulunancariler.set([]);
+    }
+  
 
-    /* ============================
-     * 3️⃣ Evrak bilgileri
-     * ============================ */
-    this.postorder = {
-      ...this.postorder,
-      qrstring: this.qrIrsaliyeNo(),
-      
-      kalemler
-    };
 
-    /* ============================
-     * 4️⃣ Gönderiliyor toast
-     * ============================ */
-    const toastRef = this.toastr.show('Gönderiliyor...', '', {
-      disableTimeOut: true,
-      progressBar: true,
-      tapToDismiss: false,
-      closeButton: false,
-      toastClass: 'ngx-toastr info-toast'
+kaydet() {
+  this.setLoading(true);
+
+  const kalemler = this.buildKalemler();
+  const { pozitifler, negatifler } = this.analyzeDifferences(kalemler);
+
+  this.warnIfPositiveDifference(pozitifler);
+  this.buildPostOrder(kalemler);
+
+  const toastRef = this.showLoadingToast();
+
+  this.goodsReceiptNotesService
+    .createCompanyReceipt(this.altmenu(), this.postorder)
+    .pipe(finalize(() => this.clearLoading(toastRef)))
+    .subscribe({
+      next: () => this.handleAfterReceiptSaved(pozitifler, negatifler),
+      error: err => this.handleError(err)
     });
+}
 
-    /* ============================
-     * 5️⃣ Mal kabul kaydet
-     * ============================ */
-    this.goodsReceiptNotesService
-      .createCompanyReceipt(this.altmenu(), this.postorder)
-      .subscribe({
-        next: () => {
-          this.toastr.clear(toastRef.toastId);
-          this.toastr.success('Mal kabul başarıyla kaydedildi', 'Başarılı');
-          this.gonderiliyor.set(false);
+/* =====================================================
+ * LOADING / TOAST
+ * ===================================================== */
+private setLoading(state: boolean) {
+  this.gonderiliyor.set(state);
+}
 
-          // const proceedWithPositives = () => {
-          //   if (malkabulFarkiPozitifler.length > 0) {
-          //     this.handlePositiveDifferences(malkabulFarkiPozitifler);
-          //   } else {
-          //     this.kapat();
-          //   }
-          // };
+private showLoadingToast() {
+  return this.toastr.show('Gönderiliyor...', '', {
+    disableTimeOut: true,
+    progressBar: true,
+    tapToDismiss: false,
+    closeButton: false,
+    toastClass: 'ngx-toastr info-toast'
+  });
+}
 
-          // if (malkabulFarkiNegatifler.length > 0) {
-          //   this.handleNegativeDifferences(malkabulFarkiNegatifler, proceedWithPositives);
-          // } else {
-          //   proceedWithPositives();
-          // }
-        },
+private clearLoading(toastRef: any) {
+  this.toastr.clear(toastRef.toastId);
+  this.setLoading(false);
+}
 
-        error: err => {
-          this.toastr.clear(toastRef.toastId);
-          this.toastr.error('Mal kabul kaydedilirken hata oluştu', 'Hata');
-          console.error(err);
-          this.gonderiliyor.set(false);
-        }
-      });
-  }
+private handleError(err: any) {
+  this.toastr.error('Mal kabul kaydedilirken hata oluştu', 'Hata');
+  console.error(err);
+}
 
-  private handleNegativeDifferences(
-    malkabulFarkiNegatifler: Kalem[],
-    onComplete: () => void
-  ) {
-    this.toastr.info(
-      'Mal kabul miktarı sevk miktarından az olan kalemler düzeltme gerekiyor',
-      'Bilgi'
-    );
+/* =====================================================
+ * KALEMLER
+ * ===================================================== */
+private buildKalemler(): Kalem[] {
+  return this.urunListesi().map(urun => ({
+    id: crypto.randomUUID(),
 
-    this.dialog
-      .open(RefundConfirmDialogComponent, {
-        width: '50vw',
-        height: '70vh',
-        data: {
-          kalemler: malkabulFarkiNegatifler.map(k => ({
-            ...k,
-            stok: { ...k.stok }
-          }))
-        }
-      })
-      .afterClosed()
-      .subscribe(confirm => {
-        if (confirm !== true) {
-          onComplete();
-          return;
-        }
+    stok: {
+      stokKod: urun.UrunKodu ?? '',
+      stokIsim: urun.UrunAdi ?? '',
+      birimAd: urun.sto_birim_ad ?? ''
+    },
 
-        const sipKalemler: Kalem[] = malkabulFarkiNegatifler.map(k => ({
-          id: k.id,
-          stok: { ...k.stok },
-          siparisGuid: k.siparisGuid,
-          sevkGuid: k.sevkGuid,
-            siparisMiktari: Math.abs(k.sevkMalKabulFarkMiktari ?? 0),
-          sevkMiktari: k.sevkMiktari,
-          malKabulMiktari: k.malKabulMiktari,
-          sevkMalKabulFarkMiktari: k.sevkMalKabulFarkMiktari,
-          iadeyeKonuIrsaliyeGuidi:  this.evrakdetay().id,
-          aciklama: 'Noksan mal iade siparişi'
-        }));
+    siparisGuid: this.evrakdetay()?.siparis.id ?? null,
 
-        const newData: SubeSiparisiAlDto = {
-          noksanFazlaIadesi: 0,
-          muhatapDepoNo: this.muhatapDepoNo(),
-          kalemler: sipKalemler
-        };
+    sevkGuid: null,
 
-        this.salesOrdersService
-          .createBranchOrder(this.data.iadeGorevId, newData)
-          .subscribe({
-            next: () => {
-              this.toastr.success(
-                'Noksan mal iade siparişi başarıyla oluşturuldu',
-                'Başarılı'
-              );
-              onComplete();
-            },
-            error: err => {
-              this.toastr.error(
-                'Noksan mal iade siparişi oluşturulurken hata oluştu',
-                'Hata'
-              );
-              console.error(err);
-              onComplete();
-            }
-          });
-      });
-  }
+    siparisMiktari: urun.siparisMiktari ?? 0,
 
-  private handlePositiveDifferences(malkabulFarkiPozitifler: Kalem[]) {
-    this.toastr.info(
-      'Mal kabul miktarı sevk miktarından fazla olan kalemler için işlem seçiniz',
-      'Bilgi'
-    );
+    sevkMiktari: urun.sevkmiktari ?? 0,
 
-    this.dialog
-      .open(ExcessConfirmDialogComponent, {
-        width: '450px'
-      })
-      .afterClosed()
-      .subscribe((decision: 'return' | 'correction' | null) => {
-        if (decision === 'return') {
+    malKabulMiktari: urun.MalKabulMiktari ?? 0,
 
+    sevkMalKabulFarkMiktari: urun.fark ?? 0,
 
-          this.salesOrdersService
-            .createBranchOrder(this.data.iadeGorevId, {
-              noksanFazlaIadesi: 1,
-              muhatapDepoNo: this.muhatapDepoNo(),
-              kalemler: malkabulFarkiPozitifler.map(k => ({
-                id: k.id,
-                stok: { ...k.stok },
-                siparisGuid: k.siparisGuid,
-                siparisMiktari: Math.abs(k.sevkMalKabulFarkMiktari ?? 0),
-                sevkMiktari: k.sevkMiktari,
-                malKabulMiktari: k.malKabulMiktari,
-                sevkMalKabulFarkMiktari: k.sevkMalKabulFarkMiktari,
-                iadeyeKonuIrsaliyeGuidi: this.evrakdetay().id,
-                aciklama: 'Fazla mal iade sevkiyatı'
-              }))
-       
-            })
-            .subscribe({
-              next: () =>
-             {
-                this.toastr.success(
-                  'Fazla mal iade sevkiyatı başarıyla oluşturuldu',
-                  'Başarılı'
-                );
-              },
-              error: err => {
-                this.toastr.error(
-                  'Fazla mal iade sevkiyatı oluşturulurken hata oluştu',
-                  'Hata'
-                );
-                console.error(err);
-              },
-              complete: () => this.kapat()
-            });
-          return;
-        }
+    aciklama: ''
+  }));
+}
 
-        if (decision === 'correction') {
-          this.dialog
-            .open(ConfirmDialogComponent, { width: '400px' })
-            .afterClosed()
-            .subscribe(confirmed => {
-              confirmed
-                ? this.toastr.success(
-                    'Fazla mal kabul düzeltmesi onaylandı bısey yapmanıza gerek yok',
-                    'Başarılı'
-                  )
-                : this.salesOrdersService
-            .createBranchOrder(this.data.iadeGorevId, {
-              noksanFazlaIadesi: 1,
-              muhatapDepoNo: this.muhatapDepoNo(),
-              kalemler: malkabulFarkiPozitifler.map(k => ({
-                id: k.id,
-                stok: { ...k.stok },
-                siparisGuid: k.siparisGuid,
-                siparisMiktari: Math.abs(k.sevkMalKabulFarkMiktari ?? 0),
-                sevkMiktari: k.sevkMiktari,
-                malKabulMiktari: k.malKabulMiktari,
-                sevkMalKabulFarkMiktari: k.sevkMalKabulFarkMiktari,
-                iadeyeKonuIrsaliyeGuidi: this.evrakdetay().id,
-                aciklama: 'Fazla mal iade sevkiyatı'
-              }))
-            })
-            .subscribe({
-              next: () =>
-                this.toastr.success(
-                  'Fazla mal iade sevkiyatı başarıyla oluşturuldu',
-                  'Başarılı'
-                ),
-              error: err => {
-                this.toastr.error(
-                  'Fazla mal iade sevkiyatı oluşturulurken hata oluştu',
-                  'Hata'
-                );
-                console.error(err);
-              },
-              complete: () => this.kapat()
-            });
-      
+/* =====================================================
+ * FARK ANALİZİ
+ * ===================================================== */
+private analyzeDifferences(kalemler: Kalem[]) {
+  return {
+    pozitifler: kalemler.filter(k => (k.sevkMalKabulFarkMiktari ?? 0) > 0),
+    negatifler: kalemler.filter(k => (k.sevkMalKabulFarkMiktari ?? 0) < 0)
+  };
+}
+
+private warnIfPositiveDifference(kalemler: Kalem[]) {
+  if (!kalemler.length) return;
+
+  this.toastr.warning(
+    'Mal kabul miktarı sevk miktarından fazla olan kalemler var',
+    'Uyarı'
+  );
+}
+
+/* =====================================================
+ * POST ORDER
+ * ===================================================== */
+private buildPostOrder(kalemler: Kalem[]) {
+  this.postorder = {
+    ...this.postorder,
+    qrData: this.qrIrsaliyeNo(),
+    cariKod: this.postorder.cariKod,
+    teslimEdenAdSoyad: 'serdal test',
+    belgeTarihi: new Date(),
+    kalemler
+  };
+}
+
+/* =====================================================
+ * MAL KABUL SONRASI AKIŞ
+ * ===================================================== */
+private handleAfterReceiptSaved(
+  pozitifler: Kalem[],
+  negatifler: Kalem[]
+) {
+  this.toastr.success('Mal kabul başarıyla kaydedildi', 'Başarılı');
+
+  const proceed = () =>
+    pozitifler.length
+      ? this.handlePositiveDifferences(pozitifler)
+      : this.kapat();
+
+  negatifler.length
+    ? this.handleNegativeDifferences(negatifler, proceed)
+    : proceed();
+}
+
+/* =====================================================
+ * NEGATİF FARK – NOKSAN MAL
+ * ===================================================== */
+private buildIadeSevkKalemleri(kalemler: Kalem[]): Kalem[] {
+  return kalemler.map(k => ({
+    id: k.id,
+
+    stok: {
+      stokKod: k.stok?.stokKod ?? '',   // boş string fallback
+      stokIsim: k.stok?.stokIsim ?? '',
+      birimAd: k.stok?.birimAd ?? ''
+    },
+
+    siparisGuid: null,
+
+    sevkGuid:null,
+
+    sevkMiktari: Math.abs(k.sevkMalKabulFarkMiktari ?? 0),
+
+    malKabulMiktari: k.malKabulMiktari ?? undefined,
+
+    sevkMalKabulFarkMiktari: k.sevkMalKabulFarkMiktari ?? undefined,
+
+    iadeyeKonuIrsaliyeGuidi: k.siparisGuid ?? undefined,
+
+    aciklama: 'Noksan mal iade siparişi'
+  }));
+}
 
 
-              this.kapat();
-            });
-          return;
-        }
+private handleNegativeDifferences(
+  kalemler: Kalem[],
+  onComplete: () => void
+) {
+  this.toastr.info(
+    'Eksik gelen ürünler için iade işlemi gerekiyor',
+    'Bilgi'
+  );
 
-        this.kapat();
-      });
-  }
+  this.dialog
+    .open(RefundConfirmDialogComponent, {
+      width: '50vw',
+      height: '70vh',
+      data: { kalemler }
+    })
+    .afterClosed()
+    .subscribe(confirm => {
+      if (!confirm) return onComplete();
+
+      const dto: FirmayaSevketDto = {
+        iadedir: true,
+        muhatapFirmaCariKod: this.postorder.cariKod ?? '',
+        teslimTarihi: new Date(),
+        siparisEden: 'serdal test',
+        siparisAlan: 'serdal test',
+        kalemler: this.buildIadeSevkKalemleri(kalemler)
+      };
+
+      this.shipmentnoteservice
+        .createCompanyShipment(this.data.iadeGorevId, dto)
+        .subscribe({
+          next: () =>
+            this.toastr.success(
+              'Noksan mal iade siparişi oluşturuldu',
+              'Başarılı'
+            ),
+          error: () =>
+            this.toastr.error(
+              'Noksan mal iade siparişi oluşturulamadı',
+              'Hata'
+            ),
+          complete: onComplete
+        });
+    });
+}
+
+/* =====================================================
+ * POZİTİF FARK – FAZLA MAL
+ * ===================================================== */
+private handlePositiveDifferences(kalemler: Kalem[]) {
+  this.toastr.info(
+    'Fazla gelen ürünler için işlem seçiniz',
+    'Bilgi'
+  );
+
+  this.dialog
+    .open(ExcessConfirmDialogComponent, { width: '450px' })
+    .afterClosed()
+    .subscribe((decision: 'return' | 'correction' | null) => {
+      if (!decision) return this.kapat();
+
+      decision === 'return'
+        ? this.createFazlaMalIade(kalemler)
+        : this.confirmCorrection();
+    });
+}
+
+private createFazlaMalIade(kalemler: Kalem[]) {
+  this.salesOrdersService
+    .createBranchOrder(this.data.iadeGorevId, {
+      noksanFazlaIadesi: 1,
+      firmaNo: this.firmaNo(),
+      kalemler: kalemler.map(k => ({
+        ...k,
+        siparisGuid: null,
+        sevkGuid: null,
+        iadeyeKonuIrsaliyeGuidi: k.siparisGuid,
+        siparisMiktari: Math.abs(k.sevkMalKabulFarkMiktari ?? 0),
+        aciklama: 'Fazla mal iade sevkiyatı'
+      }))
+    })
+    .subscribe({
+      next: () =>
+        this.toastr.success(
+          'Fazla mal iade sevkiyatı oluşturuldu',
+          'Başarılı'
+        ),
+      error: () =>
+        this.toastr.error(
+          'Fazla mal iade sevkiyatı oluşturulamadı',
+          'Hata'
+        ),
+      complete: () => this.kapat()
+    });
+}
+
+private confirmCorrection() {
+  this.dialog
+    .open(ConfirmDialogComponent, { width: '400px' })
+    .afterClosed()
+    .subscribe(confirmed => {
+      confirmed
+        ? this.toastr.success(
+            'Fazla mal kabul düzeltmesi onaylandı',
+            'Başarılı'
+          )
+        : this.toastr.info(
+            'Düzeltme reddedildi, işlem yapılmadı',
+            'Bilgi'
+          );
+
+      this.kapat();
+    });
+}
+
 
 
 
   onMalKabulChange(element: any) {
+    console.log('Mal Kabul Miktarı değişti:', element);
     const sevk = element.sevkmiktari ?? 0;
     const kabul = element.MalKabulMiktari ?? 0;
     element.fark = kabul - sevk;
+    console.log('Güncellenen fark:', element.fark);
   }
   temizle() {
     this.urunListesi.set([]);

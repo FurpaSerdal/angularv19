@@ -21,7 +21,7 @@ import { MeService } from '../../../../../services/meservice.service';
 import { SalesOrdersService } from '../../../../../services/orders/sales-orders.service';
 import { WarehouseOrderComponent } from '../create/warehouse-order';
 import { warehouseSalesOrderToShipment } from '../to-shipment/warehouse-sales-order-to-shipment';
-import { Detail } from '../detail/detail';
+import { WarehouseSaleOrderDetailComponent } from '../detail/detail';
 
 
 
@@ -156,7 +156,7 @@ export class WarehouseSaleOrder extends BaseComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: data => {
-          this.dialog.open(Detail, {
+          this.dialog.open(WarehouseSaleOrderDetailComponent, {
             width: '50%',
             height: '70%',
             data: data.siparis

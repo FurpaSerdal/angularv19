@@ -11,12 +11,12 @@ import { Evrak } from '../../../../../models/ortakModeller';
   templateUrl: './detail.html',
   styleUrls: ['./detail.css']
 })
-export class Detail {
+export class WarehouseInboundShipmentsDetailComponent {
   veri!: any;
 
   constructor(
     private toastr: ToastrService,
-    public dialogRef: MatDialogRef<Detail>,
+    public dialogRef: MatDialogRef<WarehouseInboundShipmentsDetailComponent>,
     @Inject(MAT_DIALOG_DATA) public data: Evrak,
   ) {}
 

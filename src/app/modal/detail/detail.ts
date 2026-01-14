@@ -2,26 +2,24 @@ import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { Evrak } from '../../models/evrakDetay';
-import { EvrakEkleDto, Kalem } from '../../models/evrakKaydet';
 import { ToastrService } from 'ngx-toastr';
 
 
 
 @Component({
-  selector: 'app-detail',
+  selector: 'app-detail-modal',
   imports: [CommonModule,FormsModule],
   templateUrl: './detail.html',
   styleUrl: './detail.css',
 })
-export class Detail {
+export class DetailModalComponent {
   veri!: any;
 
   constructor(
     private toastr: ToastrService,
      
-    public dialogRef: MatDialogRef<Detail>,
-    @Inject(MAT_DIALOG_DATA) public data: Evrak,
+    public dialogRef: MatDialogRef<DetailModalComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any,
   ) {}
 
   ngOnInit() {

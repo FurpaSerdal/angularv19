@@ -1,4 +1,4 @@
-import { Kalem, NoksanFazlaIadesi } from "./genelModel";
+import { Kalem, NoksanFazlaIadesi } from "./ortakModeller";
 
 export interface SubeSiparisiAlDto {
   noksanFazlaIadesi?: NoksanFazlaIadesi | null;

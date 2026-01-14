@@ -5,18 +5,18 @@ import { ToastrService } from 'ngx-toastr';
 import { Evrak } from '../../../../../models/ortakModeller';
 
 @Component({
-  selector: 'app-warhouse-purchase-order-detail',
+  selector: 'app-warehouse-purchase-order-detail',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './detail.html',
   styleUrls: ['./detail.css']
 })
-export class Detail {
+export class WarehousePurchaseOrderDetailComponent {
   veri!: any;
 
   constructor(
     private toastr: ToastrService,
-    public dialogRef: MatDialogRef<Detail>,
+    public dialogRef: MatDialogRef<WarehousePurchaseOrderDetailComponent>,
     @Inject(MAT_DIALOG_DATA) public data: Evrak,
   ) {}
 

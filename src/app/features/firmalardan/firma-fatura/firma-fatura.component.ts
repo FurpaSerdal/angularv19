@@ -1,5 +1,5 @@
 // src/app/pages/firma-fatura/firma-fatura.component.ts
-import { Component, ViewChild, signal, OnInit, AfterViewInit } from '@angular/core';
+import { Component, ViewChild, signal, OnInit, AfterViewInit, effect } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -96,7 +96,15 @@ export class FirmaFaturaComponent implements OnInit, AfterViewInit {
     private datePipe: DatePipe,
     private toastr: ToastrService,
     private breakpointObserver: BreakpointObserver,
-  ) { }
+  ) {
+        effect(() => {
+      const user = this.meservice.userSignal();
+      const gorevIdFromService = this.meservice.selectedGorev();
+      this.gorevid.set(gorevIdFromService?.kimlik ?? 0);
+      const gorevAdiFromService = this.meservice.selectedGorev();
+      this.gorevadi.set(gorevAdiFromService?.isim ?? '');
+    });
+   }
 
   ngOnInit() {
 
@@ -108,17 +116,7 @@ export class FirmaFaturaComponent implements OnInit, AfterViewInit {
 //     });
 ;
     // Sinyallerle görevid ve görevadi güncelleme
-    this.meservice.SeçiliGörevid$
-      .pipe(takeUntilDestroyed())
-      .subscribe(data => {
-        if (data && data > 0) this.gorevid.set(data);
-      });
 
-    this.meservice.selectedGörevadi$
-      .pipe(takeUntilDestroyed())
-      .subscribe(data => {
-        if (data) this.gorevadi.set(data);
-      });
   }
 
   ngAfterViewInit() {

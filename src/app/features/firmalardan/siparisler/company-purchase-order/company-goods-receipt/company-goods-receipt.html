@@ -15,12 +15,7 @@
 
   <!-- Evrak Bilgileri Kartı -->
   <div class="card shadow-sm border-0 rounded-3 mb-4">
-    <div class="card-header bg-light border-0 py-3">
-      <h6 class="mb-0 fw-semibold">
-        <i class="bi bi-file-earmark-text me-2 text-primary"></i>
-        Evrak Bilgileri
-      </h6>
-    </div>
+
     
     <div class="card-body">
       <div class="row g-3">
@@ -86,14 +81,14 @@
         </div>
 
         <!-- Firma Cari Kodu -->
-        <div class="col-md-6">
+        <div class="col-md-3">
           <label class="form-label fw-medium mb-2 d-flex align-items-center">
             <i class="bi bi-building me-2 text-muted"></i>
             Firma Cari Kodu
             <span class="text-danger ms-1">*</span>
           </label>
           <div class="p-2 bg-light rounded border">
-            <strong class="text-primary">{{ evrakdetay().siparis.muhatapFirma?.no }}</strong>
+            <strong class="text-primary">{{ postorder.cariKod }}</strong>
           </div>
         </div>
 
@@ -124,6 +119,15 @@
                  [(ngModel)]="postorder.evrakNoSira"
                  placeholder="Sıra girin">
         </div>
+        <div class="col-md-3">
+          <label for=""> mal kabul yapan</label>
+          <input type="text" class="form-control" [(ngModel)]="postorder.teslimEdenAdSoyad" placeholder="mal kabul yapan">
+
+        </div>
+
+        
+
+     
       </div>
     </div>
   </div>
@@ -132,6 +136,61 @@
   <div class="card shadow-sm border-0 rounded-3">
     <!-- Mod İçerikleri -->
     <ng-container *ngIf="data && data.mode === 'select'">
+
+         <!-- Arama -->
+        <div class="col-12">
+          <div class="card border-0 shadow-sm mb-2">
+            <div class="card-body">
+              <div class="input-group input-group-lg">
+                <span class="input-group-text bg-light border-end-0">
+                  <i class="bi bi-search text-muted"></i>
+                </span>
+                <input
+                  type="text"
+                  class="form-control border-start-0 py-3"
+                  [(ngModel)]="aramaGirdisi"
+                  (keyup.enter)="urunAra(aramaGirdisi())"
+                  placeholder="Ürün adı veya kodu ile arama yapın">
+                <button
+                  class="btn btn-success px-4 fw-medium"
+                  type="button"
+                  (click)="urunAra(aramaGirdisi())">
+                  <i class="bi bi-search me-2"></i>Ara
+                </button>
+              </div>
+              
+              <!-- Arama Sonuçları -->
+              <div *ngIf="bulunanUrunler().length > 0" class="mt-3">
+                <div class="alert alert-light border mb-0">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted small">Arama Sonuçları</span>
+                    <small class="text-muted">{{ bulunanUrunler().length }} ürün bulundu</small>
+                  </div>
+                  <div class="list-group">
+                    <a *ngFor="let urun of bulunanUrunler()"
+                       class="list-group-item list-group-item-action border-0 rounded-2 mb-1 hover-lift"
+                       (click)="urunSec(urun)">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <div class="flex-grow-1">
+                          <div class="fw-medium text-dark">{{ urun.stokIsim }}</div>
+                          <div class="d-flex align-items-center mt-1">
+                            <span class="badge bg-light text-dark me-2">{{ urun.stokKod }}</span>
+                            <span class="badge bg-info text-white">
+                              <i class="bi bi-tag me-1"></i>{{ urun.birimAd }}
+                            </span>
+                          </div>
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                          <i class="bi bi-plus me-1"></i>Ekle
+                        </button>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       <!-- Select Mode -->
       <div class="card-body">
         <!-- Ürün İşlemleri Başlık -->
@@ -181,7 +240,7 @@
                 <td class="text-center">
                   <input type="number" 
                          class="form-control form-control-sm" 
-                         [(ngModel)]="element.sevkMiktari"
+                         [(ngModel)]="element.sevkmiktari"
                          min="0" 
                          step="1">
                 </td>
@@ -259,6 +318,7 @@
               </button>
             </div>
           </div>
+        
 
           <!-- Seri/Sıra No Girişi -->
           <div class="col-md-6">
@@ -288,6 +348,108 @@
               </div>
             </div>
           </div>
+          
+                  <!-- Firma Cari Kodu -->
+          <div class="col-12">
+            <label for="cariKodu" class="form-label fw-medium d-flex align-items-center">
+              <i class="bi bi-building me-2 text-muted"></i>
+              Firma Cari Kodu
+              <span class="text-danger ms-1">*</span>
+            </label>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-end-0">
+                <i class="bi bi-search text-muted"></i>
+              </span>
+              <input
+                type="text"
+                class="form-control border-start-0 py-2"
+                id="cariKodu"
+                [(ngModel)]="postorder.cariKod"
+                (keydown.enter)="firmaAra()"
+                (focus)="firmaAra()"
+                placeholder="Cari kod giriniz ve Enter'a basın">
+              <button class="btn btn-outline-primary" type="button" (click)="firmaAra()">
+                <i class="bi bi-arrow-right"></i>
+              </button>
+            </div>
+
+               <!-- Arama -->
+        <div class="col-12">
+          <div class="card border-0 shadow-sm mb-2">
+            <div class="card-body">
+              <div class="input-group input-group-lg">
+                <span class="input-group-text bg-light border-end-0">
+                  <i class="bi bi-search text-muted"></i>
+                </span>
+                <input
+                  type="text"
+                  class="form-control border-start-0 py-3"
+                  [(ngModel)]="aramaGirdisi"
+                  (keyup.enter)="urunAra(aramaGirdisi())"
+                  placeholder="Ürün adı veya kodu ile arama yapın">
+                <button
+                  class="btn btn-success px-4 fw-medium"
+                  type="button"
+                  (click)="urunAra(aramaGirdisi())">
+                  <i class="bi bi-search me-2"></i>Ara
+                </button>
+              </div>
+              
+              <!-- Arama Sonuçları -->
+              <div *ngIf="bulunanUrunler().length > 0" class="mt-3">
+                <div class="alert alert-light border mb-0">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted small">Arama Sonuçları</span>
+                    <small class="text-muted">{{ bulunanUrunler().length }} ürün bulundu</small>
+                  </div>
+                  <div class="list-group">
+                    <a *ngFor="let urun of bulunanUrunler()"
+                       class="list-group-item list-group-item-action border-0 rounded-2 mb-1 hover-lift"
+                       (click)="urunSec(urun)">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <div class="flex-grow-1">
+                          <div class="fw-medium text-dark">{{ urun.stokIsim }}</div>
+                          <div class="d-flex align-items-center mt-1">
+                            <span class="badge bg-light text-dark me-2">{{ urun.stokKod }}</span>
+                            <span class="badge bg-info text-white">
+                              <i class="bi bi-tag me-1"></i>{{ urun.birimAd }}
+                            </span>
+                          </div>
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                          <i class="bi bi-plus me-1"></i>Ekle
+                        </button>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+            
+            <!-- Arama Sonuçları -->
+            <div *ngIf="bulunancariler().length > 0" 
+                 class="position-relative mt-2">
+              <div class="dropdown-menu show w-100 shadow-lg border-0 rounded-3 p-2">
+                <div class="dropdown-header text-muted small">Sonuçlar</div>
+                <div class="list-group border-0">
+                  <a *ngFor="let firma of bulunancariler()"
+                     class="list-group-item list-group-item-action border-0 rounded-2 mb-1 hover-scale"
+                     (click)="firmaSec(firma)">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div>
+                        <div class="fw-medium text-primary">{{ firma.cariUnvan }}</div>
+                        <small class="text-muted">{{ firma.cariKod }}</small>
+                      </div>
+                      <i class="bi bi-chevron-right text-muted"></i>
+                    </div>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
 
         <!-- Yükleme Göstergesi -->
@@ -362,8 +524,12 @@
                 <td class="text-center">
                   <span class="badge bg-info">{{ element.sto_birim_ad }}</span>
                 </td>
-                <td class="text-center">
-                  <strong>{{ element.sevkmiktari }}</strong>
+                         <td class="text-center">
+                  <input type="number" 
+                         class="form-control form-control-sm" 
+                         [(ngModel)]="element.sevkmiktari"
+                         min="0" 
+                         step="1">
                 </td>
                 <td class="text-center">
                   <input type="number" 

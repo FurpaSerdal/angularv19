@@ -8,7 +8,6 @@ import { ToastrService } from 'ngx-toastr';
 import { WarehouseService } from '../../../../../services/warehouse.service';
 import { depoMalKabulModel } from '../../../../../models/depoMalKabulModel';
 import { MeService } from '../../../../../services/meservice.service';
-import { Kalem, NoksanFazlaIadesi, StokAraCT } from '../../../../../models/genelModel';
 
 import { ShipmentNotesService } from '../../../../../services/shipments/shipment-notes.service';
 import { GoodsReceiptNotesService } from '../../../../../services/receipts/goods-receipt-notes.service';
@@ -18,6 +17,7 @@ import { SubeSiparisiAlDto } from '../../../../../models/depoSipAlModel';
 import { ExcessConfirmDialogComponent } from '../../../../../modal/ExcessConfirmDialogComponent';
 import { ConfirmDialogComponent } from '../../../../../modal/ConfirmDialogComponent';
 import { MatProgressSpinner } from "@angular/material/progress-spinner";
+import { Kalem, StokAraCT } from '../../../../../models/ortakModeller';
 
 
 @Component({
@@ -87,15 +87,15 @@ export class WarehouseGoodsReceipt {
       const malKabulMiktari = 0;
 
       return {
-        UrunAdi: urun.stok.stokIsim,
-        UrunKodu: urun.stok.stokKod,
+        UrunAdi: urun.stok?.stokIsim,
+        UrunKodu: urun.stok?.stokKod,
         verilenSiparisMiktari: urun.siparisMiktari,
         sevkmiktari: sevkMiktari,
         MalKabulMiktari: malKabulMiktari,
         barkodu: urun.stok?.barkodlar?.[0]?.barKodu ?? '',
-        fiyat: urun.stok.fiyat?.fiyati ?? 0,
-        birimkatsayisi: urun.stok.barkodlar?.[0]?.birimKatSayisi ?? 1,
-        sto_birim_ad: urun.stok.birimAd,
+        fiyat: urun.stok?.fiyat?.fiyati ?? 0,
+        birimkatsayisi: urun.stok?.barkodlar?.[0]?.birimKatSayisi ?? 1,
+        sto_birim_ad: urun.stok?.birimAd,
         aciklama: '',
         stok: urun.stok,
 
@@ -115,15 +115,15 @@ export class WarehouseGoodsReceipt {
       const malKabulMiktari = 0;
       console.log('Sevk Miktari:', sevkMiktari, 'Mal Kabul Miktari:', malKabulMiktari);
       return {
-        UrunAdi: urun.stok.stokIsim,
-        UrunKodu: urun.stok.stokKod,
+        UrunAdi: urun.stok?.stokIsim,
+        UrunKodu: urun.stok?.stokKod,
         verilenSiparisMiktari: urun.siparisMiktari,
         sevkmiktari: sevkMiktari,
         MalKabulMiktari: malKabulMiktari,
         barkodu: urun.stok?.barkodlar?.[0]?.barKodu ?? '',
-        fiyat: urun.stok.fiyat?.fiyati ?? 0,
-        birimkatsayisi: urun.stok.barkodlar?.[0]?.birimKatSayisi ?? 1,
-        sto_birim_ad: urun.stok.birimAd,
+        fiyat: urun.stok?.fiyat?.fiyati ?? 0,
+        birimkatsayisi: urun.stok?.barkodlar?.[0]?.birimKatSayisi ?? 1,
+        sto_birim_ad: urun.stok?.birimAd,
         aciklama: '',
         stok: urun.stok,
 
@@ -183,7 +183,14 @@ export class WarehouseGoodsReceipt {
     this.warehouseservice
       .searchStock(aranacakKelime)
       .subscribe({
-        next: value => this.bulunanUrunler.set(value),
+    next: res => {const isMobile = window.innerWidth <= 768;
+      if (isMobile) {
+        this.urunSec(res[0]);
+      }
+      else {
+
+      this.bulunanUrunler.set(res);
+      }},
         error: err => console.error('StokAra hatası:', err)
       });
   }
@@ -243,6 +250,7 @@ export class WarehouseGoodsReceipt {
 
   kaydet() {
     this.gonderiliyor.set(true);
+    console.log('Kaydet tetiklendi');
 
     /* ============================
      * 1️⃣ Kalemleri oluştur
@@ -366,10 +374,14 @@ export class WarehouseGoodsReceipt {
 
         const sipKalemler: Kalem[] = malkabulFarkiNegatifler.map(k => ({
           id: k.id,
-          stok: { ...k.stok },
+        stok: {
+  stokKod: k.stok?.stokKod!, // kesin var diyorsun
+  stokIsim: k.stok?.stokIsim!,
+  birimAd: k.stok?.birimAd!
+},
           siparisGuid: k.siparisGuid,
           sevkGuid: k.sevkGuid,
-            siparisMiktari: Math.abs(k.sevkMalKabulFarkMiktari ?? 0),
+          siparisMiktari: Math.abs(k.sevkMalKabulFarkMiktari ?? 0),
           sevkMiktari: k.sevkMiktari,
           malKabulMiktari: k.malKabulMiktari,
           sevkMalKabulFarkMiktari: k.sevkMalKabulFarkMiktari,
@@ -421,7 +433,7 @@ export class WarehouseGoodsReceipt {
 
 
           this.salesOrdersService
-            .createBranchOrder(this.data.iadeGorevId, {
+            .createCompanyOrder(this.data.iadeGorevId, {
               noksanFazlaIadesi: 1,
               muhatapDepoNo: this.muhatapDepoNo(),
               kalemler: malkabulFarkiPozitifler.map(k => ({

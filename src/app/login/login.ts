@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { AuthService } from '../services/auth.service';
 import { MeService } from '../services/meservice.service';
+import { SetMenuHelperService } from '../services/helper/setMenu-helper.service';
 
 
 @Component({
@@ -25,6 +26,7 @@ export class LoginComponent {
   constructor(
     private authService: AuthService, 
     private meService: MeService, 
+    private helperService: SetMenuHelperService,
     private router: Router
   ) {}
 
@@ -37,7 +39,8 @@ export class LoginComponent {
   login(): void {
     this.isFormSubmitted = true;
     this.errorMessage = '';
-         //   this.router.navigate(['/admin']);
+    this.helperService.updateMenu();
+     this.router.navigate(['/admin']);
 
     if (this.email && this.password) {
       this.isLoading = true;

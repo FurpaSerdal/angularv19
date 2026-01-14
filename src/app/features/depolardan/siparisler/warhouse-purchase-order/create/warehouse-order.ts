@@ -4,10 +4,10 @@ import { FormsModule } from '@angular/forms';
 
 import { WarehouseService } from '../../../../../services/warehouse.service';
 import { SubeSiparisiVerDto } from '../../../../../models/depoSipVerModel';
-import { Kalem, StokAraCT } from '../../../../../models/genelModel';
 import { MeService } from '../../../../../services/meservice.service';
 import { PurchaseOrdersService } from '../../../../../services/orders/purchase-orders.service';
 import { MatDialogRef } from '@angular/material/dialog';
+import { Kalem, StokAraCT } from '../../../../../models/ortakModeller';
 
 @Component({
   selector: 'app-warehouse-order',
@@ -110,7 +110,14 @@ export class WarehouseOrderComponent implements OnInit {
     }
 
     this.warehouseService.searchStock(query).subscribe({
-      next: res => this.bulunanUrunler.set(res),
+      next: res => {const isMobile = window.innerWidth <= 768;
+      if (isMobile) {
+        this.urunSec(res[0]);
+      }
+      else {
+
+      this.bulunanUrunler.set(res);
+      }},
       error: () => this.bulunanUrunler.set([])
     });
   }
@@ -118,7 +125,7 @@ export class WarehouseOrderComponent implements OnInit {
   urunSec(urun: StokAraCT) {
     const exists = this.postorder()
       .kalemler
-      .some(k => k.stok.stokKod === urun.stokKod);
+      .some(k => k.stok?.stokKod === urun.stokKod);
 
     if (exists) {
       this.saveError.set('Bu ürün zaten sipariş listesinde mevcut!');

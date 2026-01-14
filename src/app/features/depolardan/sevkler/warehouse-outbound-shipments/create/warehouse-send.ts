@@ -5,9 +5,9 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { ToastrService } from 'ngx-toastr';
 import { WarehouseService } from '../../../../../services/warehouse.service';
 import { MeService } from '../../../../../services/meservice.service';
-import { StokAraCT } from '../../../../../models/genelModel';
 import { ShipmentNotesService } from '../../../../../services/shipments/shipment-notes.service';
 import { MatDialogRef } from '@angular/material/dialog';
+import { StokAraCT } from '../../../../../models/ortakModeller';
 
 @Component({
   selector: 'app-warehouse-send',
@@ -47,8 +47,14 @@ export class WarehouseSend {
     
     const aranacakKelime = aranacak.toLocaleLowerCase();
     this.warehouseservice.searchStock(aranacakKelime).subscribe({
-      next: (value) => this.bulunanUrunler.set(value),
-      error: (err) => {
+  next: res => {const isMobile = window.innerWidth <= 768;
+      if (isMobile) {
+        this.urunSec(res[0]);
+      }
+      else {
+
+      this.bulunanUrunler.set(res);
+      }},      error: (err) => {
         console.error('Stok arama hatası:', err);
         this.toastr.error('Ürün aranırken hata oluştu');
       }

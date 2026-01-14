@@ -1,9 +1,9 @@
 export interface Kalem {
   id: string;
 
-  stok?: StokVin;
-  siparisGuid?: string;
-  sevkGuid?: string;
+  stok: StokVin;
+  siparisGuid?: string | null;
+  sevkGuid?: string | null;
   faturaGuid?: string;
   eIrsaliyeEttn?: string;
   eFaturaEttn?: string;
@@ -57,6 +57,7 @@ export interface Depo {
 }
 
 
+
 export interface Evrak {
   id: string;
 
@@ -103,26 +104,37 @@ export interface Evrak {
   kalemler?: Kalem[];
 }
 
-export interface Kalem {
-  id: string;
 
-  stok?: StokVin;
-  siparisGuid?: string;
-  sevkGuid?: string;
-  faturaGuid?: string;
-  eIrsaliyeEttn?: string;
-  eFaturaEttn?: string;
-  iadeyeKonuIrsaliyeGuidi?: string;
+export interface StokAraCT {
+  depoNo: number;
+  barKodu: string;
+  stokKod: string;
+  stokIsim: string;
+  fiyati: number;           // decimal -> number
+  birimAd: string;
+  birimKatsayisi: number;
+  satisDursun: number;
+  sipDursun: number;
+  malKabulDursun: number;
+  urunSorumlusu?: string | null;
+}
 
-  siparisMiktari?: number;
-  onerilenSiparisMiktari?: number;
-  sevkMiktari?: number;
-  malKabulMiktari?: number;
-  sevkMalKabulFarkMiktari?: number;
+// Cari arama
+export interface CariHesapAraCT {
+  cariKod: string;
+  cariUnvan: string;
+  vergiKimlikNo: string;
+}
 
-  aciklama?: string;
-  sonKullanimTarihi?: string | Date;
 
-  evrakId?: string;
-  evrak?: Evrak;
+// Cari kodu ile stok arama POST request DTO
+export interface StokBulDto {
+  CariKod: string | null;
+  Bul: string;
+}
+
+export enum NoksanFazlaIadesi {
+  NoksanDuzeltmeIadesi = 0,
+  FazlaIadesi = 1,
+  FazlaDuzeltmeSevki = 2
 }

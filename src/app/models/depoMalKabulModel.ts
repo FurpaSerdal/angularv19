@@ -1,4 +1,4 @@
-import { Kalem } from "./genelModel";
+import { Kalem } from "./ortakModeller";
 
 
 export interface depoMalKabulModel {

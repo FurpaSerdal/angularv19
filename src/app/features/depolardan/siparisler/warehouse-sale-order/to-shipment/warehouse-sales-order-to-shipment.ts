@@ -7,10 +7,10 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { WarehouseService } from '../../../../../services/warehouse.service';
 import { SubeyeSevketDto } from '../../../../../models/subeyeSevkModel';
-import { StokAraCT } from '../../../../../models/genelModel';
 import { ShipmentNotesService } from '../../../../../services/shipments/shipment-notes.service';
 import { MeService } from '../../../../../services/meservice.service';
 import Swal from 'sweetalert2';
+import { StokAraCT } from '../../../../../models/ortakModeller';
 
 
 @Component({

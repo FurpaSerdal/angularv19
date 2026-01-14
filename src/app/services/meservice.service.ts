@@ -45,40 +45,6 @@ export class MeService {
     this.http.get<User>(`${this.apiUrl}/kullanici/Benim`).subscribe(
       (data) => {
 
-        // bu menu ılalın fatura sayfası ıcın yapıldı normale donmek ıcın data yı kullan
-        // const hilalicinmenu :User = 
-        //   {
-
-        //       ad: "Hilal",
-        //        soyad: "",
-        //       depoNo: 1,
-        //       depoIsmi: "Merkez Şube - Bilgi İşlem",
-        //     menuler: [
-        //       {
-        //                    id: 1,
-        //              isim: "Fatura Gönderme ",
-        //      altMenuler: [
-        //         {
-        //             id: 1,
-        //             isim: "Firma Perakende Fatura Sevk",
-        //             dropDownMenu: {
-        //                gorev: { id: 21,
-        //                         isim: "Firmalara Satış Faturaları"} 
-
-        //               }
-
-
-        //         },
-
-        //       ]
-        //       }
-
-
-        //     ]
-
-
-        //   }
-
 
         this.depno = Number(data.depoNo);
       //  localStorage.setItem('depoNo', this.depno.toString());
@@ -108,38 +74,7 @@ export class MeService {
     return this.userSignal() !== null && !this.isLoading();
   });
 
-  // Seçili görev yönetimi
-  private SeçiliGörev = new BehaviorSubject<number>(this.loadSelectedTask() || 0);
-  SeçiliGörevid$ = this.SeçiliGörev.asObservable();
-
-  seçiligörev(gorevId: number): void {
-    this.SeçiliGörev.next(gorevId);
-    localStorage.setItem('seçiliGörevid', gorevId.toString());
-  }
-
-  private loadSelectedTask(): number | null {
-    const savedTaskId = localStorage.getItem('seçiliGörevid');
-    return savedTaskId ? parseInt(savedTaskId, 10) : null;
-  }
-
   
-  private seçiliGörevadi = new BehaviorSubject<string>("");
-  selectedGörevadi$ = this.seçiliGörevadi.asObservable();
-
-  seçiliGörevAyarla(gorevadi: string): void {
-    if (gorevadi === '') {
-
-      // Eğer boş bir değer geldiyse localStorage'dan sil
-      localStorage.removeItem('seçiliGörevadi');
-    } else {
-      // Eğer boş değilse, yeni değeri BehaviorSubject ve localStorage'a kaydet
-      this.seçiliGörevadi.next(gorevadi);
-      localStorage.setItem('seçiliGörevadi', gorevadi);
-    }
-
-  }
-
-
 
   setUser(user: User) {
     localStorage.setItem('user', JSON.stringify(user));

@@ -16,10 +16,11 @@ import { SharedImports } from '../../../../core/pipes/shared-imports';
 import { User } from '../../../../models/user';
 import { MeService } from '../../../../services/meservice.service';
 import { ShipmentNotesService } from '../../../../services/shipments/shipment-notes.service';
-import { Evrak } from '../../../../models/evrakDetay';
-import { Detail } from '../../../../modal/detail/detail';
+import { DetailModalComponent } from '../../../../modal/detail/detail';
 import { GoodsReceiptNotesService } from '../../../../services/receipts/goods-receipt-notes.service';
 import { FirmaMalKabulModelComponent } from './firma-mal-kabul-model/firma-mal-kabul-model.component';
+import { CompanyGoodsReceipt } from '../../siparisler/company-purchase-order/company-goods-receipt/company-goods-receipt';
+import { ReceiveMode } from '../../../../models/depoMalKabulModel';
 
 @Component({
   selector: 'app-company-inbound-shipments',
@@ -166,7 +167,7 @@ constructor(
   taskDetay(seri: string, sira: number): void {
     this.goodreceiptnotesService.detailsCompanyReceipt(this.gorevid(), seri, sira).subscribe({
       next: (data: any) => {
-        this.dialog.open(Detail, {
+        this.dialog.open(DetailModalComponent, {
           width: "50%",
           height: "70%",
           data: data
@@ -182,20 +183,19 @@ constructor(
   yeniEvrak(): void {
     const isMobile = this.breakpointObserver.isMatched(Breakpoints.Handset);
 
-    this.dialog.open(FirmaMalKabulModelComponent, {
+    this.dialog.open(CompanyGoodsReceipt, {
       width: isMobile ? '100vw' : '40vw',
       height: isMobile ? '100vh' : '70vh',
       maxWidth: '100vw',
       panelClass: isMobile ? 'full-screen-dialog' : '',
-      data: [this.gorevadi(), this.gorevid()]
-    });
+     data: {  mode:'Scan'  as ReceiveMode }    });
   }
 
   // EVRAK ÇEVİR
   return(evrak: any) {
     this.goodreceiptnotesService.detailsCompanyReceipt(this.gorevid(), evrak.evrakNoSeri, evrak.evrakNoSira).subscribe({
-      next: (data: Evrak) => {
-        this.dialog.open(FirmaMalKabulModelComponent, {
+      next: (data: any) => {
+        this.dialog.open(CompanyGoodsReceipt, {
           width: '50vw',
           height: '70vh',
           data: data
