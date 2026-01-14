@@ -1,0 +1,193 @@
+<div class="convert-ewaybill-container">
+  <!-- Başlık -->
+  <div class="header">
+    <h2>Sevkiye'yi E-İrsaliye'ye Dönüştür</h2>
+    <p class="subtitle">Sevkiye bilgilerini kontrol edip e-İrsaliye'ye dönüştürün</p>
+  </div>
+
+  <!-- Mesajlar -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Form -->
+  <form class="ewaybill-form" (ngSubmit)="openConfirmDialog()">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="documentNo">Sevkiye No*</label>
+        <input
+          type="text"
+          id="documentNo"
+          [(ngModel)]="shipmentData.documentNo"
+          name="documentNo"
+          class="form-control"
+          placeholder="Sevkiye numarasını girin"
+          required
+        />
+      </div>
+      <div class="form-group">
+        <label for="documentOrderNo">Sıra No</label>
+        <input
+          type="number"
+          id="documentOrderNo"
+          [(ngModel)]="shipmentData.documentOrderNo"
+          name="documentOrderNo"
+          class="form-control"
+          placeholder="0"
+        />
+      </div>
+      <div class="form-group">
+        <label for="documentSerie">Seri</label>
+        <input
+          type="text"
+          id="documentSerie"
+          [(ngModel)]="shipmentData.documentSerie"
+          name="documentSerie"
+          class="form-control"
+          placeholder="Seri girin"
+        />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="driverNameSurname">Şoför Adı Soyadı*</label>
+        <input
+          type="text"
+          id="driverNameSurname"
+          [(ngModel)]="shipmentData.driverNameSurname"
+          name="driverNameSurname"
+          class="form-control"
+          placeholder="Şoför adı soyadını girin"
+          required
+        />
+      </div>
+      <div class="form-group">
+        <label for="driverTCKN">T.C. Kimlik No</label>
+        <input
+          type="text"
+          id="driverTCKN"
+          [(ngModel)]="shipmentData.driverTCKN"
+          name="driverTCKN"
+          class="form-control"
+          placeholder="T.C. Kimlik No girin"
+        />
+      </div>
+      <div class="form-group">
+        <label for="plaque">Araç Plakası</label>
+        <input
+          type="text"
+          id="plaque"
+          [(ngModel)]="shipmentData.plaque"
+          name="plaque"
+          class="form-control"
+          placeholder="Araç plakasını girin"
+        />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="sourceWarehouseNo">Kaynak Depo No</label>
+        <input
+          type="number"
+          id="sourceWarehouseNo"
+          [(ngModel)]="shipmentData.sourceWarehouseNo"
+          name="sourceWarehouseNo"
+          class="form-control"
+          placeholder="0"
+        />
+      </div>
+      <div class="form-group">
+        <label for="targetWarehouseNo">Hedef Depo No</label>
+        <input
+          type="number"
+          id="targetWarehouseNo"
+          [(ngModel)]="shipmentData.targetWarehouseNo"
+          name="targetWarehouseNo"
+          class="form-control"
+          placeholder="0"
+        />
+      </div>
+    </div>
+
+    <!-- Sepet Öğeleri -->
+    <div class="cart-section" *ngIf="shipmentData.cart.cartLines.length > 0">
+      <h3>Sepet Öğeleri</h3>
+      <table class="cart-table">
+        <thead>
+          <tr>
+            <th>Ürün Kodu</th>
+            <th>Ürün Adı</th>
+            <th>Miktar</th>
+            <th>Fiyat</th>
+            <th>Toplam</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of shipmentData.cart.cartLines">
+            <td>{{ item.product.productCode }}</td>
+            <td>{{ item.product.productName }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.product.price | currency }}</td>
+            <td>{{ item.total | currency }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Butonlar -->
+    <div class="form-actions">
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="isLoading"
+      >
+        <span *ngIf="!isLoading">Dönüştür</span>
+        <span *ngIf="isLoading">İşleniyor...</span>
+      </button>
+      <button type="button" class="btn btn-secondary" (click)="dialogRef.close()">
+        Kapat
+      </button>
+    </div>
+  </form>
+
+  <!-- Onay Dialog -->
+  <div class="modal-overlay" *ngIf="showConfirmDialog" (click)="closeConfirmDialog()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h4>Dönüştürmeyi Onayla</h4>
+      </div>
+      <div class="modal-body">
+        <p>Bu sevkiye e-İrsaliye'ye dönüştürülecektir. Devam etmek istediğinize emin misiniz?</p>
+        <div class="shipment-summary">
+          <p><strong>Sevkiye No:</strong> {{ shipmentData.documentNo }}</p>
+          <p><strong>Şoför:</strong> {{ shipmentData.driverNameSurname }}</p>
+          <p *ngIf="shipmentData.plaque"><strong>Plaka:</strong> {{ shipmentData.plaque }}</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-success"
+          (click)="convertToEWaybill()"
+          [disabled]="isLoading"
+        >
+          <span *ngIf="!isLoading">Evet, Dönüştür</span>
+          <span *ngIf="isLoading">İşleniyor...</span>
+        </button>
+        <button
+          type="button"
+          class="btn btn-danger"
+          (click)="cancelConversion()"
+          [disabled]="isLoading"
+        >
+          İptal
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

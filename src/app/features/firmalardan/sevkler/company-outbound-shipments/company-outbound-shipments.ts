@@ -15,8 +15,7 @@ import { SharedImports } from '../../../../core/pipes/shared-imports';
 import { User } from '../../../../models/user';
 import { MeService } from '../../../../services/meservice.service';
 import { ShipmentNotesService } from '../../../../services/shipments/shipment-notes.service';
-import { Evrak } from '../../../../models/evrakDetay';
-import { Detail } from '../../../../modal/detail/detail';
+import { DetailModalComponent } from '../../../../modal/detail/detail';
 import { CompanyRefund } from './company-refund/company-refund';
 
 @Component({
@@ -162,7 +161,7 @@ const baslangic = this.datePipe.transform(this.dateRange.get('start')?.value, 'y
   taskDetay(seri: string, sira: number): void {
     this.shipmentNotesService.detailsCompanyShipment(this.gorevid(), seri, sira).subscribe({
       next: (data: any) => {
-        this.dialog.open(Detail, {
+        this.dialog.open(DetailModalComponent, {
           width: "50%",
           height: "70%",
           data: data
@@ -190,7 +189,7 @@ const baslangic = this.datePipe.transform(this.dateRange.get('start')?.value, 'y
   // EVRAK ÇEVİR
   return(evrak: any) {
     this.shipmentNotesService.detailsCompanyShipment(this.gorevid(), evrak.evrakNoSeri, evrak.evrakNoSira).subscribe({
-      next: (data: Evrak) => {
+      next: (data: any) => {
         this.dialog.open(CompanyRefund, {
           width: '50vw',
           height: '70vh',

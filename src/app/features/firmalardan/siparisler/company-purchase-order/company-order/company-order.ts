@@ -3,12 +3,13 @@ import { CommonModule } from '@angular/common';
 import { Component, effect } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CompanyService } from '../../../../../services/company.service';
-import { CariHesapAraCT, StokAraCT, StokBulDto } from '../../../../../models/genelModel';
 import { PurchaseOrdersService } from '../../../../../services/orders/purchase-orders.service';
 import { FirmaSiparisiVerDto } from '../../../../../models/firmaSiparisverModel';
-import { Kalem } from '../../../../../models/ortakModeller';
+import { CariHesapAraCT, Kalem, StokAraCT, StokBulDto } from '../../../../../models/ortakModeller';
 import { ToastrService } from 'ngx-toastr';
 import { MeService } from '../../../../../services/meservice.service';
+import { CompanyGoodsReceipt } from '../company-goods-receipt/company-goods-receipt';
+import { MatDialogRef } from '@angular/material/dialog';
 
 
 @Component({
@@ -31,7 +32,6 @@ export class CompanyOrder {
   // Selection State
   seciliFirma: CariHesapAraCT | null = null;
   seciliUrun: StokAraCT | null = null;
-
   // UI State
   isSaving = false;
   saveError: string | null = null;
@@ -41,7 +41,9 @@ export class CompanyOrder {
     private toastr: ToastrService,
     private  meservice: MeService,
     public companyService: CompanyService,
-    private purchaseOrderService: PurchaseOrdersService
+    private purchaseOrderService: PurchaseOrdersService,
+      public dialogRef: MatDialogRef<CompanyOrder>,
+ 
   ) {
     effect(() => {
       this.gorev = this.meservice.selectedAltMenu()?.id ?? 0;
@@ -53,7 +55,7 @@ export class CompanyOrder {
       gorevKimlik: 0,
       cari_kod: '',
       teslimTarihi: new Date().toISOString().split('T')[0],
-      noksanFazlaIadesi: 0,
+      noksanFazlaIadesi: null,
       kalemler: [],
       siparisEden: '',
       siparisAlan: '',
@@ -115,9 +117,20 @@ export class CompanyOrder {
     };
 
     this.companyService.searchStockByCustomerCode(dto).subscribe({
-      next: (urunler) => {
-        this.bulunanUrunler = urunler;
-      },
+        next: value =>{
+      const isMobile = window.innerWidth <= 768;
+      if (isMobile) {
+        
+        this.seciliUrun = value[0];
+        if (this.seciliUrun) {
+          this.urunSec(this.seciliUrun);
+        }
+      }
+      else {
+
+      this.bulunanUrunler = value;
+      }
+    },
       error: (err) => {
         console.error('Ürün arama hatası', err);
         this.bulunanUrunler = [];
@@ -127,6 +140,20 @@ export class CompanyOrder {
 
   urunSec(urun: StokAraCT): void {
     this.seciliUrun = urun;
+
+    const kalemExists = this.postorder.kalemler.some(k => k.stok?.stokKod === urun.stokKod);
+    if (kalemExists) {
+        this.postorder.kalemler = this.postorder.kalemler.map(kalem => {
+        if (kalem.stok?.stokKod === urun.stokKod) {
+          kalem.siparisMiktari = (kalem.siparisMiktari || 0) + (urun.birimKatsayisi || 1);
+        }
+        return kalem;
+      });
+      this.arananUrun = '';
+      this.bulunanUrunler = [];
+
+      return;
+    }
 
     const yeniKalem: Kalem = {
       id: crypto.randomUUID(), // Veya başka bir UUID üretici
@@ -152,6 +179,7 @@ export class CompanyOrder {
       }
       // Diğer opsiyonel alanlar otomatik olarak undefined kalacak
     };
+
 
     this.postorder.kalemler = [...this.postorder.kalemler, yeniKalem];
     this.arananUrun = '';
@@ -198,6 +226,9 @@ export class CompanyOrder {
 
   trackByKalemIndex(index: number, item: Kalem): string {
     return item.id || index.toString();
+  }
+  kapat()  {
+ this.dialogRef.close();
   }
 
   // === SAVE OPERATION ===

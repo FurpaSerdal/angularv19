@@ -2,9 +2,8 @@ import { Injectable } from "@angular/core";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { environment } from "../../environment";
+import { StokAraCT } from "../models/ortakModeller";
 
-import { DepoOSDto, OnerilenDepoSiparisleriCT } from "../models/RecommendOrder";
-import { StokAraCT } from "../models/evrakKaydet";
 
 @Injectable({
   providedIn: 'root'

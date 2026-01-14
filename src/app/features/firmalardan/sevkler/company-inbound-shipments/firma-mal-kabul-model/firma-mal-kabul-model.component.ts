@@ -5,8 +5,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
-import { EvrakEkleDto, StokAraCT } from '../../../../../models/evrakKaydet';
 import { CompanyService } from '../../../../../services/company.service';
+import { StokAraCT } from '../../../../../models/ortakModeller';
 
 
 
@@ -36,7 +36,7 @@ export class FirmaMalKabulModelComponent {
   qrParsed = signal<boolean>(false);
   qrOkunuyor = signal<boolean>(false);
   
-  postorder: EvrakEkleDto = this.initializeForm();
+  postorder: any = this.initializeForm();
   urunListesi = signal<any[]>([]);
   bulunanUrunler = signal<StokAraCT[]>([]);
   secilenUrun = signal<StokAraCT | null>(null);
@@ -50,7 +50,7 @@ export class FirmaMalKabulModelComponent {
     private toastr: ToastrService,
   ) {}
 
-  private initializeForm(): EvrakEkleDto {
+  private initializeForm(): any {
     return {
       kareKod: null,
       kareKodIrsaliyenindir: null,

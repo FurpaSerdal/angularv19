@@ -160,8 +160,7 @@
                     (click)="taskDetay(evrak.evrakNoSeri, evrak.evrakNoSira)">
                     <i class="bi bi-eye"></i>
                   </button>
-                  <button  mat-icon-button class="btn-edit ms-2" matTooltip="Çevir" 
-     (click)="return(evrak)">
+                   <button *ngIf="evrak.belgeno" mat-icon-button class="btn-convert ms-2" matTooltip="İrsaliye Çevir"  (click)="irsaliyeCevir(evrak)"  >
                     <i class="bi bi-arrow-repeat"></i>
                   </button>
                   <button mat-icon-button class="btn-pdf ms-2" matTooltip="PDF İndir">

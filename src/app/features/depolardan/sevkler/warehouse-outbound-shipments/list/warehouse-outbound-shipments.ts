@@ -15,8 +15,9 @@ import { SharedImports } from '../../../../../core/pipes/shared-imports';
 import { User } from '../../../../../models/user';
 import { MeService } from '../../../../../services/meservice.service';
 import { ShipmentNotesService } from '../../../../../services/shipments/shipment-notes.service';
-import { WarehouseSend } from '../warehouse-send/warehouse-send';
-import { Detail } from '../detail/detail';
+import { WarehouseSend } from '../create/warehouse-send';
+import { WarehouseOutboundShipmentsDetailComponent } from '../detail/detail';
+import { ConvertToEWaybillComponent } from '../convert-to-ewaybill-component/convert-to-ewaybill-component';
 
 
 
@@ -161,12 +162,29 @@ const baslangic = this.datePipe.transform(this.dateRange.get('start')?.value, 'y
       });
     }
   }
+  irsaliyeCevir(evrak: any): void {
+    this.shipmentNotesService.detailsBranchShipment(this.gorevid(), evrak.evrakNoSeri, evrak.evrakNoSira).subscribe({
+      next: (data: any) => {
+        const isMobile = this.breakpointObserver.isMatched(Breakpoints.Handset);  
+        this.dialog.open(ConvertToEWaybillComponent, {
+          width: isMobile ? '100vw' : '50vw',
+          height: isMobile ? '100vh' : '70vh',
+          maxWidth: '100vw',
+          panelClass: isMobile ? 'full-screen-dialog' : '',
+          data: data.sevk
+        });
+      },
+      error: () => {
+        this.toastr.error('Evrak detayları alınırken hata oluştu', 'Hata');
+      }
+    });
+  }
 
   taskDetay(seri: string, sira: number): void {
     this.toastr.show('Task detayı yükleniyor...', '', { tapToDismiss: false, extendedTimeOut: 1000, progressBar: true});
     this.shipmentNotesService.detailsBranchShipment(this.gorevid(), seri, sira).subscribe({
       next: (data: any) => {
-        this.dialog.open(Detail, {
+        this.dialog.open(WarehouseOutboundShipmentsDetailComponent, {
           width: "50%",
           height: "70%",
           data: data.sevk

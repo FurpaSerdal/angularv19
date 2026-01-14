@@ -9,8 +9,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatDialog } from '@angular/material/dialog';
 import { DatePipe, CommonModule, NgIf, NgForOf } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
-import { ActivatedRoute } from '@angular/router';
-;
+import { ActivatedRoute } from '@angular/router';;
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { SharedImports } from '../../../../../core/pipes/shared-imports';
 import { User } from '../../../../../models/user';
@@ -18,7 +17,7 @@ import { MeService } from '../../../../../services/meservice.service';
 import { GoodsReceiptNotesService } from '../../../../../services/receipts/goods-receipt-notes.service';
 import { WarehouseGoodsReceipt } from '../warehouse-goods-receipt/warehouse-goods-receipt';
 import { ReceiveMode } from '../../../../../models/depoMalKabulModel';
-import { Detail } from '../detail/detail';
+import { WarehouseInboundShipmentsDetailComponent } from '../detail/detail';
 
 
 
@@ -176,7 +175,7 @@ constructor(
      );
     this.goodsReceiptNotesService.detailsBranchReceipt(this.gorevid(), seri, sira).subscribe({
       next: (data: any) => {
-        this.dialog.open(Detail, {
+        this.dialog.open(WarehouseInboundShipmentsDetailComponent, {
           width: "50%",
           height: "70%",
           data: data.malKabulIrsaliyesi.malKabul

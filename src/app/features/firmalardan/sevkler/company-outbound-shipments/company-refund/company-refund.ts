@@ -5,10 +5,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
-import { EvrakEkleDto, StokAraCT } from '../../../../../models/evrakKaydet';
 import { CompanyService } from '../../../../../services/company.service';
 import { FirmayaSevketDto } from '../../../../../models/firmayaSevkModel';
-import { Kalem } from '../../../../../models/ortakModeller';
+import { Kalem, StokAraCT } from '../../../../../models/ortakModeller';
 
 @Component({
   selector: 'app-company-refund',
@@ -48,9 +47,12 @@ export class CompanyRefund {
 
 private initializeForm(): FirmayaSevketDto {
     return {
-      iadedir: true,
-      muhattapfirmaNo: "",
-      kalemler: []
+      muhatapFirmaCariKod: '',
+      kalemler: [],
+      teslimTarihi: new Date(),
+      siparisEden: '',
+      siparisAlan: '',
+      iadedir: true
     };
   }
 
@@ -68,7 +70,7 @@ private initializeForm(): FirmayaSevketDto {
     const aranacakKelime = aranacak.toLocaleLowerCase();
     
     const dto = {
-      CariKod: this.postorder.muhattapfirmaNo ?? '',
+      CariKod: this.postorder.muhatapFirmaCariKod ?? '',
       Bul: aranacakKelime
     };
 
@@ -81,7 +83,7 @@ private initializeForm(): FirmayaSevketDto {
   }
 
   firmaAra() {
-    const query = this.postorder.muhattapfirmaNo ?? '';
+    const query = this.postorder.muhatapFirmaCariKod ?? '';
     this.companyservice.searchCustomerAccount(query).subscribe(data => {
       this.bulunancariler.set(data);
       console.log(data);
@@ -90,8 +92,7 @@ private initializeForm(): FirmayaSevketDto {
 
 firmaSec(firma: any) {
 
-  this.postorder.muhattapfirmaNo = firma.cariKod;
-
+  this.postorder.muhatapFirmaCariKod = firma.cariKod;
   this.secilencari.set(firma.id);
   this.bulunancariler.set([]);
 }

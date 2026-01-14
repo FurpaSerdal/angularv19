@@ -16,7 +16,7 @@ import { SharedImports } from '../../../../../core/pipes/shared-imports';
 import { User } from '../../../../../models/user';
 import { PurchaseOrdersService } from '../../../../../services/orders/purchase-orders.service';
 import { MeService } from '../../../../../services/meservice.service';
-import { Detail } from '../../../../../modal/detail/detail';
+import { DetailModalComponent } from '../../../../../modal/detail/detail';
 import { CompanyOrder } from '../company-order/company-order';
 import { CompanyGoodsReceipt } from '../company-goods-receipt/company-goods-receipt';
 import { ReceiveMode } from '../../../../../models/depoMalKabulModel';
@@ -166,7 +166,7 @@ constructor(
   taskDetay(seri: string, sira: number): void {
     this.purchaseOrdersService.detailsCompanyOrder(this.gorevid(), seri, sira).subscribe({
       next: (data: any) => {
-        this.dialog.open(Detail, {
+        this.dialog.open(DetailModalComponent, {
           width: "50%",
           height: "70%",
           data: data
@@ -187,6 +187,8 @@ constructor(
       width: isMobile ? '100vw' : '40vw',
       height: isMobile ? '100vh' : '70vh',
       maxWidth: '100vw',
+      maxHeight: '100vh',
+      disableClose: true,
       panelClass: isMobile ? 'full-screen-dialog' : '',
       data: [this.gorevadi(), this.gorevid()]
     });
@@ -200,10 +202,12 @@ constructor(
         this.dialog.open(CompanyGoodsReceipt, {
           width: '50vw',
           height: '70vh',
+          panelClass: 'full-screen-dialog',
+          disableClose: true,
            data: {
-                          shipment: data,
+                          order: data,
                           mode: 'select' as ReceiveMode,
-                          iadeGorevId: data.iadeGorevId
+                          iadeGorevId: data.iadeGorevKimlik
                           }
         });
       },

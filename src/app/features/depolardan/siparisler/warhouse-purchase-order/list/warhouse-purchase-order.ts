@@ -22,7 +22,7 @@ import { User } from '../../../../../models/user';
 import { MeService } from '../../../../../services/meservice.service';
 import { PurchaseOrdersService } from '../../../../../services/orders/purchase-orders.service';
 import { WarehouseOrderComponent } from '../create/warehouse-order';
-import { Detail } from '../detail/detail';
+import { WarehousePurchaseOrderDetailComponent } from '../detail/detail';
 
 
 @Component({
@@ -161,7 +161,7 @@ export class WarhousePurchaseOrder {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (data: any) => {
-          this.dialog.open(Detail, {
+          this.dialog.open(WarehousePurchaseOrderDetailComponent, {
             width: '50%',
             height: '70%',
             data: data.siparis

@@ -1,12 +1,14 @@
-import { inject } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { Menu, User } from "../../models/user";
 import { MeService } from "../meservice.service";
 
+
+@Injectable({
+  providedIn: 'root'
+})
 export class SetMenuHelperService {
 
-  /**
-   *
-   */
+
   constructor(private meservice : MeService) {
       
   }

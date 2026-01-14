@@ -15,8 +15,7 @@ import { SharedImports } from '../../../../core/pipes/shared-imports';
 import { User } from '../../../../models/user';
 import { PurchaseOrdersService } from '../../../../services/orders/purchase-orders.service';
 import { MeService } from '../../../../services/meservice.service';
-import { Evrak } from '../../../../models/evrakDetay';
-import { Detail } from '../../../../modal/detail/detail';
+import { DetailModalComponent } from '../../../../modal/detail/detail';
 import { CompanyOrder } from '../company-purchase-order/company-order/company-order';
 
 @Component({
@@ -127,7 +126,7 @@ constructor(
 
     this.yukleniyor.set(true);
     this.salseOrdersService.getCompanyOrders(this.altmenuid(), "bugun").subscribe({
-      next: (data: Evrak[]) => {
+      next: (data: any[]) => {
         this.DataSource.data = data;
         this.yukleniyor.set(false);
       },
@@ -145,7 +144,7 @@ constructor(
     if (baslangic && bitis) {
       this.yukleniyor.set(true);
       this.salseOrdersService.getCompanyOrders(this.gorevid(), "").subscribe({
-        next: (data: Evrak[]) => {
+        next: (data: any[]) => {
           this.DataSource.data = data;
           this.yukleniyor.set(false);
         },
@@ -160,7 +159,7 @@ constructor(
   taskDetay(seri: string, sira: number): void {
     this.salseOrdersService.detailsCompanyOrder(this.gorevid(), seri, sira).subscribe({
       next: (data: any) => {
-        this.dialog.open(Detail, {
+        this.dialog.open(DetailModalComponent, {
           width: "50%",
           height: "70%",
           data: data
@@ -188,7 +187,7 @@ constructor(
   // EVRAK ÇEVİR
   return(evrak: any) {
     this.salseOrdersService.detailsCompanyOrder(this.gorevid(), evrak.evrakNoSeri, evrak.evrakNoSira).subscribe({
-      next: (data: Evrak) => {
+      next: (data: any) => {
         this.dialog.open(CompanyOrder, {
           width: '50vw',
           height: '70vh',
