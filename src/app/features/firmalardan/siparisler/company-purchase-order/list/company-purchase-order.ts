@@ -205,7 +205,7 @@ constructor(
           panelClass: 'full-screen-dialog',
           disableClose: true,
            data: {
-                          shipment: data,
+                          order: data,
                           mode: 'select' as ReceiveMode,
                           iadeGorevId: data.iadeGorevKimlik
                           }
