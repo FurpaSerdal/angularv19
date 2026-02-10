@@ -1,0 +1,67 @@
+<div class="container-fluid">
+<div class="row">
+
+  <!-- Yeni Gider Fişi Butonu -->
+  <div class="col-md-10 d-flex align-items-center">
+    <button class="btn btn-primary" (click)="Yeni()">Yeni Gider Fişi</button>
+  </div>
+
+  <!-- Tarih Seçimi -->
+  <div class="col-md-2">
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Gün Seçiniz</mat-label>
+      <input
+        matInput
+        [matDatepicker]="datePicker"
+        (dateChange)="TarihSec($event)"
+      />
+      <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
+      <mat-datepicker #datePicker></mat-datepicker>
+    </mat-form-field>
+  </div>
+
+</div>
+  
+    <!-- Tablo -->
+    <table mat-table [dataSource]="tableSource" class=" table-responsive mat-elevation-z8" matSort>
+      <!-- Evrak Seri -->
+      <ng-container matColumnDef="documentSerie">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Evrak Seri</th>
+        <td mat-cell *matCellDef="let outage">{{ outage.documentSerie }}</td>
+      </ng-container>
+  
+      <!-- Evrak Sıra No -->
+      <ng-container matColumnDef="documentOrderNo">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Evrak Sıra No</th>
+        <td mat-cell *matCellDef="let outage">{{ outage.documentOrderNo }}</td>
+      </ng-container>
+  
+      <!-- Evrak Tarihi -->
+      <ng-container matColumnDef="documentDate">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Evrak Tarihi</th>
+        <td mat-cell *matCellDef="let outage">{{ outage.documentDate | date:'dd/MM/yyyy' }}</td>
+      </ng-container>
+  
+      <!-- Fire Fişi Toplam -->
+      <ng-container matColumnDef="outageTotal">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Fire Fişi Toplam</th>
+        <td mat-cell *matCellDef="let outage">{{ outage.outageTotal.toFixed(2) }}</td>
+      </ng-container>
+  
+      <!-- İşlemler -->
+      <ng-container matColumnDef="operations">
+        <th mat-header-cell *matHeaderCellDef>İşlemler</th>
+        <td mat-cell *matCellDef="let outage">
+          <button mat-button mat-flat-button color="primary" >
+            <i class="fa fa-search"></i> Detay
+          </button>
+        </td>
+      </ng-container>
+  
+      <!-- Tablo Satırları -->
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+  
+    <!-- Sayfalama -->
+  </div>

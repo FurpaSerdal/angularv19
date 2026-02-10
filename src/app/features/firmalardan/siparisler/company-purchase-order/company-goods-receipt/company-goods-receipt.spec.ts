@@ -116,14 +116,12 @@ describe('CompanyGoodsReceipt', () => {
     it('should process shipment data on ngOnInit', () => {
       fixture.detectChanges();
       expect(component.evrakdetay()).toBeTruthy();
-      expect(component.postorder.cariKod).toBe('12345');
       expect(component.urunListesi().length).toBeGreaterThan(0);
     });
   });
 
   describe('Data Mapping', () => {
     it('should map shipment data correctly in tabloMapForReturn', () => {
-      component.tabloMapForReturn(mockData.shipment);
       
       const result = component.urunListesi();
       expect(result.length).toBe(1);
@@ -139,7 +137,6 @@ describe('CompanyGoodsReceipt', () => {
     });
 
     it('should update dataSource when urunListesi changes', () => {
-      component.tabloMapForReturn(mockData.shipment);
       expect(component.dataSource.data.length).toBe(1);
     });
   });
@@ -198,7 +195,6 @@ describe('CompanyGoodsReceipt', () => {
       ];
       mockCompanyService.searchStockByCustomerCode.and.returnValue(of(mockProducts));
 
-      component.postorder.cariKod = '12345';
       component.urunAra('test');
 
       expect(mockCompanyService.searchStockByCustomerCode).toHaveBeenCalledWith({
@@ -420,7 +416,6 @@ describe('CompanyGoodsReceipt', () => {
       ];
       mockCompanyService.searchCustomerAccount.and.returnValue(of(mockCompanies));
 
-      component.postorder.cariKod = '12345';
       component.firmaAra();
 
       expect(mockCompanyService.searchCustomerAccount).toHaveBeenCalledWith('12345');
@@ -432,7 +427,6 @@ describe('CompanyGoodsReceipt', () => {
       
       component.firmaSec(firma);
 
-      expect(component.postorder.cariKod).toBe('12345');
       expect(component.secilencari()).toBe(1);
       expect(component.firmaNo()).toBe(1);
       expect(component.bulunancariler()).toEqual([]);

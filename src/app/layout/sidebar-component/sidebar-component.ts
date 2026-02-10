@@ -63,8 +63,8 @@ export class SidebarComponent implements OnInit {
   
 seciliAltMenu(altMenu: AltMenu): void {
   // Eğer alt menünün görevleri varsa, sadece aç/kapa yap
-if (altMenu.evrakMenuleri && 
-    altMenu.evrakMenuleri.length > 0) {
+if (altMenu.gorevler && 
+    altMenu.gorevler.length > 0) {
       
      this.userService.setaltmenu(altMenu)
       localStorage.setItem('altmenu', JSON.stringify(altMenu));     
@@ -83,7 +83,7 @@ else {
   }
 }
 seciligorev(gorev: Gorev): void {
-  this.selectedSubTaskId = gorev.kimlik;
+  this.selectedSubTaskId = gorev.id;
 
   this.userService.setgorev(gorev);
   localStorage.setItem('gorev', JSON.stringify(gorev));

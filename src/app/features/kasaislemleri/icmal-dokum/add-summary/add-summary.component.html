@@ -1,0 +1,202 @@
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-12">
+        <div style="float: right;">
+          <button class="mr-2" mat-button mat-flat-button color="primary" [disabled]="!summaryForm.valid" (click)="AddCash()">Kasa Kaydet</button>
+        </div>
+      </div>
+  </div>
+  <form [formGroup]="summaryForm">
+      <mat-grid-list [cols]="4" [rowHeight]="65">
+        <mat-grid-tile>
+            <!--<mat-form-field *ngIf="currentWarehouseNo != '1'" class="col-md-12">
+              <input matInput formControlName="summaryToday" readonly>
+            </mat-form-field> *ngIf="currentWarehouseNo == '1'"-->
+            <mat-form-field  class="col-md-12">
+              <input matInput formControlName="summaryDate" placeholder="Tarih Seçiniz." [max]="maxDate" [matDatepicker]="orderDate" (dateChange)="OnDateChange($event)" readonly>
+              <mat-datepicker-toggle matSuffix [for]="orderDate" ></mat-datepicker-toggle>
+              <mat-datepicker #orderDate ></mat-datepicker>
+            </mat-form-field>
+        </mat-grid-tile>
+          <mat-grid-tile *ngIf="currentWarehouseNo == '1'">
+            <mat-form-field class="col-md-12">
+              <mat-select matInput placeholder="Şube" formControlName="warehouseNo" (selectionChange)="onChangeWarehouse()">
+                <mat-option *ngFor="let branch of branches" [value]="branch.warehouseNo">
+                  {{branch.warehouseName}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </mat-grid-tile>
+        <mat-grid-tile>
+           <mat-form-field class="col-md-12">
+             <mat-select matInput placeholder="Kasa No" formControlName="cashNo" (selectionChange)="onWriterChange()">
+               <mat-option *ngFor="let power of cashRegistryDetails" [value]="power.cashRegisterNo">
+                 {{power.cashRegisterNo}}
+               </mat-option>
+             </mat-select>
+           </mat-form-field>
+        </mat-grid-tile>
+        <mat-grid-tile [colspan]="visibility ? 1 : 2">
+          <mat-form-field class="col-md-12">
+            <input matInput formControlName="cashRegisterNo" placeholder="Kasa Mali Bellek No" readonly (change)="onChangeCashRegisterNo()">
+          </mat-form-field>
+        </mat-grid-tile>
+        <mat-grid-tile *ngIf="visibility">
+          <mat-form-field class="col-md-12">
+            <input matInput formControlName="zNo" placeholder="Z Rapor No" type="number">
+          </mat-form-field>
+        </mat-grid-tile>
+        <mat-grid-tile [colspan]="1">
+          <mat-form-field class="col-md-12">
+              <input matInput placeholder="Kasiyer" [matAutocomplete]="auto" formControlName="cashier"
+              (keyup.enter)="GetCashiersByFilter()">
+           <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFnCashier">
+              <mat-option *ngFor="let cashier of cashiersByFilter" [value]="cashier"
+                  (onSelectionChange)="selectedCashier=cashier">
+                  <span>{{cashier.cashierCode}} </span>
+                  <span>{{cashier.cashierName}}</span>
+              </mat-option>
+          </mat-autocomplete>
+          </mat-form-field>
+        </mat-grid-tile>
+        <mat-grid-tile [colspan]="1">
+          <mat-form-field class="col-md-12">
+              <input matInput placeholder="Düzenleyen" [matAutocomplete]="auto2" formControlName="manager"
+              (keyup.enter)="GetManagersByFilter()">
+           <mat-autocomplete #auto2="matAutocomplete" [displayWith]="displayFnManager">
+              <mat-option *ngFor="let manager of managersByFilter" [value]="manager"
+                  (onSelectionChange)="selectedManager=manager">
+                  <span>{{manager.cashierCode}} </span>
+                  <span>{{manager.cashierName}}</span>
+              </mat-option>
+          </mat-autocomplete>
+          </mat-form-field>
+        </mat-grid-tile>
+      </mat-grid-list>
+  </form>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="col-md-4" style="float: left;">
+      <hr>
+      <div class="card" style="background-color: #90EE90;" (click)="OpenBanknotesDialog()">
+        <div class="card-body">
+          <h5 class="card-title">Banknotlar</h5>
+          <p class="card-text">{{banknoteQuantity}} Adet</p>
+          <h5 style="float: right;" class="card-text">{{banknoteTotal  | currency: " "}} TL</h5>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4" style="float: left;">
+      <hr>
+      <div class="card" style="background-color: #87CEFA;" (click)="OpenBanksDialog()">
+        <div class="card-body">
+          <h5 class="card-title">Kredi Kartları</h5>
+          <p class="card-text">{{creditCardsQuantity}} Slip</p>
+          <h5 style="float: right;" class="card-text">{{creditCardsTotal | currency: " "}} TL</h5>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4" style="float: left;">
+      <hr>
+      <div class="card" style="background-color: #00FA9A" (click)="OpenFoodChecksDialog()">
+        <div class="card-body">
+          <h5 class="card-title">Yemek Çekleri</h5>
+          <p class="card-text">{{foodChecksQuantity}} Adet</p>
+          <h5 style="float: right;" class="card-text">{{foodChecksTotal | currency: " "}} TL</h5>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4" style="float: left;">
+      <hr>
+      <div class="card">
+        <div class="card-body" style="background-color: #20B2AA" (click)="OpenStoreExpensesDialog()">
+          <h5 class="card-title">Mağaza Giderleri</h5>
+          <p class="card-text">{{storeExpensesQuantity}} Adet</p>
+          <h5 style="float: right;" class="card-text">{{storeExpensesTotal | currency: " "}} TL</h5>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4" style="float: left;">
+      <hr>
+      <div class="card" style="background-color: #AFEEEE;" (click)="OpenExpenseCompassDialog()">
+        <div class="card-body">
+          <h5 class="card-title">Gider Pusulası</h5>
+          <p class="card-text">{{expenseCompassQuantity}} Adet</p>
+          <h5 style="float: right;" class="card-text">{{expenseCompassTotal | currency: " "}} TL</h5>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4" style="float: left;">
+      <hr>
+      <div class="card" style="background-color: #E0FFFF;" (click)="OpenGiftCheksDialog()">
+        <div class="card-body">
+          <h5 class="card-title">Hediye Çekleri</h5>
+          <p class="card-text">{{giftCheckQuantity}} Adet</p>
+          <h5 style="float: right;" class="card-text">{{giftCheckTotal | currency: " "}} TL</h5>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-4" style="float: left;">
+      <hr>
+      <div class="card" style="background-color: #53a7a7;" (click)="OpenOnlineSalesCheksDialog()">
+        <div class="card-body">
+          <h5 class="card-title">Vadeli Satışlar</h5>
+          <p class="card-text">{{onlineSalesQuantity}} Adet</p>
+          <h5 style="float: right;" class="card-text">{{onlineSalesTotal | currency: " "}} TL</h5>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="col-md-4" style="float: left;">
+      <hr>
+      <div class="card" style="background-color: #B0E0E6;" *ngIf="visibility">
+        <div class="card-body"> 
+          <h5 class="card-title" style="float: left;">Z Toplamı</h5>
+          <button style="float: right;"  mat-button mat-flat-button color="primary"  (click)="GetZReportTotalValue()">Getir</button>
+          <h5 class="card-text" style="float: right;">{{(zTotalValue == null ? "" : zTotalValue | currency: " ") + " TL"}}</h5>
+          <br>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4" style="float: left;">
+      <hr>
+      <div class="card" style="background-color: #8FBC8F;">
+        <div class="card-body">
+          <h5 class="card-title">Toplam</h5>
+          <h5 style="float: right;" class="card-text">{{(banknoteTotal + creditCardsTotal + foodChecksTotal 
+            + storeExpensesTotal + onlineSalesTotal ) | currency: " "}} TL</h5>
+          <br>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4" style="float: left;">
+      <hr>
+      <div class="card" style="background-color: #b3ffc6;" *ngIf="visibility">
+        <div class="card-body">
+          <h5 class="card-title">Fark</h5>
+          <h5 class="card-text" style="float: right;" [ngStyle]="{color: (banknoteTotal + creditCardsTotal + foodChecksTotal 
+            + storeExpensesTotal ) - zTotalValue < 0 ? 'red' : 'blue' }">{{ (banknoteTotal + creditCardsTotal + foodChecksTotal 
+              + storeExpensesTotal + onlineSalesTotal  ) - zTotalValue | currency: " "}} TL</h5>
+          <br>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+  

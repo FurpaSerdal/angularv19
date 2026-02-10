@@ -1,6 +1,7 @@
-import { Component, effect, signal } from '@angular/core';
+import { Component, effect, signal, DestroyRef } from '@angular/core';
 import { FormsModule, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule, DatePipe } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SharedImports } from '../../../core/pipes/shared-imports';
 import { StockCountService } from '../../../services/inventory/stock-count.service';
 import { NewInventoryCount } from '../new-inventory-count/new-inventory-count';
@@ -8,6 +9,8 @@ import { NewInventoryCount } from '../new-inventory-count/new-inventory-count';
 import { MatDialog } from '@angular/material/dialog';
 import { MeService } from '../../../services/meservice.service';
 import { User } from '../../../models/user';
+import { Evrak, EvrakListResponse, SayimListModel } from '../../../models/evrakListModel';
+import { DetayResponse } from '../../../models/detay';
 
 
 
@@ -28,7 +31,7 @@ export class InventoryCountResults {
   gorevid = signal(0);
   gorevadi = signal('');
   altmenuid = signal(0);
-  detailData = signal<any>(null);
+  detailData = signal<any | null>(null);
   showDetailModal = signal(false);
 
   // -------------------- DATE FILTER STATE --------------------
@@ -38,7 +41,7 @@ export class InventoryCountResults {
   // -------------------- UI STATE --------------------
 
 
-  listOfData: any[] = [];
+  listOfData: SayimListModel[] = [];
 sortColumn: string = '';
 sortDirection: 'none' | 'asc' | 'desc' = 'none';
   constructor(
@@ -46,7 +49,8 @@ sortDirection: 'none' | 'asc' | 'desc' = 'none';
     private dialog: MatDialog,
     private meservice: MeService,
     private formBuilder: FormBuilder,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
+    private destroyRef: DestroyRef
   ) {
     this.dateRange = this.formBuilder.group({
       start: [this.getToday()],
@@ -63,17 +67,15 @@ sortDirection: 'none' | 'asc' | 'desc' = 'none';
       const altmenu = this.meservice.selectedAltMenu();
       const gorev = this.meservice.selectedGorev();
 
-
       if (!menu || !altmenu || !gorev) {
         this.lastKey = '';
         return;
       }
 
-      const key = `${menu}-${altmenu.id}-${gorev.kimlik}`;
+      const key = `${menu}-${altmenu.id}-${gorev.id}`;
       if (key === this.lastKey) return;
 
       this.lastKey = key;
-      console.log('InventoryCountResults - Loading for key:', key);
 
    
 
@@ -81,8 +83,11 @@ sortDirection: 'none' | 'asc' | 'desc' = 'none';
       this.yanekran = `${altmenu.isim} -*- ${gorev.isim}`;
 
       this.altmenuid.set(altmenu.id);
-      this.gorevid.set(gorev.kimlik);
+      this.gorevid.set(gorev.id);
       this.gorevadi.set(gorev.isim);
+
+      this.getInventoryCounts();
+ 
 
     });
   }
@@ -108,6 +113,10 @@ sortDirection: 'none' | 'asc' | 'desc' = 'none';
   }
 
   getInventoryCounts() {
+    const currentGorevId = this.gorevid();
+    if (!currentGorevId) {
+      return;
+    }
     const filterType = this.dateFilterType();
     let zamanlama: string;
     
@@ -121,7 +130,9 @@ sortDirection: 'none' | 'asc' | 'desc' = 'none';
       zamanlama = filterType;
     }
 
-    this.stockcountService.getResults(12, zamanlama).subscribe((data) => {
+    
+    this.stockcountService.getResults(currentGorevId, zamanlama).subscribe((data: SayimListModel[]) => {
+
       this.listOfData = data;
     });
   }
@@ -129,22 +140,26 @@ sortDirection: 'none' | 'asc' | 'desc' = 'none';
   newInventoryCount() {
     this.dialog.open(NewInventoryCount, {
       width: '600px',
-      disableClose: true
+      disableClose: true,
+      data: { id: this.gorevid() , depono  : this.user()?.subeNo }
 
-    }).afterClosed().subscribe((result: any) => {
+    }).afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: any) => {
       if (result === 'success') {
         this.getInventoryCounts();
       }
     }); 
   }
+showDetail(item: any) {
+  console.log('Detay gösteriliyor için çağrıldı:', item);
+  const taskId = this.gorevid();
 
-  showDetail(item: any) {
-    const taskId = this.altmenuid();
-    const schedule = item.sym_tarihi; 
-  
-    const sym_evrakno = item.sym_evrakno;
+  const seri = 'deneme'; // 👈 API'nin istediği format
 
-    this.stockcountService.detailsResult(taskId, sym_evrakno, schedule).subscribe({
+  const sym_evrakno = item.evrakNo;
+
+  this.stockcountService
+    .detailsResult(taskId, sym_evrakno, seri)
+    .subscribe({
       next: (data) => {
         this.detailData.set(data);
         this.showDetailModal.set(true);
@@ -153,7 +168,8 @@ sortDirection: 'none' | 'asc' | 'desc' = 'none';
         console.error('Detay yüklenirken hata:', error);
       }
     });
-  }
+}
+
 
   closeDetailModal() {
     this.showDetailModal.set(false);
@@ -177,8 +193,8 @@ sortBy(column: string) {
   if (this.sortDirection === 'none') return; // Hiçbir şey yapma
 
   this.listOfData = [...this.listOfData].sort((a, b) => {
-    let valueA = a[column];
-    let valueB = b[column];
+    let valueA = (a as any)[column];
+    let valueB = (b as any)[column];
 
     if (column === 'sym_tarihi') {
       valueA = new Date(valueA).getTime();

@@ -2,10 +2,7 @@ import { Routes } from '@angular/router';
 import { AdminComponent } from './layout/admin-component';
 import { LoginComponent } from './login/login';
 
-import { CompanyInboundShipments } from './features/firmalardan/sevkler/company-inbound-shipments/company-inbound-shipments';
-import { CompanyOutboundShipments } from './features/firmalardan/sevkler/company-outbound-shipments/company-outbound-shipments';
-import { CompanySaleOrder } from './features/firmalardan/siparisler/company-sale-order/company-sale-order';
-import { HomePage } from './features/home-page/home-page';
+import { CompanyInboundShipments } from './features/firmalardan/sevkler/company-inbound-shipments/list/company-inbound-shipments';
 import { FirmaFaturaComponent } from './features/firmalardan/firma-fatura/firma-fatura.component';
 import { InventoryCountResults } from './features/sayımlar/inventory-count-results/inventory-count-results';
 import { WarehouseSaleOrder } from './features/depolardan/siparisler/warehouse-sale-order/list/warehouse-sale-order';
@@ -13,6 +10,19 @@ import { WarhousePurchaseOrder } from './features/depolardan/siparisler/warhouse
 import { WarehouseOutboundShipments } from './features/depolardan/sevkler/warehouse-outbound-shipments/list/warehouse-outbound-shipments';
 import { WarehouseInboundShipments } from './features/depolardan/sevkler/warehouse-inbound-shipments/list/warehouse-inbound-shipments';
 import { CompanyPurchaseOrder } from './features/firmalardan/siparisler/company-purchase-order/list/company-purchase-order';
+import { CompanySaleOrder } from './features/firmalardan/siparisler/company-sale-order/list/company-sale-order';
+import { HomePage } from './features/home-page/home-page';
+import { CompanyOutboundShipments } from './features/firmalardan/sevkler/company-outbound-shipments/list/company-outbound-shipments';
+import { VirmanExit } from './features/virman/virman-cıkısı/list/virman-exit';
+import { StockOut } from './features/stoklar/stock-out/list/stock-out';
+import { outgoingInvoice } from './features/faturalar/giden/list/outgoing-invoice';
+import { IncomingInvoice } from './features/faturalar/gelen/list/incoming-invoice';
+import { DosyaGonderimiComponent } from './features/kasaislemleri/dosya-gonderimi/dosya-gonderimi.component';
+import { IcmalDokumComponent } from './features/kasaislemleri/icmal-dokum/icmal-dokum.component';
+import { KunyeEtiketBasimiComponent } from './features/kasaislemleri/kunye-etiket-basimi/kunye-etiket-basimi.component';
+import { MagazagiderfisiComponent } from './features/kasaislemleri/magazagiderfisi/magazagiderfisi.component';
+import { EtiketbasimComponent } from './features/kasaislemleri/etiketbasim/etiketbasim.component';
+import { AddSummaryComponent } from './features/kasaislemleri/icmal-dokum/add-summary/add-summary.component';
 
 
 
@@ -50,6 +60,26 @@ export const routes: Routes = [
 
       // ===== SAYIM SONUÇLARI =====
       { path: 'task/inventory-count-results', component: InventoryCountResults },  // stok sayım sonuçları
+      // ===== STOK ÇIKIŞ =====
+      { path: 'task/inventory/stock-out', component: StockOut },  // stok çıkış işlemleri
+
+      // ===== VİRMAN ÇIKIŞ =====
+      { path: 'task/transfer/exits', component: VirmanExit },  // virman çıkıs (ambalaj açma) işlemleri
+
+
+      // satıs faturaları
+      { path: 'task/invoices/sales', component: outgoingInvoice },  // satış faturaları
+      // alış faturaları
+      {path: 'task/invoices/purchase', component: IncomingInvoice },  // alış faturaları
+
+
+      // ===== KASA İŞLEMLERİ =====
+      { path: 'task/cash-operations/file-upload', component: DosyaGonderimiComponent },  // dosya yükle
+      { path: 'task/cash-operations/label-print', component: EtiketbasimComponent },  // etiket yazdır
+      { path: 'task/cash-operations/summary-report', component: IcmalDokumComponent },  // icmal dökümü
+      { path: 'task/cash-operations/summary-add', component: AddSummaryComponent },  // icmal ekle
+      { path: 'task/cash-operations/kunye-label-print', component: KunyeEtiketBasimiComponent },  // künye etiket yazdır
+      { path: 'task/cash-operations/store-expense-receipt', component: MagazagiderfisiComponent },  // mağaza gider fişi
  
        //{ path: 'task/:id', component: OrtakMenu }, // Ortak Menü Yönlendirmesi
 

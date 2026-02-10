@@ -8,18 +8,18 @@ export class SalesOrdersService extends BaseApiService {
 
   /** Firmalardan alınan siparişler */
   getCompanyOrders(taskId: number, schedule: string):Observable<any> {
-    return this.get(`${API_PATHS.SALES_ORDERS}/${taskId}/firmalara/siparisler/${schedule}`);
+    return this.get(`/liste/${taskId}/${schedule}`);
   }
 
     /** Firmadan sipariş al */
   createCompanyOrder(taskId: number, payload: any): Observable<any> {
-    return this.post(`${API_PATHS.SALES_ORDERS}/${taskId}/firmalara/siparis-al`, payload);
+    return this.post(`/ekle/${taskId}`, payload);
   }
 
 
   //firma sipariş detay
     detailsCompanyOrder(taskId: number, seri: string, sira: number):Observable<any> {
-    return this.get(`${API_PATHS.SALES_ORDERS}/${taskId}/firmalara/siparis/${seri}/${sira}`);
+    return this.get(`/ayrinti/${taskId}/${seri}/${sira}`);
   }
 
 
@@ -28,16 +28,16 @@ export class SalesOrdersService extends BaseApiService {
 
   /** Şubelerden alınan siparişler */
   getBranchOrders(taskId: number, schedule: string):Observable<any> {
-    return this.get(`${API_PATHS.SALES_ORDERS}/${taskId}/subelerden/siparisler/${schedule}`);
+    return this.get(`liste/${taskId}/${schedule}`);
   }
 
   // Şube sipariş detay
   detailsBranchOrder(taskId: number, seri: string, sira: number):Observable<any> {
-    return this.get(`${API_PATHS.SALES_ORDERS}/${taskId}/subelerden/siparis/${seri}/${sira}`);
+    return this.get(`ayrinti/${taskId}/${seri}/${sira}`);
   }
 
 
   /** Şubeden sipariş al */
   createBranchOrder(taskId: number, payload: any): Observable<any> {
-    return this.post(`${API_PATHS.SALES_ORDERS}/${taskId}/subelerden/siparis-al`, payload);
+    return this.post(`ekle/${taskId}`, payload);
   }}

@@ -1,0 +1,10 @@
+
+/* İnce üst progress bar görünümü */
+mat-progress-bar {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  border-top-left-radius: .5rem;
+  border-top-right-radius: .5rem;
+}
+

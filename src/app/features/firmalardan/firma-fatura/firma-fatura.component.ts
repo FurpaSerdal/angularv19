@@ -1,5 +1,5 @@
 // src/app/pages/firma-fatura/firma-fatura.component.ts
-import { Component, ViewChild, signal, OnInit, AfterViewInit, effect } from '@angular/core';
+import { Component, ViewChild, signal, OnInit, AfterViewInit, effect, DestroyRef, inject } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -54,6 +54,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   providers: [DatePipe]
 })
 export class FirmaFaturaComponent implements OnInit, AfterViewInit {
+  private destroyRef = inject(DestroyRef);
   dateRange = new FormGroup({
     start: new FormControl<Date | null>(null, [Validators.required]),
     end: new FormControl<Date | null>(null, [Validators.required])
@@ -100,7 +101,7 @@ export class FirmaFaturaComponent implements OnInit, AfterViewInit {
         effect(() => {
       const user = this.meservice.userSignal();
       const gorevIdFromService = this.meservice.selectedGorev();
-      this.gorevid.set(gorevIdFromService?.kimlik ?? 0);
+      this.gorevid.set(gorevIdFromService?.id ?? 0);
       const gorevAdiFromService = this.meservice.selectedGorev();
       this.gorevadi.set(gorevAdiFromService?.isim ?? '');
     });
@@ -343,7 +344,7 @@ getVisibleRows(): any[] {
             data: { url: res }
           });
           this.yukleniyor.set(false);
-          dialogRef.afterClosed().subscribe(() => URL.revokeObjectURL(res));
+          dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => URL.revokeObjectURL(res));
         },
         error: (error) => {
           console.error('PDF alma hatası:', error);
@@ -366,7 +367,7 @@ getVisibleRows(): any[] {
             data: { url: url }
           });
           this.yukleniyor.set(false);
-          dialogRef.afterClosed().subscribe(() => URL.revokeObjectURL(url));
+          dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => URL.revokeObjectURL(url));
         },
         error: (error) => {
           console.error('PDF oluşturma hatası:', error);

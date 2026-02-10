@@ -1,1 +1,221 @@
-<p>new-inventory-count works!</p>
+<div class="container-fluid py-4">
+
+  <!-- HEADER -->
+  <div class="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded shadow-sm">
+    <h4 class="mb-0 text-primary fw-bold">
+      <i class="bi bi-clipboard-check"></i> 📦 Stok Sayımı
+    </h4>
+
+    <button
+      type="button"
+      class="btn btn-warning btn-sm"
+      (click)="close()"
+    >
+      <i class="bi bi-x-circle"></i> ✕ Kapat
+    </button>
+  </div>
+
+  <!-- ÜRÜN KARTI -->
+  <div class="card shadow-sm mb-4 border-0">
+
+    <div class="card-header bg-light border-0">
+      <h5 class="mb-0 text-secondary">
+        <i class="bi bi-search"></i> Ürün Arama ve Ekleme
+      </h5>
+    </div>
+
+    <div class="card-body p-4">
+
+      <div class="row g-3">
+
+        <!-- ARAMA -->
+        <div class="col-md-8 position-relative">
+
+          <label class="form-label fw-semibold">
+            <i class="bi bi-box-seam"></i> Ürün Ara
+          </label>
+
+          <input
+            type="text"
+            cdkFocusInitial
+            class="form-control form-control-lg"
+            [ngModel]="searchText()"
+            (ngModelChange)="searchText.set($event); searchProduct()"
+            placeholder="🔍 Ürün adı veya kodu ara... (min 3 karakter)"
+          />
+
+          <!-- DROPDOWN -->
+          <ng-container *ngIf="foundProducts().length">
+
+            <div
+              class="list-group position-absolute w-100 shadow-lg mt-1"
+              style="max-height: 300px; overflow-y: auto; z-index: 1050;"
+            >
+
+              <button
+                type="button"
+                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                *ngFor="let product of foundProducts(); trackBy: trackByStokKod"
+                (click)="selectProduct(product)"
+              >
+                <div class="d-flex flex-column">
+                  <strong>{{ product.stokIsim }}</strong>
+                  <small class="text-muted">Kod: {{ product.stokKod }}</small>
+                </div>
+
+                <i class="bi bi-arrow-right-circle text-primary"></i>
+              </button>
+
+            </div>
+
+          </ng-container>
+
+        </div>
+
+        <!-- MİKTAR -->
+        <div class="col-md-4">
+
+          <label class="form-label fw-semibold">
+            <i class="bi bi-123"></i> Miktar
+          </label>
+
+          <input
+            type="number"
+            class="form-control form-control-lg"
+            [ngModel]="quantity()"
+            (ngModelChange)="quantity.set(+$event)"
+            min="1"
+            placeholder="0"
+          />
+
+        </div>
+
+      </div>
+
+      <!-- SEÇİLEN -->
+      <div
+        *ngIf="selectedProduct()"
+        class="alert alert-info mt-4 border-start border-5 border-info"
+      >
+        <strong>{{ selectedProduct()?.stokIsim }}</strong>
+        <br />
+        <small>Kod: {{ selectedProduct()?.stokKod }}</small>
+      </div>
+
+      <!-- EKLE -->
+      <button
+        type="button"
+        class="btn btn-primary btn-lg w-100 mt-3"
+        [disabled]="!quantity() || !selectedProduct()"
+        (click)="addProduct()"
+      >
+        ➕ Ürün Ekle
+      </button>
+
+    </div>
+  </div>
+
+  <!-- TABLO -->
+  <div class="card shadow-sm border-0">
+
+    <div class="card-header bg-primary text-white border-0">
+      <h5 class="mb-0">
+        Eklenen Ürünler
+        <span class="badge bg-light text-primary ms-2">
+          {{ listOfData().length }}
+        </span>
+      </h5>
+    </div>
+
+    <div class="card-body p-0">
+
+      <div class="table-responsive">
+
+        <table class="table table-hover table-striped table-bordered mb-0 align-middle">
+
+          <thead class="table-light">
+            <tr>
+              <th class="text-center">Stok Kodu</th>
+              <th>Stok Adı</th>
+              <th class="text-center">Miktar</th>
+              <th class="text-center">İşlem</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            <!-- BOŞ -->
+            <tr *ngIf="!listOfData().length">
+              <td colspan="4" class="text-center py-5 text-muted">
+                Henüz ürün eklenmedi
+              </td>
+            </tr>
+
+            <!-- SATIR -->
+            <tr *ngFor="let item of listOfData(); let i = index">
+
+              <td class="text-center">
+                {{ item.stokkodu }}
+              </td>
+
+              <td>{{ item.stokadi }}</td>
+
+              <td class="text-center fw-bold text-primary">
+                {{ item.miktar }}
+              </td>
+
+              <td class="text-center">
+
+                <button
+                  type="button"
+                  class="btn btn-sm btn-danger"
+                  (click)="removeProduct(i)"
+                >
+                  🗑 Sil
+                </button>
+
+              </td>
+
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="card shadow-sm border-0 mt-4">
+
+    <div class="card-body bg-light">
+
+      <div class="d-flex justify-content-between align-items-center">
+
+        <div>
+          Toplam {{ listOfData().length }} ürün
+        </div>
+
+        <div *ngIf="sending()" class="text-primary">
+          Gönderiliyor...
+        </div>
+
+        <button
+          type="button"
+          class="btn btn-success btn-lg px-5"
+          [disabled]="!listOfData().length || sending()"
+          (click)="save()"
+        >
+          ✅ Sayımı Tamamla
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

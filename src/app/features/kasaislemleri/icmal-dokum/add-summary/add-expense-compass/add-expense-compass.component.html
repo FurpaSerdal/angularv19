@@ -1,0 +1,42 @@
+<div class="row">
+    <div class="col-md-12">
+        Gider Pusulası
+      <div class="float-right">
+        <button class="mr-2" mat-button mat-flat-button color="primary"  (click)="AddExpenseCompass()">Kaydet</button>
+        <button mat-button mat-flat-button color="warn" (click)="CloseDialog()">Kapat</button>
+      </div>
+    </div>
+</div>
+
+<div style="overflow:auto;">
+  <table class="col-md-12" mat-table #ExpenseCompasses [dataSource]="tableSourceExpenseCompass">
+    <ng-container matColumnDef="paymentName">
+      <th mat-header-cell *matHeaderCellDef>Gider Pusulası</th>
+      <td mat-cell *matCellDef="let expenseCompasses">{{expenseCompasses.paymentName}}</td>
+    </ng-container>
+    <ng-container matColumnDef="slipNumber">
+      <th mat-header-cell *matHeaderCellDef>Gider Fiş Sayısı</th>
+      <td mat-cell *matCellDef="let expenseCompasses">
+        <mat-form-field (click)="expenseCompasses.slipNumber = null">
+          <input matInput placeholder="Adet" type="number"
+            value="{{expenseCompasses.slipNumber}}"
+            (input)="expenseCompasses.slipNumber=($event.target.value)"
+            [(ngModel)]="expenseCompasses.slipNumber"/>
+        </mat-form-field>
+      </td>
+    </ng-container> 
+    <ng-container matColumnDef="amountValue">
+      <th mat-header-cell *matHeaderCellDef>Toplam</th>
+      <td mat-cell *matCellDef="let expenseCompasses">
+        <mat-form-field (click)="expenseCompasses.amountValue = null">
+          <input matInput placeholder="Tutar" type="number"
+          value="{{expenseCompasses.amountValue}}"
+          (input)="expenseCompasses.amountValue=($event.target.value)"
+          [(ngModel)]="expenseCompasses.amountValue"/>
+       </mat-form-field>
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="tableColumnsExpenseCompass; sticky:true"></tr>
+    <tr mat-row *matRowDef="let row; columns:tableColumnsExpenseCompass;"></tr>
+  </table>
+</div>

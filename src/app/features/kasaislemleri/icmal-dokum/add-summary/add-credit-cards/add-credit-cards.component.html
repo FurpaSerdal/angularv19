@@ -1,0 +1,49 @@
+<div class="row">
+    <div class="col-md-12">
+        Kredi Kartları
+        <br>
+        <div class="float-left">
+          Toplam Adet:<strong>{{getTotalQuantity()}}</strong><br>Toplam Tutar:<strong>{{getTotalAmount() | currency: ' '}} TL</strong>
+        </div>
+      <div class="float-right">
+        <button class="mr-2" mat-button mat-flat-button color="primary"  (click)="AddCreditCards()">Kaydet</button>
+        <button mat-button mat-flat-button color="warn" (click)="CloseDialog()">Kapat</button>
+      </div>
+    </div>
+</div>
+<div style="overflow:auto;">
+  <table class="col-md-12" mat-table #CreditCards [dataSource]="tableSourceCreditCards">
+    <ng-container matColumnDef="paymentName">
+      <th mat-header-cell *matHeaderCellDef>Kredi Kartı</th>
+      <td mat-cell *matCellDef="let creditCards">{{creditCards.paymentName}}</td>
+    </ng-container>
+    <ng-container matColumnDef="terminalId">
+        <th mat-header-cell *matHeaderCellDef>Terminal No</th>
+        <td mat-cell *matCellDef="let creditCards">{{creditCards.terminalId}}</td>
+      </ng-container>
+    <ng-container matColumnDef="slipNumber">
+      <th mat-header-cell *matHeaderCellDef>Adet</th>
+      <td mat-cell *matCellDef="let creditCards">
+        <mat-form-field (click)="creditCards.slipNumber = null">
+          <input matInput placeholder="Adet" type="number"
+            (input)="creditCards.slipNumber=(+$event.target.value)"
+            value="{{creditCards.slipNumber}}"
+            [(ngModel)]="creditCards.slipNumber"/>
+        </mat-form-field>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="amountValue">
+      <th mat-header-cell *matHeaderCellDef>Toplam</th>
+      <td mat-cell *matCellDef="let creditCards">
+        <mat-form-field (click)="creditCards.amountValue = null">
+          <input matInput placeholder="Tutar" type="number"
+          (input)="creditCards.amountValue=(+$event.target.value)"
+          value="{{creditCards.amountValue}}"
+          [(ngModel)]="creditCards.amountValue"/>
+       </mat-form-field>
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="tableColumnsCreditCards; sticky:true"></tr>
+    <tr mat-row *matRowDef="let row; columns:tableColumnsCreditCards;"></tr>
+  </table>
+</div>

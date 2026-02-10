@@ -1,0 +1,45 @@
+<div class="row">
+    <div class="col-md-12">
+        Yemek Çekleri
+        <br>
+        <div class="float-left">
+          Toplam Adet:<strong>{{getTotalQuantity()}}</strong><br>Toplam Tutar:<strong>{{getTotalAmount() | currency: ' '}} TL</strong>
+        </div>
+      <div class="float-right">
+        <button class="mr-2" mat-button mat-flat-button color="primary"  (click)="AddFoodChecks()">Kaydet</button>
+        <button mat-button mat-flat-button color="warn" (click)="CloseDialog()">Kapat</button>
+      </div>
+    </div>
+</div>
+<div style="overflow:auto;">
+  <table class="col-md-12" mat-table #FoodChecks [dataSource]="tableSourceFoodChecks">
+    <ng-container matColumnDef="paymentName">
+      <th mat-header-cell *matHeaderCellDef>Yemek Çeki</th>
+      <td mat-cell *matCellDef="let foodChecks"><span style="font-weight: bold;">{{foodChecks.paymentName}}</span></td>
+    </ng-container>
+    <ng-container matColumnDef="slipNumber">
+      <th mat-header-cell *matHeaderCellDef>Slip Sayısı</th>
+      <td mat-cell *matCellDef="let foodChecks">
+        <mat-form-field (click)="foodChecks.slipNumber = null">
+          <input matInput placeholder="Adet" type="number"
+            value="{{foodChecks.slipNumber}}"
+            (input)="foodChecks.slipNumber=(+$event.target.value)"
+            [(ngModel)]="foodChecks.slipNumber"/>
+        </mat-form-field>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="amountValue">
+      <th mat-header-cell *matHeaderCellDef>Toplam</th>
+      <td mat-cell *matCellDef="let foodChecks">
+        <mat-form-field (click)="foodChecks.amountValue = null">
+          <input matInput placeholder="Tutar" type="number"
+          value="{{foodChecks.amountValue}}"
+          (input)="foodChecks.amountValue=(+$event.target.value)" 
+          [(ngModel)]="foodChecks.amountValue"/>
+       </mat-form-field>
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="tableColumnsFoodChecks; sticky:true"></tr>
+    <tr mat-row *matRowDef="let row; columns:tableColumnsFoodChecks;"></tr>
+  </table>
+</div>

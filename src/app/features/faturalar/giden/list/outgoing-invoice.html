@@ -1,0 +1,314 @@
+<div class="container-fluid text-center">
+
+  <!-- Görev Adı -->
+  <div class="alert alert-primary d-inline-block" *ngIf="gorevadi()">
+    {{ gorevadi() }}
+  </div>
+
+  <!-- Filtre Kontrolleri -->
+  <div class="row g-4 align-items-center bg-light p-0 rounded shadow-sm">
+
+    <!-- Gönderim Durumu -->
+    <div class="col-12 col-md-auto">
+      <div class="d-flex align-items-center gap-2 bg-white border rounded px-3 py-2 shadow-sm">
+        <div class="form-check form-switch m-0">
+          <input 
+            class="form-check-input" 
+            type="checkbox" 
+            id="durum" 
+            [checked]="gonderildi()" 
+            (change)="durumDegisti()">
+        </div>
+
+        <label for="durum" class="fw-semibold mb-0 small">
+          <span 
+            class="badge px-3 py-2" 
+            [class]="gonderildi() ? 'bg-success' : 'bg-warning text-dark'">
+            {{ gonderildi() ? '✓ Gönderildi' : '⏳ Beklemede' }}
+          </span>
+        </label>
+      </div>
+    </div>
+
+    <!-- E-Arşiv Durumu -->
+    <div class="col-12 col-md-auto">
+      <div class="d-flex align-items-center gap-2 bg-white border rounded px-3 py-2 shadow-sm">
+        <div class="form-check form-switch m-0">
+          <input 
+            class="form-check-input" 
+            type="checkbox" 
+            id="earsivDurum" 
+            [checked]="efaturaMi()" 
+            (change)="efaturaDurumDegisti()">
+        </div>
+
+        <label for="earsivDurum" class="fw-semibold mb-0 small">
+          <span 
+            class="badge px-3 py-2" 
+            [class]="efaturaMi() ? 'bg-primary' : 'bg-info'">
+            {{ efaturaMi() ? '📄 E-Fatura' : '☁️ E-Arşiv' }}
+          </span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Tarih Aralığı -->
+    <div class="col-12 col-md-auto ms-md-auto">
+      <mat-form-field appearance="outline" class="w-100 mb-0">
+        <mat-label>Tarih Aralığı</mat-label>
+
+        <mat-date-range-input [formGroup]="dateRange" [rangePicker]="picker">
+          <input matStartDate formControlName="start" placeholder="Başlangıç" (dateChange)="onDateChanged()">
+          <input matEndDate formControlName="end" placeholder="Bitiş" (dateChange)="onDateChanged()">
+        </mat-date-range-input>
+
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-date-range-picker #picker></mat-date-range-picker>
+
+        <mat-error *ngIf="dateRange.get('start')?.hasError('required')">Başlangıç tarihi gerekli</mat-error>
+        <mat-error *ngIf="dateRange.get('end')?.hasError('required')">Bitiş tarihi gerekli</mat-error>
+      </mat-form-field>
+    </div>
+
+  </div>
+
+  <!-- Seçim Bilgisi -->
+  <div *ngIf="selectedCount() > 0" class="row mb-3">
+    <div class="col">
+      <div class="alert alert-info d-flex justify-content-between align-items-center">
+        <div><strong>{{ selectedCount() }} fatura</strong> seçildi</div>
+
+        <button 
+          class="btn btn-sm btn-outline-primary me-2" 
+          (click)="PostSelectedInvoices()" 
+          [disabled]="yukleniyor()">
+          <i class="bi bi-send me-1"></i>
+          {{ yukleniyor() ? 'İşleniyor...' : 'Seçilen Faturaları Gönder' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tablo Container -->
+  <div class="table-container mat-elevation-z8">
+
+    <div class="search-pagination-container d-flex justify-content-between align-items-center flex-wrap p-3">
+
+      <!-- Genel Arama -->
+      <mat-form-field appearance="fill" class="custom-input">
+        <mat-label>Evrak Filtreleyin</mat-label>
+        <input matInput (keyup)="applyFilter($event)" placeholder="Arama yapın...">
+      </mat-form-field>
+
+      <button 
+        class="btn btn-sm btn-outline-success" 
+        (click)="sorguyuCalistir()" 
+        [disabled]="yukleniyor()">
+        <i class="bi bi-play-circle me-1"></i> Necip Abi Sorguyu Çalıştır
+      </button>
+
+      <!-- Pagination -->
+      <mat-paginator 
+        class="mat-paginator"
+        [pageSize]="10" 
+        [pageSizeOptions]="[10, 15, 20,30, 50, 100]"
+        showFirstLastButtons>
+      </mat-paginator>
+
+    </div>
+
+    <!-- Yükleniyor Bar -->
+    <mat-progress-bar *ngIf="yukleniyor()" mode="indeterminate">Yükleniyor</mat-progress-bar>
+
+    <div class="card-body p-0">
+      <div class="table-responsive" lang="tr">
+
+        <table mat-table [dataSource]="DataSource" matSort class="table table-hover mb-0">
+
+          <!-- Seçim Kutusu -->
+          <ng-container matColumnDef="select">
+            <th mat-header-cell *matHeaderCellDef class="text-center">
+              <mat-checkbox 
+                (change)="$event ? masterToggle() : null"
+                [checked]="isAllSelected()"
+                [indeterminate]="selection.hasValue() && !isAllSelected()"
+                [disabled]="DataSource.data.length === 0">
+              </mat-checkbox>
+            </th>
+            <td mat-cell *matCellDef="let row" class="text-center">
+              <mat-checkbox 
+                (click)="$event.stopPropagation()" 
+                (change)="toggleRow(row)"
+                [checked]="selection.isSelected(row)">
+              </mat-checkbox>
+            </td>
+          </ng-container>
+
+          <!-- Evrak No -->
+          <ng-container matColumnDef="evrakNo">
+            <th mat-header-cell *matHeaderCellDef class="d-none d-md-table-cell">
+              <div class="th-wrapper">
+                <span mat-sort-header="evrakNo">Evrak No</span>
+                <input type="text" class="form-control form-control-sm mt-1" placeholder="Ara"
+                  (keyup)="applyColumnFilter($event, 'evrakNo')">
+              </div>
+            </th>
+            <td mat-cell *matCellDef="let evrak" class="d-none d-md-table-cell">
+              {{ evrak.evrakNo || '-' }}
+            </td>
+          </ng-container>
+
+          <!-- Fatura Tarihi -->
+          <ng-container matColumnDef="tarih">
+            <th mat-header-cell *matHeaderCellDef class="d-none d-lg-table-cell th-col">
+              <div class="d-flex flex-column">
+                <span mat-sort-header="tarih">Fatura Tarihi</span>
+                <input type="text" class="form-control form-control-sm mt-1" placeholder="Ara"
+                  (keyup)="applyColumnFilter($event, 'tarih')">
+              </div>
+            </th>
+            <td mat-cell *matCellDef="let evrak" class="d-none d-lg-table-cell">
+              {{ evrak.tarih | date:'dd.MM.yyyy' }}
+            </td>
+          </ng-container>
+
+          <!-- Belge Tarihi -->
+          <ng-container matColumnDef="belgeTarihi">
+            <th mat-header-cell *matHeaderCellDef class="d-none d-lg-table-cell" mat-sort-header="belgeTarihi">
+              Tarih
+            </th>
+            <td mat-cell *matCellDef="let evrak" class="d-none d-lg-table-cell">
+              {{ evrak.belgeTarihi | date:'dd.MM.yyyy' }}
+            </td>
+          </ng-container>
+
+          <!-- İrsaliye Tarihi -->
+          <ng-container matColumnDef="irsaliyeTarihi">
+            <th mat-header-cell *matHeaderCellDef class="d-none d-xl-table-cell" mat-sort-header="irsaliyeTarihi">
+              İrsaliye Tarihi
+            </th>
+            <td mat-cell *matCellDef="let evrak" class="d-none d-xl-table-cell">
+              {{ evrak.irsaliyeTarihi | date:'dd.MM.yyyy' }}
+            </td>
+          </ng-container>
+
+          <!-- İrsaliye No -->
+          <ng-container matColumnDef="irsaliyeNo">
+            <th mat-header-cell *matHeaderCellDef class="d-none d-xl-table-cell" mat-sort-header="irsaliyeNo">
+              İrsaliye No
+            </th>
+            <td mat-cell *matCellDef="let evrak" class="d-none d-xl-table-cell">
+              {{ evrak.irsaliyeNo || '-' }}
+            </td>
+          </ng-container>
+
+          <!-- Belge Türü -->
+          <ng-container matColumnDef="eBelgeTuru">
+            <th mat-header-cell *matHeaderCellDef class="d-none d-md-table-cell" mat-sort-header="eBelgeTuru">
+              Belge Türü
+            </th>
+            <td mat-cell *matCellDef="let evrak" class="d-none d-md-table-cell">
+              {{ evrak.eBelgeTuru === 0 ? 'Normal' : (evrak.eBelgeTuru === 1 ? 'İade' : '-') }}
+            </td>
+          </ng-container>
+
+          <!-- Fatura Tipi -->
+          <ng-container matColumnDef="evrakTip">
+            <th mat-header-cell *matHeaderCellDef class="d-none d-sm-table-cell" mat-sort-header="evrakTip">
+              Fatura Tipi
+            </th>
+            <td mat-cell *matCellDef="let evrak" class="d-none d-sm-table-cell">
+              {{ evrak.evrakTip ?? '-' }}
+            </td>
+          </ng-container>
+
+          <!-- Belge No -->
+          <ng-container matColumnDef="belgeNo">
+            <th mat-header-cell *matHeaderCellDef class="d-none d-lg-table-cell" mat-sort-header="belgeNo">
+              Belge No
+            </th>
+            <td mat-cell *matCellDef="let evrak" class="d-none d-lg-table-cell">
+              {{ evrak.belgeNo || '-' }}
+            </td>
+          </ng-container>
+
+          <!-- Müşteri Adı -->
+          <ng-container matColumnDef="musteriAdi">
+            <th mat-header-cell *matHeaderCellDef>
+              <div class="th-wrapper">
+                <span mat-sort-header="musteriAdi">Müşteri Adı</span>
+                <input type="text" class="form-control form-control-sm mt-1" placeholder="Ara"
+                  (keyup)="applyColumnFilter($event, 'musteriAdi')">
+              </div>
+            </th>
+            <td mat-cell *matCellDef="let evrak">
+              {{ evrak.musteriAdi || '-' }}
+            </td>
+          </ng-container>
+
+          <!-- Açıklama -->
+          <ng-container matColumnDef="aciklama">
+            <th mat-header-cell *matHeaderCellDef class="d-none d-xl-table-cell" mat-sort-header="aciklama">
+              Açıklama
+            </th>
+            <td mat-cell *matCellDef="let evrak" class="d-none d-xl-table-cell">
+              {{ evrak.aciklama || '-' }}
+            </td>
+          </ng-container>
+
+          <!-- Tutar -->
+          <ng-container matColumnDef="tutar">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="tutar">
+              Tutar
+            </th>
+            <td mat-cell *matCellDef="let evrak">
+              {{ evrak.tutar | currency:'TRY':'symbol' }}
+            </td>
+          </ng-container>
+
+          <!-- Fatura Mail -->
+          <ng-container matColumnDef="faturaMail">
+            <th mat-header-cell *matHeaderCellDef class="d-none d-md-table-cell" mat-sort-header="faturaMail">
+              Fatura Mail
+            </th>
+            <td mat-cell *matCellDef="let evrak" class="d-none d-md-table-cell">
+              {{ evrak.faturaMail || '-' }}
+            </td>
+          </ng-container>
+
+          <!-- İşlemler -->
+          <ng-container matColumnDef="islemler">
+            <th mat-header-cell *matHeaderCellDef class="text-center">İşlemler</th>
+            <td mat-cell *matCellDef="let evrak" class="text-center">
+              <button 
+                type="button" 
+                class="btn btn-outline-primary btn-sm" 
+                title="Görüntüle"
+                (click)="viewInvoice(evrak)" 
+                [disabled]="yukleniyor()">
+                <i class="bi bi-eye"></i>
+              </button>
+            </td>
+          </ng-container>
+
+          <!-- Header ve Row -->
+          <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-light"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" 
+              [class.table-active]="selection.isSelected(row)">
+          </tr>
+
+          <!-- Boş durum -->
+          <tr *ngIf="DataSource.data.length === 0 && !yukleniyor()" class="text-center">
+            <td [attr.colspan]="displayedColumns.length" class="p-4 text-muted">
+              <i class="bi bi-inbox display-4 d-block mb-2"></i>
+              Veri bulunamadı
+            </td>
+          </tr>
+
+        </table>
+
+      </div>
+    </div>
+  </div>
+
+</div>

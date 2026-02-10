@@ -1,0 +1,22 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h3>Etiket Ekle</h3>
+            <div class="mb-3">
+                <label for="productCode" class="form-label">Ürün Kodu</label>
+                <input class="form-control" [(ngModel)]="searchText" (ngModelChange)="onSearchChange()" />
+
+                <ul class="list-group mt-2">
+                    <li *ngFor="let item of findProducts" class="list-group-item list-group-item-action clickable "
+                        (click)="selectProduct(item)">
+                        {{ item.productName }} - {{ item.productCode }}
+                    </li>
+                </ul>
+
+
+
+            </div>
+            <div class="col-12 text-end">
+                <button class="btn btn-primary me-2" (click)="closeDialog()">İptal</button>
+            </div>
+        </div>

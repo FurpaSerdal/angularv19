@@ -1,0 +1,56 @@
+<div *ngFor="let page of halfPages; let pageIndex = index" class="print-half-page">
+
+  <div *ngFor="let product of page; let i = index" class="rack-label">
+
+    <div class="lbl-title">{{ product.productName }}</div>
+
+    <div class="lbl-mid">
+      <!-- ✅ data-koli burada, ekstra div yok, tasarım bozulmaz -->
+      <div class="lbl-barcode"
+           [attr.data-koli]="'Koli Adedi: ' + (product.packageFactor ?? '') + ' ' + (product.unitPriceFactor ?? '')">
+
+        <svg
+          class="barcode-svg"
+          [attr.id]="'barcode-' + (pageIndex * 12 + i)"
+          [attr.data-code]="product?.barcode"
+          width="220"
+          height="70"
+        ></svg>
+      </div>
+
+      <div class="lbl-price">
+        <span class="price-val">{{ product.price.toFixed(2) }}</span>
+        <span class="price-cur">TL</span>
+      </div>
+    </div>
+
+    <div class="lbl-info">
+      <span>Fiyat Değişiklik: {{ product.priceChangeDate }}</span>
+      <span>Üretim: {{ product.origin }}</span>
+    </div>
+
+    <div class="lbl-bottom">
+      <div class="lbl-col">
+        KDV Dahil Birim:<br />
+        <span class="lbl-strong">
+          {{ (product.unitPriceFactor ?? 0).toFixed ? product.unitPriceFactor.toFixed(2) : product.unitPriceFactor }}
+        </span>
+      </div>
+
+      <div class="lbl-col">
+        Basım Tarihi:<br />
+        <span class="lbl-strong">
+          {{ etiketCikarmaTarihi | date:'dd.MM.yyyy HH:mm' }}
+        </span>
+      </div>
+
+      <div class="lbl-badge">
+        <img class="badge-img"
+             *ngIf="product.origin === 'TR' || product.origin === 'TÜRKİYE'"
+             src="/assets/YerliUretim.jpg"
+             alt="Yerli Üretim" />
+      </div>
+    </div>
+
+  </div>
+</div>

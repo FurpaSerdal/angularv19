@@ -1,0 +1,9 @@
+.small-btn {
+    font-size: 16px; /* Daha küçük yazı boyutu */
+    padding: 8px 12px; /* İç boşlukları artırır */
+    line-height: 1.5; /* Daha düşük yükseklik */
+    min-width: auto; /* Varsayılan minimum genişliği kaldırır */
+    height: 40px; /* Sabit bir yükseklik belirler */
+}
+
+

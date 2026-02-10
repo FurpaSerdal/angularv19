@@ -9,12 +9,12 @@
 
         <!-- Sol: Ana Ekran -->
         <h1 class="text-primary mb-0 fw-bold">
-          {{ anaekran }}
+          {{ anaekran() }}
         </h1>
 
         <!-- Sağ: Yan Ekran -->
-        <h3 class="text-white mb-0 fw-bold">
-          {{ yanekran }}
+        <h3 class="text-danger mb-0 fw-bold">
+          {{ yanekran() }}
         </h3>
 
       </div>
@@ -90,6 +90,14 @@
         <i class="bi bi-grid-3x3-gap me-2"></i>Kart Görünümü
       </button>
     </div>
+  </div>
+
+  <!-- Yükleme Göstergesi -->
+  <div *ngIf="yukleniyor()" class="d-flex flex-column justify-content-center align-items-center"
+    style="min-height: 200px;">
+
+    <mat-spinner color="primary" diameter="60"></mat-spinner>
+
   </div>
 
   <!-- Tablo Görünümü -->
@@ -196,7 +204,7 @@
   <!-- Kart Görünümü -->
   <div *ngIf="currentView === 'card'" class="card-view">
     <div class="row g-4">
-      <div *ngFor="let evrak of DataSource.filteredData" class="col-12 col-md-6 col-lg-4">
+      <div *ngFor="let evrak of paginatedCardData()" class="col-12 col-md-6 col-lg-4">
         <div class="evrak-card card shadow-sm h-100">
           <!-- Kart Header -->
           <div class="card-header bg-light d-flex justify-content-between align-items-center">

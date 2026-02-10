@@ -1,5 +1,5 @@
 
-import { Component, effect, signal, ViewChild } from '@angular/core';
+import { Component, computed, effect, signal, ViewChild } from '@angular/core';
 ;
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
@@ -18,6 +18,8 @@ import { ShipmentNotesService } from '../../../../../services/shipments/shipment
 import { WarehouseSend } from '../create/warehouse-send';
 import { WarehouseOutboundShipmentsDetailComponent } from '../detail/detail';
 import { ConvertToEWaybillComponent } from '../convert-to-ewaybill-component/convert-to-ewaybill-component';
+import { EvrakListResponse } from '../../../../../models/evrakListModel';
+import { DetayResponse } from '../../../../../models/detay';
 
 
 
@@ -30,21 +32,17 @@ import { ConvertToEWaybillComponent } from '../convert-to-ewaybill-component/con
   providers: [DatePipe] 
 })
 export class WarehouseOutboundShipments {
+  // Signals ekle
+pageIndex = signal(0);
+pageSize = signal(10);
 
   dateRange = new FormGroup({
     start: new FormControl<Date | null>(null),
     end: new FormControl<Date | null>(null)
   });
 
-  user = signal<User | null>(null);
   yukleniyor = signal(false);
-  gorevid = signal(0);
-  gorevadi = signal('');
-  altmenuid = signal(0);
 
-  anaekran:string=""
-  yanekran:string=""
-  
   // Yeni değişkenler
   currentView: 'table' | 'card' = 'table';
   selectedRow: any = null;
@@ -56,8 +54,18 @@ export class WarehouseOutboundShipments {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  // --- SADECE EFFECT MİMARİSİ (3 EFFECT) ---
-// Bu bölümü OrtakMenu constructor içine birebir koyabilirsin
+
+
+
+// Computed signal ekle
+paginatedCardData = computed(() => {
+  const filtered = this.DataSource.filteredData;
+  const start = this.pageIndex() * this.pageSize();
+  const end = start + this.pageSize();
+  return filtered.slice(start, end);
+});
+
+
 
 private lastKey = '';
 
@@ -71,48 +79,51 @@ constructor(
   private breakpointObserver: BreakpointObserver
 ) {
 
-  /*
-   * EFFECT #1→ UI SYNC
-   * User signal'ını component state'e bağlar
-   */
-  effect(() => {
-    const user = this.meservice.userSignal();
-    console.log(user)
-    this.user.set(user);
-    console.log(Number(this.user()?.depoNo))
+    /* 🔥 EFFECT → görev değişince data yükle */
+    effect(() => {
+      const gorevId = this.gorevid();
+      if (!gorevId) return;
 
+      this.loadData();
+    });
+  }
+
+  // -------------------- GLOBAL STATE (SERVICE) --------------------
+
+  readonly user = computed(() => this.meservice.userSignal());
+
+  readonly gorevid = computed(() =>
+    this.meservice.selectedGorev()?.id ?? 0
+  );
+
+  readonly gorevadi = computed(() =>
+    this.meservice.selectedGorev()?.isim ?? ''
+  );
+
+  readonly altmenuid = computed(() =>
+    this.meservice.selectedAltMenu()?.id ?? 0
+  );
+
+  readonly anaekran = computed(() => {
+    const m = this.meservice.selectedMenu();
+    const a = this.meservice.selectedAltMenu();
+    const g = this.meservice.selectedGorev();
+
+    if (!m || !a || !g) return '';
+
+    return `${m}-${a.id}-${g.id}`;
   });
 
-  /*
-   * EFFECT #2→ BUSINESS (loadData)
-   * Menü + Alt Menü + Görev hazırsa veri yükler
-   */
-  effect(() => {
-    const menu = this.meservice.selectedMenu();
-    const altmenu = this.meservice.selectedAltMenu();
-    const gorev = this.meservice.selectedGorev();
+  readonly yanekran = computed(() => {
+    const a = this.meservice.selectedAltMenu();
+    const g = this.meservice.selectedGorev();
 
-    // Eksik state varsa DUR
-    if (!menu || !altmenu || !gorev) {
-      this.lastKey = '';
-      return;
-    }
+    if (!a || !g) return '';
 
-    const key = `${menu}-${altmenu.id}-${gorev.kimlik}`;
-    this.anaekran=key
-    this.yanekran=`${altmenu.isim} -*- ${gorev.isim}`
-
-    // Aynı kombinasyonda tekrar yükleme
-    if (key === this.lastKey) return;
-    this.lastKey = key;
-
-    this.altmenuid.set(altmenu.id);
-    this.gorevid.set(gorev.kimlik);
-
-    console.log('loadData tetiklendi:', key);
-    this.loadData();
+    return `${a.isim} -*- ${g.isim}`;
   });
-}
+
+  // --------------------
 
 
   ngOnInit() {
@@ -122,15 +133,20 @@ constructor(
   ngAfterViewInit() {
     this.DataSource.sort = this.sort;
     this.DataSource.paginator = this.paginator;
+    // ngAfterViewInit() içine ekle:
+this.paginator.page.subscribe((event) => {
+  this.pageIndex.set(event.pageIndex);
+  this.pageSize.set(event.pageSize);
+});
   }
 
   loadData(): void {
     this.DataSource.data = [];
 
     this.yukleniyor.set(true);
-    this.shipmentNotesService.getBranchShipments(this.altmenuid(), "bugun").subscribe({
-      next: (data: any) => {
-        this.DataSource.data = data.sevkler;
+    this.shipmentNotesService.getBranchShipments(this.gorevid(), "bugun").subscribe({
+      next: (data: EvrakListResponse) => {
+        this.DataSource.data = data.evraklar;
         this.yukleniyor.set(false);
       },
       error: () => {
@@ -150,9 +166,9 @@ const baslangic = this.datePipe.transform(this.dateRange.get('start')?.value, 'y
 
    
       this.yukleniyor.set(true);
-      this.shipmentNotesService.getBranchShipments(this.altmenuid(), zamanlama).subscribe({
-        next: (data: any) => {
-          this.DataSource.data = data.sevkler;
+      this.shipmentNotesService.getBranchShipments(this.gorevid(), zamanlama).subscribe({
+        next: (data: EvrakListResponse) => {
+          this.DataSource.data = data.evraklar;
           this.yukleniyor.set(false);
         },
         error: () => {
@@ -163,37 +179,45 @@ const baslangic = this.datePipe.transform(this.dateRange.get('start')?.value, 'y
     }
   }
   irsaliyeCevir(evrak: any): void {
-    this.shipmentNotesService.detailsBranchShipment(this.gorevid(), evrak.evrakNoSeri, evrak.evrakNoSira).subscribe({
+    this.yukleniyor.set(true);
+    this.shipmentNotesService.detailsBranchShipment(this.gorevid(), evrak.seri, evrak.sira).subscribe({
       next: (data: any) => {
+        this.yukleniyor.set(false);
         const isMobile = this.breakpointObserver.isMatched(Breakpoints.Handset);  
         this.dialog.open(ConvertToEWaybillComponent, {
           width: isMobile ? '100vw' : '50vw',
           height: isMobile ? '100vh' : '70vh',
           maxWidth: '100vw',
+          disableClose: true,
           panelClass: isMobile ? 'full-screen-dialog' : '',
-          data: data.sevk
+          data: data
         });
       },
       error: () => {
+        this.yukleniyor.set(false);
         this.toastr.error('Evrak detayları alınırken hata oluştu', 'Hata');
-      }
+      },
+      complete: () => this.yukleniyor.set(false)
     });
   }
 
   taskDetay(seri: string, sira: number): void {
-    this.toastr.show('Task detayı yükleniyor...', '', { tapToDismiss: false, extendedTimeOut: 1000, progressBar: true});
+    this.yukleniyor.set(true);
     this.shipmentNotesService.detailsBranchShipment(this.gorevid(), seri, sira).subscribe({
-      next: (data: any) => {
+      next: (data: DetayResponse) => {
+        this.yukleniyor.set(false);
         this.dialog.open(WarehouseOutboundShipmentsDetailComponent, {
           width: "50%",
           height: "70%",
-          data: data.sevk
+          data: data
         });
         console.log('Task Detay:', data);
       },
       error: () => {
+        this.yukleniyor.set(false);
         this.toastr.error('Task detayı alınırken hata oluştu', 'Hata');
-      }
+      },
+      complete: () => this.yukleniyor.set(false)
     });
   }
 
@@ -212,8 +236,10 @@ const baslangic = this.datePipe.transform(this.dateRange.get('start')?.value, 'y
 
   // EVRAK ÇEVİR
   return(evrak: any) {
-    this.shipmentNotesService.detailsBranchShipment(this.gorevid(), evrak.evrakNoSeri, evrak.evrakNoSira).subscribe({
-      next: (data: any) => {
+    this.yukleniyor.set(true);
+    this.shipmentNotesService.detailsBranchShipment(this.gorevid(), evrak.seri, evrak.sira).subscribe({
+      next: (data: DetayResponse) => {
+        this.yukleniyor.set(false);
         this.dialog.open(WarehouseSend, {
           width: '50vw',
           height: '70vh',
@@ -221,6 +247,7 @@ const baslangic = this.datePipe.transform(this.dateRange.get('start')?.value, 'y
         });
       },
       error: () => {
+        this.yukleniyor.set(false);
         this.toastr.error('Task detayı alınırken hata oluştu', 'Hata');
       }
     });

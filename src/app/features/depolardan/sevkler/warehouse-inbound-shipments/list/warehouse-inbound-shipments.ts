@@ -1,6 +1,6 @@
 
 
-import { Component, effect, signal, ViewChild } from '@angular/core';
+import { Component, computed, effect, signal, ViewChild } from '@angular/core';
 ;
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
@@ -16,8 +16,10 @@ import { User } from '../../../../../models/user';
 import { MeService } from '../../../../../services/meservice.service';
 import { GoodsReceiptNotesService } from '../../../../../services/receipts/goods-receipt-notes.service';
 import { WarehouseGoodsReceipt } from '../warehouse-goods-receipt/warehouse-goods-receipt';
-import { ReceiveMode } from '../../../../../models/depoMalKabulModel';
 import { WarehouseInboundShipmentsDetailComponent } from '../detail/detail';
+import { ReceiveMode } from '../../../../../models/ekleModels';
+import { EvrakListResponse } from '../../../../../models/evrakListModel';
+import { DetayResponse } from '../../../../../models/detay';
 
 
 
@@ -36,25 +38,29 @@ export class WarehouseInboundShipments {
     end: new FormControl<Date | null>(null)
   });
 
-  user = signal<User | null>(null);
   yukleniyor = signal(false);
-  gorevid = signal(0);
-  gorevadi = signal('');
-  altmenuid = signal(0);
+  pageIndex = signal(0);
+  pageSize = signal(10);
 
-  anaekran:string=""
-  yanekran:string=""
   
   // Yeni değişkenler
   currentView: 'table' | 'card' = 'table';
   selectedRow: any = null;
   
   // Tablo kolonları güncellendi
-  displayedColumns = ['evrakNo', 'tarih', 'transfer', 'durum', 'islemler'];
+  displayedColumns = ['evrakNo', 'tarih', 'transfer','belgeNo', 'durum', 'islemler'];
   DataSource: MatTableDataSource<any> = new MatTableDataSource<any>([]);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+
+  // Kart görünümü için paginated data
+  paginatedCardData = computed(() => {
+    const filtered = this.DataSource.filteredData;
+    const start = this.pageIndex() * this.pageSize();
+    const end = start + this.pageSize();
+    return filtered.slice(start, end);
+  });
 
   // --- SADECE EFFECT MİMARİSİ (3 EFFECT) ---
 // Bu bölümü OrtakMenu constructor içine birebir koyabilirsin
@@ -71,50 +77,55 @@ constructor(
   private breakpointObserver: BreakpointObserver
 ) {
 
-  /*
-   * EFFECT #1→ UI SYNC
-   * User signal'ını component state'e bağlar
-   */
-  effect(() => {
-    const user = this.meservice.userSignal();
-    console.log(user)
-    this.user.set(user);
-    console.log(Number(this.user()?.depoNo))
 
+    /* 🔥 EFFECT → görev değişince data yükle */
+    effect(() => {
+      const gorevId = this.gorevid();
+      if (!gorevId) return;
+
+      this.loadData();
+    });
+  }
+
+  // -------------------- GLOBAL STATE (SERVICE) --------------------
+
+  readonly user = computed(() => this.meservice.userSignal());
+
+  readonly gorevid = computed(() =>
+    this.meservice.selectedGorev()?.id ?? 0
+  );
+
+  readonly gorevadi = computed(() =>
+    this.meservice.selectedGorev()?.isim ?? ''
+  );
+  readonly iadegorevid = computed(() =>
+    this.meservice.selectedGorev()?.iadeGorevi?.id ?? 0
+  );
+
+  readonly altmenuid = computed(() =>
+    this.meservice.selectedAltMenu()?.id ?? 0
+  );
+
+  readonly anaekran = computed(() => {
+    const m = this.meservice.selectedMenu();
+    const a = this.meservice.selectedAltMenu();
+    const g = this.meservice.selectedGorev();
+
+    if (!m || !a || !g) return '';
+
+    return `${m}-${a.id}-${g.id}`;
   });
 
-  /*
-   * EFFECT #2→ BUSINESS (loadData)
-   * Menü + Alt Menü + Görev hazırsa veri yükler
-   */
-  effect(() => {
-    const menu = this.meservice.selectedMenu();
-    const altmenu = this.meservice.selectedAltMenu();
-    const gorev = this.meservice.selectedGorev();
+  readonly yanekran = computed(() => {
+    const a = this.meservice.selectedAltMenu();
+    const g = this.meservice.selectedGorev();
 
-    // Eksik state varsa DUR
-    if (!menu || !altmenu || !gorev) {
-      this.lastKey = '';
-      return;
-    }
+    if (!a || !g) return '';
 
-    const key = `${menu}-${altmenu.id}-${gorev.kimlik}`;
-    this.anaekran=key
-    this.yanekran=`${altmenu.isim} -*- ${gorev.isim}`
-
-    // Aynı kombinasyonda tekrar yükleme
-    if (key === this.lastKey) return;
-    this.lastKey = key;
-
-    this.altmenuid.set(altmenu.id);
-    this.gorevid.set(gorev.kimlik);
-
-    console.log('loadData tetiklendi:', key);
-    this.loadData();
+    return `${a.isim} -*- ${g.isim}`;
   });
-}
 
-
+  // --------------------
   ngOnInit() {
 
   }
@@ -122,6 +133,15 @@ constructor(
   ngAfterViewInit() {
     this.DataSource.sort = this.sort;
     this.DataSource.paginator = this.paginator;
+    
+    // Paginator değişikliklerini izle
+    this.paginator.page.subscribe((event) => {
+      this.pageIndex.set(event.pageIndex);
+      this.pageSize.set(event.pageSize);
+    });
+  }
+
+  ngOnDestroy() {
   }
 
   loadData(): void {
@@ -129,9 +149,9 @@ constructor(
 
 
     this.yukleniyor.set(true);
-    this.goodsReceiptNotesService.getBranchReceipts(this.altmenuid(), "bugun").subscribe({
-      next: (data: any) => {
-        this.DataSource.data = data.malKabulIrsaliyeleri.malKabuller;
+    this.goodsReceiptNotesService.getBranchReceipts(this.gorevid(), "bugun").subscribe({
+      next: (data: EvrakListResponse) => {
+        this.DataSource.data = data.evraklar;
         this.yukleniyor.set(false);
       },
       error: () => {
@@ -155,9 +175,9 @@ constructor(
 
     if (baslangic && bitis) {
       this.yukleniyor.set(true);
-      this.goodsReceiptNotesService.getBranchReceipts(this.altmenuid(), zamanlama).subscribe({
-        next: (data: any) => {
-          this.DataSource.data = data.malKabulIrsaliyeleri.malKabuller;
+      this.goodsReceiptNotesService.getBranchReceipts(this.gorevid(), zamanlama).subscribe({
+        next: (data: EvrakListResponse) => {
+          this.DataSource.data = data.evraklar;
           this.yukleniyor.set(false);
         },
         error: () => {
@@ -170,20 +190,21 @@ constructor(
   }
 
   taskDetay(seri: string, sira: number): void {
-    this.toastr.show('Task Detayları Alınıyor', 'Bilgi' ,
-      { timeOut: 10000, progressBar: true, progressAnimation: 'increasing' , }
-     );
+    this.yukleniyor.set(true);
     this.goodsReceiptNotesService.detailsBranchReceipt(this.gorevid(), seri, sira).subscribe({
-      next: (data: any) => {
+      next: (data: DetayResponse) => {
+        this.yukleniyor.set(false);
         this.dialog.open(WarehouseInboundShipmentsDetailComponent, {
           width: "50%",
           height: "70%",
-          data: data.malKabulIrsaliyesi.malKabul
+          data: data
         });
       },
       error: () => {
+        this.yukleniyor.set(false);
         this.toastr.error('Task detayı alınırken hata oluştu', 'Hata');
-      }
+      },
+      complete: () => this.yukleniyor.set(false)
     });
   }
 
@@ -201,22 +222,26 @@ constructor(
 
   // EVRAK ÇEVİR
   return(evrak: any) {
+
+    this.yukleniyor.set(true);
      this.toastr.show('Evrak Çevirme İşlemi Başlatıldı irsaliye bilgileri alınıyor', 'Bilgi' ,
       { timeOut: 10000, progressBar: true, progressAnimation: 'increasing' , }
      );
-    this.goodsReceiptNotesService.detailsBranchReceipt(this.altmenuid(), evrak.evrakNoSeri, evrak.evrakNoSira).subscribe({
-      next: (data: any) => {
+    this.goodsReceiptNotesService.detailsBranchReceipt(this.gorevid(), evrak.evrakNoSeri, evrak.evrakNoSira).subscribe({
+      next: (data: DetayResponse) => {
+        this.yukleniyor.set(false);
         this.dialog.open(WarehouseGoodsReceipt, {
           width: '50vw',
           height: '70vh',
            data: {
-                 shipment: data.malKabulIrsaliyesi.malKabul,
+                 detay: data,
                  mode: 'select' as ReceiveMode,
-                 iadeGorevId: data.iadeGorevId
+                 iadegorevid: this.iadegorevid()
                  }
         });
       },
       error: () => {
+        this.yukleniyor.set(false);
         this.toastr.error('Task detayı alınırken hata oluştu', 'Hata');
       }
     });
@@ -249,11 +274,13 @@ constructor(
   // Görünüm değiştirme
   setView(view: 'table' | 'card'): void {
     this.currentView = view;
+    // Görünüm değiştiğinde sayfalamayı sıfırla
+    if (this.paginator) {
+      this.paginator.firstPage();
+    }
   }
 
-isSFDS(evrak: any): boolean {
-  return evrak.evrakNoSeri?.startsWith('SFDS') ?? false;
-}
+
   // Satır seçme
   selectRow(row: any): void {
     this.selectedRow = this.selectedRow === row ? null : row;

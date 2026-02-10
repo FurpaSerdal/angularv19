@@ -1,58 +1,74 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, signal } from '@angular/core';
+import { Component, effect, Inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { CompanyService } from '../../../../../services/company.service';
-import { FirmayaSevketDto } from '../../../../../models/firmayaSevkModel';
-import { Kalem, StokAraCT } from '../../../../../models/ortakModeller';
+import {  StokAraCT } from '../../../../../models/ortakModeller';
+import { KalemDto, SevkIrsaliyeleriEkleDto } from '../../../../../models/ekleModels';
+import { ShipmentNotesService } from '../../../../../services/shipments/shipment-notes.service';
+import { MeService } from '../../../../../services/meservice.service';
+import { listProducts } from '../../../../../models/listProduct';
 
 @Component({
   selector: 'app-company-refund',
   imports: [CommonModule, MatTableModule, FormsModule, MatIconModule],
   templateUrl: './company-refund.html',
-  styleUrl: './company-refund.css',
+  styleUrls: ['./company-refund.css'],
 })
 export class CompanyRefund {
 
-
-  
+  // Sinyaller
   bulunancariler = signal<any[]>([]);
-  secilencari = signal<any>(null);
+  seciliFirma = signal<any>(null);
+  girilenCariKod = signal<string>('');
   kendiDepom = signal<number>(0);
   seciliGorev = signal<number>(0);
   gorevAdi = signal<string>('');
   aramaGirdisi = signal<string>('');
   gonderiliyor = signal<boolean>(false);
-  
-
-  
-  postorder: FirmayaSevketDto = this.initializeForm();
-  urunListesi = signal<any[]>([]);
   bulunanUrunler = signal<StokAraCT[]>([]);
-  secilenUrun = signal<StokAraCT | null>(null);
-  dataSource = new MatTableDataSource<any>([]);
-  displayedColumns: string[] = ['UrunAdi', 'UrunKodu', 'MalKabulMiktari', 'aksiyon'];
+  urunListesi = signal<listProducts[]>([]);
+  formdata = signal<any>({
+    duzenleyen: '',
+    muhatapTemsilci: '',
+    vknTckn: ''
+  });
+  
+  // Form Model
+  postorder: SevkIrsaliyeleriEkleDto = this.initializeForm();
+  
+  // Tablo
+  dataSource = new MatTableDataSource<listProducts>([]);
+  displayedColumns: string[] = ['UrunAdi', 'Kod', 'Barkod', 'Birim', 'IadeMiktari', 'aksiyon'];
+
+  // Hata/Success Mesajları
+  saveError = signal<string>('');
+  saveSuccess = signal<string>('');
 
   constructor(
     private companyservice: CompanyService,
-    
     private dialog: MatDialog,
     private toastr: ToastrService,
-   public dialogRef: MatDialogRef<CompanyRefund>,
-     
-  ) {}
+    private shipmentNotesService: ShipmentNotesService,
+    private meservice: MeService,
+    public dialogRef: MatDialogRef<CompanyRefund>,
+  ) {
+    effect(() => {
+      this.seciliGorev.set(this.meservice.selectedGorev()?.id ?? 0);
+    });
+  }
 
-private initializeForm(): FirmayaSevketDto {
+  private initializeForm(): SevkIrsaliyeleriEkleDto {
     return {
-      muhatapFirmaCariKod: '',
-      kalemler: [],
-      teslimTarihi: new Date(),
-      siparisEden: '',
-      siparisAlan: '',
-      iadedir: true
+      iadedir: true,
+      muhatapFirma: { cariKod: '', unvan: '' },
+      muhatapSube: null,
+      nakliyeDeposu: { depoNo: this.kendiDepom(), plaka: '', soforAdSoyad: '' },
+      sevkTarihi: new Date(),
+      kalemler: []
     };
   }
 
@@ -65,168 +81,247 @@ private initializeForm(): FirmayaSevketDto {
     this.gorevAdi.set(gorevAdi ?? '');
   }
 
-
-  urunAra(aranacak: string) {
-    const aranacakKelime = aranacak.toLocaleLowerCase();
-    
-    const dto = {
-      CariKod: this.postorder.muhatapFirmaCariKod ?? '',
-      Bul: aranacakKelime
-    };
-
-    this.companyservice
-      .searchStockByCustomerCode(dto)
-      .subscribe({
-        next: value => this.bulunanUrunler.set(value),
-        error: err => console.error('StokAra hatası:', err)
-      });
-  }
-
+  // Firma İşlemleri
   firmaAra() {
-    const query = this.postorder.muhatapFirmaCariKod ?? '';
-    this.companyservice.searchCustomerAccount(query).subscribe(data => {
-      this.bulunancariler.set(data);
-      console.log(data);
+    const query = this.girilenCariKod().trim();
+    if (query.length < 2) {
+      this.toastr.warning('En az 2 karakter giriniz', 'Uyarı');
+      return;
+    }
+
+    this.companyservice.searchCustomerAccount(query).subscribe({
+      next: (data) => {
+        this.bulunancariler.set(data);
+        if (data.length === 0) {
+          this.toastr.info('Firma bulunamadı', 'Bilgi');
+        }
+      },
+      error: (err) => {
+        console.error('Firma arama hatası:', err);
+        this.toastr.error('Firma arama sırasında hata oluştu', 'Hata');
+      }
     });
   }
 
-firmaSec(firma: any) {
-
-  this.postorder.muhatapFirmaCariKod = firma.cariKod;
-  this.secilencari.set(firma.id);
-  this.bulunancariler.set([]);
-}
-
-  urunSec(urun: StokAraCT) {
-    this.secilenUrun.set(urun);
-    this.urunEkle();
-    this.bulunanUrunler.set([]);
+  firmaSec(firma: any) {
+    this.seciliFirma.set(firma);
+    this.postorder.muhatapFirma = {
+      cariKod: firma.cariKod,
+      unvan: firma.cariUnvan || firma.unvan
+    };
+    this.girilenCariKod.set(firma.cariKod);
+    this.bulunancariler.set([]);
+    this.toastr.success(`${firma.cariUnvan || firma.unvan} firması seçildi`, 'Başarılı');
   }
 
-  urunEkle() {
-    const secilenUrun = this.secilenUrun();
-    if (!secilenUrun) return;
+  // Ürün İşlemleri
+  urunAra(aranacak: string) {
+    if (!this.seciliFirma()) {
+      this.toastr.warning('Önce firma seçmelisiniz', 'Uyarı');
+      return;
+    }
 
-    const eklenecekUrun: any = {
-      UrunAdi: secilenUrun.stokIsim,
-      UrunKodu: secilenUrun.stokKod,
-      barkodu: secilenUrun.barKodu,
-      fiyat: secilenUrun.fiyati,
-      birimkatsayisi: secilenUrun.birimKatsayisi,
-      sto_birim_ad: secilenUrun.birimAd,
-      onerilenMiktar: null,
-      verilenSiparisMiktari: null,
-      malKabulIrsaliyesiMiktari: null,
-      SevkMMiktari: 1,
-      tedarikciStokKod: '',
-      aciklama: '',
-      fark: '',
-      sipId: ''
+    const aranacakKelime = aranacak.trim();
+    if (aranacakKelime.length < 2) {
+      this.toastr.warning('En az 2 karakter giriniz', 'Uyarı');
+      return;
+    }
+
+    const dto = {
+      CariKod: this.postorder.muhatapFirma?.cariKod ?? '',
+      Bul: aranacakKelime.toLocaleLowerCase()
     };
 
+    this.companyservice.searchStockByCustomerCode(dto).subscribe({
+      next: (value) => {
+        this.bulunanUrunler.set(value);
+        if (value.length === 0) {
+          this.toastr.info('Ürün bulunamadı', 'Bilgi');
+        }
+      },
+      error: (err) => {
+        console.error('StokAra hatası:', err);
+        this.toastr.error('Ürün arama sırasında hata oluştu', 'Hata');
+      }
+    });
+  }
+
+  urunSec(urun: StokAraCT) {
+    // Ürün zaten ekli mi kontrol et
     const existingIndex = this.urunListesi().findIndex(
-      u => u.UrunKodu === eklenecekUrun.UrunKodu
+      u => u.stokKodu === urun.stokKod
     );
 
     if (existingIndex !== -1) {
-      const updatedList = this.urunListesi().map((item, index) =>
-        index === existingIndex
-          ? { ...item, MalKabulMiktari: (item.MalKabulMiktari ?? 0) + 1 }
-          : item
-      );
-      this.urunListesi.set(updatedList);
+      this.miktarArttir(existingIndex);
+      this.toastr.info('Ürün miktarı arttırıldı', 'Bilgi');
     } else {
+      const eklenecekUrun: listProducts = {
+        stokAdi: urun.stokIsim,
+        stokKodu: urun.stokKod,
+        barkod: urun.barKodu,
+        fiyat: urun.fiyati,
+        birimKatSayi: urun.birimKatsayisi,
+        birimAd: urun.birimAd,
+        miktar: 1,
+      };
+
       this.urunListesi.set([...this.urunListesi(), eklenecekUrun]);
+      this.dataSource.data = this.urunListesi();
+      this.toastr.success('Ürün eklendi', 'Başarılı');
     }
 
-    this.dataSource.data = this.urunListesi();
+    this.bulunanUrunler.set([]);
+    this.aramaGirdisi.set('');
   }
 
+  miktarArttir(index: number) {
+    this.setMiktar(index, (this.urunListesi()[index].miktar || 0) + 1);
+  }
+
+  miktarAzalt(index: number) {
+    this.setMiktar(index, Math.max(1, (this.urunListesi()[index].miktar || 1) - 1));
+  }
+
+  miktarGir(index: number, value: string | number) {
+    const numericValue = Number(value);
+    const next = Number.isFinite(numericValue) ? Math.max(1, numericValue) : 1;
+    this.setMiktar(index, next);
+  }
+
+  private setMiktar(index: number, miktar: number) {
+    this.urunListesi.update(p => {
+      const validatedKalemler = [...p];
+      if (!validatedKalemler[index]) return p;
+
+      validatedKalemler[index] = {
+        ...validatedKalemler[index],
+        miktar: Math.max(1, miktar)
+      };
+
+      this.dataSource.data = validatedKalemler;
+      return validatedKalemler;
+    });
+  }
+
+  // Ürün Silme
   urunSil(index: number) {
+    const urunAdi = this.urunListesi()[index].stokAdi;
     const newList = [...this.urunListesi()];
     newList.splice(index, 1);
     this.urunListesi.set(newList);
     this.dataSource.data = this.urunListesi();
+    this.toastr.warning(`${urunAdi} ürünü silindi`, 'Silindi');
   }
 
+  // Toplamlar
+  toplamIadeMiktari(): number {
+    return this.urunListesi().reduce((total, urun) => {
+      return total + (urun.miktar ?? 0);
+    }, 0);
+  }
+
+  toplamKalemSayisi(): number {
+    return this.urunListesi().length;
+  }
+  private buildpostorder(): SevkIrsaliyeleriEkleDto {
+    const kalemler: KalemDto[] = this.urunListesi().map(urun => ({
+      stokKodu: urun.stokKodu,
+      aciklama: 'İade işlemi',
+      sevkMiktari: urun.miktar,
+    }));
+    return {
+      ...this.postorder,
+    
+      iadedir : true,
+      nakliyeDeposu : { depoNo: 109, plaka: '' , soforAdSoyad: this.formdata().duzenleyen },
+      sevkTarihi : new Date(),
+      muhatapFirma : { cariKod: this.seciliFirma()?.cariKod || '', unvan: this.seciliFirma()?.cariUnvan || '',yetkiliAdSoyad:this.formdata().muhatapTemsilci,vknTckn: this.formdata().vknTckn },
+      kalemler: kalemler
+
+    };
+  }
+
+  // Kayıt İşlemi
   kaydet() {
-    this.gonderiliyor.set(true);
-
-const kalemler: Kalem[] = this.urunListesi().map(urun => {
-  console.log('ÜRÜN', urun);
-
-  return {
-    id: crypto.randomUUID(),
-
-    aciklama: urun.aciklama || '',
-
-    sevkMiktari: urun.SevkMMiktari ?? 0,
-   
-    siparisGuid: urun.sipId || undefined,
-
-    stok: {
-      stokKod: urun.UrunKodu,
-      stokIsim: urun.UrunAdi,
-      birimAd: urun.sto_birim_ad,
-
-      tedarikciStokKod: urun.tedarikciStokKod || undefined,
-
-      barkodlar: urun.barkodu
-        ? [
-            {
-              barKodu: urun.barkodu,
-              stokKod: urun.UrunKodu,
-              birimAd: urun.sto_birim_ad,
-              birimKatSayisi: urun.birimkatsayisi ?? 1
-            }
-          ]
-        : [],
-
-
+    // Validasyonlar
+    if (!this.seciliFirma()) {
+      this.toastr.error('Lütfen firma seçiniz', 'Hata');
+      return;
     }
-  };
-});
+
+    if (this.urunListesi().length === 0) {
+      this.toastr.error('En az bir ürün ekleyiniz', 'Hata');
+      return;
+    }
+
+    this.gonderiliyor.set(true);
+    this.saveError.set('');
+    this.saveSuccess.set('');
 
 
-    this.postorder.kalemler = kalemler;
-    console.log("POST ORDER", this.postorder);
+  
 
-    const toastRef = this.toastr.show('Gönderiliyor...', '', {
-      disableTimeOut: true,
-      progressBar: true,
-      tapToDismiss: false,
-      closeButton: false,
-      toastClass: 'ngx-toastr info-toast'
+    this.shipmentNotesService.createCompanyShipment(this.seciliGorev(), this.buildpostorder()).subscribe({
+      next: (response: any) => {
+        this.toastr.success('İade sevk notu başarıyla oluşturuldu.', 'Başarılı');
+        this.saveSuccess.set('İade evrakı başarıyla kaydedildi.');
+        this.gonderiliyor.set(false);
+        setTimeout(() => {
+          this.dialogRef.close(true);
+        }, 1500);
+      },
+      error: (error: any) => {
+        console.error('Sevk notu oluşturma hatası:', error);
+        const errorMessage = error.error?.message || 'İade sevk notu oluşturulurken bir hata oluştu.';
+        this.toastr.error(errorMessage, 'Hata');
+        this.saveError.set(errorMessage);
+        this.gonderiliyor.set(false);
+      }
     });
-
-    // this.crudservice.documentSave(2, this.postorder)
-    //   .subscribe({
-    //     next: (res) => {
-    //       this.toastr.clear(toastRef.toastId);
-    //       this.toastr.success('Başarıyla kaydedildi!');
-    //       this.gonderiliyor.set(false);
-    //     },
-    //     error: (err) => {
-    //       this.toastr.clear(toastRef.toastId);
-    //       this.toastr.error('Kaydedilirken hata oluştu!');
-    //       console.error(err);
-    //       this.gonderiliyor.set(false);
-    //     }
-    //   });
   }
 
+  // Temizleme
   temizle() {
+    if (this.urunListesi().length === 0 && !this.seciliFirma()) {
+      this.toastr.info('Zaten temiz', 'Bilgi');
+      return;
+    }
+
     this.urunListesi.set([]);
     this.dataSource.data = [];
     this.bulunanUrunler.set([]);
     this.bulunancariler.set([]);
+    this.seciliFirma.set(null);
+    this.girilenCariKod.set('');
+    this.aramaGirdisi.set('');
     this.postorder = this.initializeForm();
+    this.formdata.set({
+      duzenleyen: '',
+      muhatapTemsilci: '',
+      vknTckn: ''
+    });
+
+    this.saveError.set('');
+    this.saveSuccess.set('');
+    
     this.toastr.info('Form temizlendi', '', { timeOut: 2000 });
   }
 
-  kapat() {
-this.dialogRef.close();
+  tumunuTemizle() {
+    this.temizle();
   }
 
 
+  trackByKalem = (_: number, kalem: any) => kalem.urunKodu;
+  // Kapatma
+  kapat() {
+    if (this.urunListesi().length > 0 || this.seciliFirma()) {
+      if (confirm('Kaydedilmemiş değişiklikler var. Kapatmak istediğinize emin misiniz?')) {
+        this.dialogRef.close();
+      }
+    } else {
+      this.dialogRef.close();
+    }
+  }
 }

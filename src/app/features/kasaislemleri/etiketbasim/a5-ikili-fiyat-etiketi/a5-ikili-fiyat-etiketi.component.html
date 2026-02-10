@@ -1,0 +1,22 @@
+<div *ngFor="let productChunk of productsToPrintChunks; let chunkIndex = index">
+  <div class="row d-flex justify-content-between align-items-start print-page">
+    <div class="col-6" *ngFor="let product of productChunk; let i = index">
+      <!-- Etiket alanı -->
+      <div class="etiket">
+        <h1 class="text-center ">{{ product.price.toFixed(2) }} <sup>TL</sup></h1>
+        <h2 class="text-center">{{ product.productName }}</h2>
+        <div style="font-size: 15px; margin-left:1rem">
+          <div>Ürün Kodu: {{ product.productCode }}</div>
+          <div>Üretim Yeri: {{ product.origin }}</div>
+          <div>Fiyat Değişiklik Tarihi: {{ product.priceChangeDate }}</div>
+          <div>Etiket Basım Tarihi: {{ etiketCikarmaTarihi }}</div>
+          <div>KDV Dahil: {{ product.unitPriceFactor.toFixed(2) }} TL/{{ product.alternativeUnitName }}</div>
+        </div>
+        <div class="d-flex justify-content-between mt-2">
+          <img *ngIf="product.origin == 'TR'" src="/assets/YerliUretim.jpg" width="140px" height="60px">
+          <svg [id]="'barcode-' + (chunkIndex * 2 + i)"></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

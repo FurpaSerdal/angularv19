@@ -1,15 +1,16 @@
 // pages/company-order/company-order.ts
 import { CommonModule } from '@angular/common';
-import { Component, effect } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CompanyService } from '../../../../../services/company.service';
 import { PurchaseOrdersService } from '../../../../../services/orders/purchase-orders.service';
-import { FirmaSiparisiVerDto } from '../../../../../models/firmaSiparisverModel';
-import { CariHesapAraCT, Kalem, StokAraCT, StokBulDto } from '../../../../../models/ortakModeller';
+import { CariHesapAraCT, StokAraCT, StokBulDto } from '../../../../../models/ortakModeller';
 import { ToastrService } from 'ngx-toastr';
 import { MeService } from '../../../../../services/meservice.service';
 import { CompanyGoodsReceipt } from '../company-goods-receipt/company-goods-receipt';
 import { MatDialogRef } from '@angular/material/dialog';
+import { KalemDto, VerilenSiparislerEkleDto } from '../../../../../models/ekleModels';
+import { listProducts } from '../../../../../models/listProduct';
 
 
 @Component({
@@ -21,8 +22,11 @@ import { MatDialogRef } from '@angular/material/dialog';
 })
 export class CompanyOrder {
   // Form State
-  postorder: FirmaSiparisiVerDto = this.initializeForm();
-   gorev: number = 0;
+
+    listProducts = signal<listProducts[]>([]);
+
+  postorder: VerilenSiparislerEkleDto = this.initializeForm();
+
   // Search State
   searchInput: string = '';
   arananUrun: string = '';
@@ -37,6 +41,11 @@ export class CompanyOrder {
   saveError: string | null = null;
   saveSuccess = false;
 
+  // Computed state from MeService
+  readonly gorevid = computed(() => 
+    this.meservice.selectedGorev()?.id ?? 0
+  );
+
   constructor(
     private toastr: ToastrService,
     private  meservice: MeService,
@@ -44,21 +53,15 @@ export class CompanyOrder {
     private purchaseOrderService: PurchaseOrdersService,
       public dialogRef: MatDialogRef<CompanyOrder>,
  
-  ) {
-    effect(() => {
-      this.gorev = this.meservice.selectedAltMenu()?.id ?? 0;
-    });
-  }
+  ) {}
 
-  private initializeForm(): FirmaSiparisiVerDto {
+  private initializeForm(): VerilenSiparislerEkleDto {
     return {
-      gorevKimlik: 0,
-      cari_kod: '',
-      teslimTarihi: new Date().toISOString().split('T')[0],
-      noksanFazlaIadesi: null,
       kalemler: [],
-      siparisEden: '',
-      siparisAlan: '',
+      muhatapFirma: {cariKod: '',unvan:''},
+      muhatapSube: null,
+   
+  
     };
   }
 
@@ -91,8 +94,13 @@ export class CompanyOrder {
   }
 
   firmaSec(firma: CariHesapAraCT): void {
+
     this.seciliFirma = firma;
-    this.postorder.cari_kod = firma.cariKod;
+    console.log('Seçilen Firma:', this.seciliFirma);
+    this.postorder.muhatapFirma = {
+      cariKod: firma.cariKod,unvan: firma.cariUnvan
+    };
+    console.log('Güncellenen Sipariş Formu:', this.postorder);
     this.searchInput = `${firma.cariKod} - ${firma.cariUnvan}`;
     this.bulunanFirmalar = [];
   }
@@ -101,7 +109,7 @@ export class CompanyOrder {
   urunAra(): void {
     const query = this.arananUrun.trim();
 
-    if (!query || !this.postorder.cari_kod) {
+    if (!query || !this.postorder.muhatapFirma) {
       this.bulunanUrunler = [];
       return;
     }
@@ -112,7 +120,7 @@ export class CompanyOrder {
     }
 
     const dto: StokBulDto = {
-      CariKod: this.postorder.cari_kod,
+      CariKod: this.postorder.muhatapFirma?.cariKod || '',
       Bul: query
     };
 
@@ -138,97 +146,97 @@ export class CompanyOrder {
     });
   }
 
-  urunSec(urun: StokAraCT): void {
-    this.seciliUrun = urun;
-
-    const kalemExists = this.postorder.kalemler.some(k => k.stok?.stokKod === urun.stokKod);
-    if (kalemExists) {
-        this.postorder.kalemler = this.postorder.kalemler.map(kalem => {
-        if (kalem.stok?.stokKod === urun.stokKod) {
-          kalem.siparisMiktari = (kalem.siparisMiktari || 0) + (urun.birimKatsayisi || 1);
+   urunSec(urun: StokAraCT) {
+    const exists = this.listProducts()
+      .some(k => k.stokKodu === urun.stokKod);
+    if (exists) {
+      console.log('Ürün zaten listede, miktar artırılıyor:', urun.stokKod);
+      this.listProducts.set(this.listProducts().map(k => {
+        if (k.stokKodu === urun.stokKod) {
+          return {
+            ...k,
+            miktar: k.miktar + (urun.birimKatsayisi ?? 1)
+          };
         }
-        return kalem;
-      });
-      this.arananUrun = '';
-      this.bulunanUrunler = [];
-
-      return;
+        return k;
+      }));
+    }
+    else {
+      console.log('Yeni ürün listeye ekleniyor:', urun.stokKod);
+      this.listProducts.set([...this.listProducts(), {
+        stokKodu: urun.stokKod,
+        stokAdi: urun.stokIsim,
+        birimAd: urun.birimAd,
+        birimKatSayi: urun.birimKatsayisi,
+        barkod: urun.barKodu,
+        miktar: urun.birimKatsayisi ?? 1,
+        fiyat: urun.fiyati
+      }]);
+      console.log('Güncellenmiş Ürün Listesi:', this.listProducts());
     }
 
-    const yeniKalem: Kalem = {
-      id: crypto.randomUUID(), // Veya başka bir UUID üretici
-      aciklama: "",
-      siparisMiktari: urun.birimKatsayisi || 1, // Varsayılan miktar 1
-      stok: {
-        stokKod: urun.stokKod,
-        stokIsim: urun.stokIsim,
-        birimAd: urun.birimAd,
-        barkodlar: urun.barKodu ? [{
-          barKodu: urun.barKodu,
-          stokKod: urun.stokKod,
-          birimAd: urun.birimAd,
-          birimKatSayisi: urun.birimKatsayisi ?? 1
-        }] : [],
-        fiyat: {
-          depoNo: 0,
-          fiyati: urun.fiyati ?? 0,
-          satisDursun: 0,
-          sipDursun: 0,
-          malKabulDursun: 0
-        }
-      }
-      // Diğer opsiyonel alanlar otomatik olarak undefined kalacak
-    };
 
-
-    this.postorder.kalemler = [...this.postorder.kalemler, yeniKalem];
     this.arananUrun = '';
     this.bulunanUrunler = [];
+    this.saveError = null;
   }
 
   // === KALEM OPERATIONS ===
   kalemSil(index: number): void {
-    this.postorder.kalemler = this.postorder.kalemler.filter((_, i) => i !== index);
+    this.listProducts.set(this.listProducts().filter((_, i) => i !== index));
   }
 
   kalemMiktarArttir(index: number): void {
-    const kalem = this.postorder.kalemler[index];
+    const kalem = this.listProducts()[index];
     if (kalem) {
-      kalem.siparisMiktari = (kalem.siparisMiktari || 0) + 1;
+      kalem.miktar = (kalem.miktar || 0) + 1;
     }
   }
 
   kalemMiktarAzalt(index: number): void {
-    const kalem = this.postorder.kalemler[index];
-    if (kalem && (kalem.siparisMiktari || 0) > 1) {
-      kalem.siparisMiktari = (kalem.siparisMiktari || 0) - 1;
+    const kalem = this.listProducts()[index];
+    if (kalem && (kalem.miktar || 0) > 1) {
+      kalem.miktar = (kalem.miktar || 0) - 1;
     }
   }
 
   kalemMiktarDegistir(index: number, miktar: number): void {
-    const kalem = this.postorder.kalemler[index];
+    const kalem = this.listProducts()[index];
     if (kalem && miktar >= 1) {
-      kalem.siparisMiktari = miktar;
+      kalem.miktar = miktar;
     }
   }
 
-  getKalemTutar(kalem: Kalem): number {
-    const miktar = kalem.siparisMiktari || 0;
-    const fiyat = kalem.stok?.fiyat?.fiyati || 0;
+  getKalemTutar(kalem: listProducts): number {
+    const miktar = kalem.miktar || 0;
+    const fiyat = kalem.fiyat || 0;
     return miktar * fiyat;
   }
 
   getToplamTutar(): number {
-    return this.postorder.kalemler.reduce((toplam, kalem) => {
+    return this.listProducts().reduce((toplam, kalem) => {
       return toplam + this.getKalemTutar(kalem);
     }, 0);
   }
 
-  trackByKalemIndex(index: number, item: Kalem): string {
-    return item.id || index.toString();
+  trackByKalemIndex(index: number, item: KalemDto): string {
+    return item.stokKodu || index.toString();
   }
   kapat()  {
  this.dialogRef.close();
+  }
+  private maptopostorder(): VerilenSiparislerEkleDto {
+    return {
+      ...this.postorder,
+      kalemler: this.listProducts().map(kalem => ({
+        stokKodu: kalem.stokKodu,
+        siparisMiktari: kalem.miktar || 0,
+        birimAd: kalem.birimAd,
+        fiyat: kalem.fiyat || 0,
+      }))
+    };
+
+ 
   }
 
   // === SAVE OPERATION ===
@@ -241,7 +249,7 @@ export class CompanyOrder {
       return;
     }
 
-    if (this.postorder.kalemler.length === 0) {
+    if (this.listProducts().length === 0) {
       this.saveError = 'En az bir ürün eklemelisiniz.';
       return;
     }
@@ -254,8 +262,8 @@ export class CompanyOrder {
     }
 
     this.isSaving = true;
-    
-    this.purchaseOrderService.createCompanyOrder(this.gorev,this.postorder).subscribe({
+    this.maptopostorder();
+    this.purchaseOrderService.createCompanyOrder(this.gorevid(),this.maptopostorder()).subscribe({
       next: (response) => {
         this.isSaving = false;
         this.saveSuccess = true;
@@ -270,7 +278,7 @@ export class CompanyOrder {
     setTimeout(() => {
       this.isSaving = false;
       this.saveSuccess = true;
-      console.log('Gönderilen veri:', this.postorder);
+      console.log('Gönderilen veri:', this.maptopostorder());
     }, 1000);
   }
 

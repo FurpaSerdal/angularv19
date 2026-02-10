@@ -1,9 +1,0 @@
-import { Kalem } from "./ortakModeller";
-
-
-export interface SubeyeSevketDto {
-
-  iadedir: boolean ;
-  muhatapDepoNo: number;
-  kalemler?: Kalem[] 
-}

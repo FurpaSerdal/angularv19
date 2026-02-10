@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
-import { Kalem } from '../../models/ortakModeller';
+import { KalemDto } from '../../models/ekleModels';
 
 @Component({
   selector: 'app-refund-confirm-dialog',
@@ -22,7 +22,7 @@ import { Kalem } from '../../models/ortakModeller';
         <tbody>
           @for (k of data.kalemler; track k) {
             <tr>
-              <td>{{ k.stok.stokIsim }}</td>
+              <td>{{ k.stokKodu }}</td>
               <td>{{ k.sevkMalKabulFarkMiktari }}</td>
             </tr>
           }
@@ -45,7 +45,7 @@ import { Kalem } from '../../models/ortakModeller';
 export class RefundConfirmDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<RefundConfirmDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { kalemler: Kalem[] }
+    @Inject(MAT_DIALOG_DATA) public data: { kalemler: KalemDto[] }
   ) {}
 
   ngOnInit() {

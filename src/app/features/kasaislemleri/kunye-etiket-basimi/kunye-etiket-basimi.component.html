@@ -1,0 +1,68 @@
+<div class="container-fluid">
+  <div class="row mb-3 d-flex justify-content-between align-items-center">
+    <div class="col-md-3">
+      <mat-form-field class="col-md-12">
+        <input id="date" matInput placeholder="Künye Tarihi" [matDatepicker]="tagDatePicker" [(ngModel)]="selectedDate"
+          (dateChange)="onDateChange($event)" #dateInput />
+        <mat-datepicker-toggle matSuffix [for]="tagDatePicker"></mat-datepicker-toggle>
+        <mat-datepicker #tagDatePicker></mat-datepicker>
+      </mat-form-field>
+    </div>
+
+    <div class="col-md-9 d-flex justify-content-end">
+      <div class="float-right">
+        <button mat-flat-button color="primary" [disabled]="selection.selected.length === 0" ngxPrint
+          printSectionId="printSection" [useExistingCss]="false" styleSheetFile="assets/tagLabel.css">
+          Yazdır ({{ selection.selected.length }})
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <div class="table-responsive">
+        <table mat-table [dataSource]="tableSource" class="mat-elevation-z8 col-md-12">
+          <ng-container matColumnDef="selector">
+            <th mat-header-cell *matHeaderCellDef>
+              <mat-checkbox (change)="$event ? masterToggle() : null"
+                [checked]="selection.hasValue() && isAllSelected()"
+                [indeterminate]="selection.hasValue() && !isAllSelected()" [disabled]="!hasData()"></mat-checkbox>
+            </th>
+            <td mat-cell *matCellDef="let tag">
+              <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? toggleRow(tag) : null"
+                [checked]="selection.isSelected(tag)"></mat-checkbox>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="takenTag">
+            <th mat-header-cell *matHeaderCellDef>Künye No.</th>
+            <td mat-cell *matCellDef="let tag">{{ tag.takenTag }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="productName">
+            <th mat-header-cell *matHeaderCellDef>Ürün</th>
+            <td mat-cell *matCellDef="let tag">{{ tag.productName }}</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="tableColumns; sticky: true"></tr>
+          <tr mat-row *matRowDef="let row; columns: tableColumns;"></tr>
+
+<tr class="mat-row" *matNoDataRow>
+  <td class="mat-cell" colspan="3">
+    <div class="no-data d-flex flex-column align-items-center">
+      <i class="bi bi-info-circle"></i>
+      <span>Seçilen tarihe ait veri bulunamadı.</span>
+    </div>
+  </td>
+</tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRINT AREA -->
+  <div id="printSection" class="print-area" *ngIf="selection.selected.length > 0">
+    <app-etiket-print [tags]="selection.selected"></app-etiket-print>
+  </div>
+</div>

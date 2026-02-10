@@ -1,0 +1,14 @@
+button{
+    width: 85%;
+    height: 8rem;
+    font-size: 20px;
+    margin-left: 2rem;
+    margin-top:2rem;
+    background-color: #4caf50;  /* Başka bir renk örneği */
+    color: rgb(252, 250, 250);
+  }
+  
+  button:hover {
+    background-color: #45a049;
+  }
+  

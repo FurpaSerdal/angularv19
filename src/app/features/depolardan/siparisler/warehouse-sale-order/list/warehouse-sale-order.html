@@ -9,12 +9,12 @@
 
         <!-- Sol: Ana Ekran -->
         <h1 class="text-primary mb-0 fw-bold">
-          {{ anaekran }}
+          {{ anaekran() }}
         </h1>
 
         <!-- Sağ: Yan Ekran -->
         <h3 class="text-danger mb-0 fw-bold">
-          {{ yanekran }}
+          {{ yanekran() }}
         </h3>
 
       </div>
@@ -76,7 +76,15 @@
     </div>
   </div>
 
+   
 
+  <!-- Yükleme Göstergesi -->
+  <div *ngIf="yukleniyor()" class="d-flex flex-column justify-content-center align-items-center"
+    style="min-height: 200px;">
+
+    <mat-spinner color="primary" diameter="60"></mat-spinner>
+
+  </div>
 
   <!-- Görünüm Seçimi -->
   <div class="view-toggle mb-3">
@@ -91,6 +99,7 @@
       </button>
     </div>
   </div>
+ 
 
   <!-- Tablo Görünümü -->
   <div *ngIf="currentView === 'table'" class="table-view">
@@ -103,7 +112,7 @@
               <th mat-header-cell *matHeaderCellDef mat-sort-header class="ps-3">Evrak No</th>
               <td mat-cell *matCellDef="let evrak" class="ps-3">
                 <div class="evrak-no">
-                  <span class="badge bg-primary rounded-pill fs-6">{{ evrak.evrakNoSeri }}/{{ evrak.evrakNoSira
+                  <span class="badge bg-primary rounded-pill fs-6">{{ evrak.seri }}/{{ evrak.sira
                     }}</span>
                 </div>
               </td>
@@ -157,7 +166,7 @@
               <td mat-cell *matCellDef="let evrak" class="text-center pe-3">
                 <div class="action-buttons">
                   <button mat-icon-button class="btn-view" matTooltip="Görüntüle"
-                    (click)="taskDetay(evrak.evrakNoSeri, evrak.evrakNoSira)">
+                    (click)="taskDetay(evrak.seri, evrak.sira)">
                     <i class="bi bi-eye"></i>
                   </button>
                   <button  mat-icon-button class="btn-edit ms-2" matTooltip="Çevir" 
@@ -180,13 +189,14 @@
           </table>
         </div>
       </div>
+  
     </div>
   </div>
 
   <!-- Kart Görünümü -->
   <div *ngIf="currentView === 'card'" class="card-view">
     <div class="row g-4">
-      <div *ngFor="let evrak of DataSource.filteredData" class="col-12 col-md-6 col-lg-4">
+        <div *ngFor="let evrak of paginatedCardData()" class="col-12 col-md-6 col-lg-4">
         <div class="evrak-card card shadow-sm h-100">
           <!-- Kart Header -->
           <div class="card-header bg-light d-flex justify-content-between align-items-center">
@@ -264,22 +274,14 @@
     </div>
   </div>
 
-  <!-- Sayfalama -->
-  <div class="pagination-section mt-4">
-    <mat-paginator [length]="DataSource.data.length" [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 50]"
-      showFirstLastButtons class="custom-paginator">
-    </mat-paginator>
-  </div>
 
+      <!-- Sayfalama -->
+      <div class="pagination-section mt-0">
+        <mat-paginator [length]="DataSource.data.length" [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 50]"
+          showFirstLastButtons class="custom-paginator">
+        </mat-paginator>
+      </div>
 
-  <!-- Yükleme Göstergesi -->
-  <div *ngIf="yukleniyor()" class="d-flex flex-column justify-content-center align-items-center"
-    style="min-height: 200px;">
-
-
-    <mat-spinner color="primary" diameter="60"></mat-spinner>
-
-  </div>
   <!-- Boş Durum -->
   <div *ngIf="!yukleniyor() && DataSource.data.length === 0" class="empty-state text-center py-5">
     <div class="empty-icon mb-3">

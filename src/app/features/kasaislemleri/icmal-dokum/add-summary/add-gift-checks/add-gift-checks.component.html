@@ -1,0 +1,46 @@
+<div class="row">
+    <div class="col-md-12">
+        Hediye Çekleri
+        <br>
+        <div class="float-left">
+          Toplam Adet:<strong>{{getTotalQuantity()}}</strong><br>Toplam Tutar:<strong>{{getTotalAmount() | currency: ' '}} TL</strong>
+        </div>
+      <div class="float-right">
+        <button class="mr-2" mat-button mat-flat-button color="primary"  (click)="AddGiftChecks()">Kaydet</button>
+        <button mat-button mat-flat-button color="warn" (click)="CloseDialog()">Kapat</button>
+      </div>
+    </div>
+</div>
+<div style="overflow:auto;">
+  <table class="col-md-12" mat-table #GiftCheckTypes [dataSource]="tableSourceGiftChecks">
+    <ng-container matColumnDef="value">
+      <th mat-header-cell *matHeaderCellDef>Banknot</th>
+      <td mat-cell *matCellDef="let giftCheckTypes">
+        <span *ngIf="giftCheckTypes.value==1" style="font-weight: bold;">Birlik Premium Kart</span>
+        <span *ngIf="giftCheckTypes.value!=1" style="font-weight: bold;">{{giftCheckTypes.value}} TL</span>
+        <!-- <span style="font-weight: bold;">{{giftCheckTypes.value}} TL</span> -->
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="quantity">
+      <th mat-header-cell *matHeaderCellDef>Adet</th>
+      <td mat-cell *matCellDef="let giftCheckTypes">
+        <mat-form-field (click)="giftCheckTypes.quantity = null">
+          <input *ngIf="giftCheckTypes.value==1" matInput placeholder="Tutar" type="number"
+            value="{{giftCheckTypes.quantity}}"
+            (input)="giftCheckTypes.quantity=(+$event.target.value)" 
+            [(ngModel)]="giftCheckTypes.quantity"/>
+          <input *ngIf="giftCheckTypes.value!=1"  matInput placeholder="Adet" type="number"
+            value="{{giftCheckTypes.quantity}}"
+            (input)="giftCheckTypes.quantity=(+$event.target.value)" 
+            [(ngModel)]="giftCheckTypes.quantity"/>
+        </mat-form-field>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="total">
+        <th mat-header-cell *matHeaderCellDef>Toplam</th>
+        <td mat-cell *matCellDef="let giftCheckTypes">{{(giftCheckTypes.value * giftCheckTypes.quantity).toFixed(2)}} TL</td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="tableColumnsGiftChecks; sticky:true"></tr>
+    <tr mat-row *matRowDef="let row; columns:tableColumnsGiftChecks;"></tr>
+  </table>
+</div>

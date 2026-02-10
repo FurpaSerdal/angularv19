@@ -1,8 +1,10 @@
+import { E } from "@angular/cdk/keycodes";
+
 export interface User {
-  isim: string;
-  soyIsim: string;
-  depoNo: number;
-  depoIsmi: string;
+  adSoyad: string;
+  sube: string;
+  subeNo: number;
+  eskiApiLogin? : string;
   menuler: Menu[];
 }
 
@@ -16,13 +18,22 @@ export interface Menu {
 export interface AltMenu {
   id: number;
   isim: string;
-  evrakMenuleri?: Gorev[];  // Görevler alt menü içinde olmalı
+
+  gorevler?: Gorev[];  // Görevler alt menü içinde olmalı
 }
 
 export interface Gorev {
-  kimlik: number;
+  id: number;
   isim: string;
+  sebike?: string;
+  iadeGorevi?: IadeGorevi;
 }
+export interface IadeGorevi {
+  id: number;
+  isim: string;
+  sebike?: string;
+}
+
 
 export interface LoginResponse {
   tokenType: string;

@@ -1,0 +1,19 @@
+/* 
+  CSS DOSYASI KULLANILMIYOR
+  Tüm stiller Bootstrap 5 sınıfları ile HTML içinde tanımlandı
+  
+  Kullanılan Bootstrap Sınıfları:
+  - Layout: container-fluid, row, col-md-*, py-4, p-3, p-4
+  - Flexbox: d-flex, justify-content-between, align-items-center
+  - Spacing: mb-*, mt-*, p-*, px-*, py-*
+  - Cards: card, card-header, card-body
+  - Buttons: btn, btn-primary, btn-success, btn-warning, btn-danger, btn-lg, btn-sm
+  - Tables: table, table-hover, table-striped, table-bordered, table-responsive
+  - Forms: form-control, form-control-lg, form-label
+  - Typography: fw-bold, fw-semibold, text-muted, text-center
+  - Colors: bg-light, bg-primary, text-white, text-primary
+  - Shadows: shadow-sm, shadow-lg
+  - Borders: border-0, border-start, border-5
+  - Badges: badge, bg-info, bg-secondary
+  - Alerts: alert, alert-info
+*/

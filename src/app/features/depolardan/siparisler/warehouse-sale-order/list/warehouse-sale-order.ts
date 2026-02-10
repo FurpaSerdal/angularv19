@@ -1,5 +1,6 @@
 import {
   Component,
+  computed,
   effect,
   signal,
   ViewChild
@@ -14,16 +15,18 @@ import { ActivatedRoute } from '@angular/router';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { finalize } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
 import { SharedImports } from '../../../../../core/pipes/shared-imports';
 import { BaseComponent } from '../../../../../core/base/base-component/base-component';
-import { User } from '../../../../../models/user';
 import { MeService } from '../../../../../services/meservice.service';
 import { SalesOrdersService } from '../../../../../services/orders/sales-orders.service';
+
 import { WarehouseOrderComponent } from '../create/warehouse-order';
-import { warehouseSalesOrderToShipment } from '../to-shipment/warehouse-sales-order-to-shipment';
 import { WarehouseSaleOrderDetailComponent } from '../detail/detail';
 
-
+import { EvrakListResponse } from '../../../../../models/evrakListModel';
+import { DetayResponse, SiparisDetayResponse } from '../../../../../models/detay';
+import { WarehouseSalesOrderToShipment } from '../to-shipment/warehouse-sales-order-to-shipment';
 
 @Component({
   selector: 'app-warehouse-sale-order',
@@ -42,13 +45,7 @@ export class WarehouseSaleOrder extends BaseComponent {
   });
 
   // -------------------- SIGNAL STATE --------------------
-  user = signal<User | null>(null);
-  gorevid = signal(0);
-  gorevadi = signal('');
-  altmenuid = signal(0);
-
-  anaekran = '';
-  yanekran = '';
+  nextgorevid = signal<number | null>(null);
 
   // -------------------- UI STATE --------------------
   currentView: 'table' | 'card' = 'table';
@@ -60,7 +57,9 @@ export class WarehouseSaleOrder extends BaseComponent {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  private lastKey = '';
+    // -------------------- PAGINATION SIGNALS --------------------
+    pageIndex = signal(0);
+    pageSize = signal(10);
 
   constructor(
     private meservice: MeService,
@@ -70,66 +69,108 @@ export class WarehouseSaleOrder extends BaseComponent {
     private route: ActivatedRoute,
     private breakpointObserver: BreakpointObserver
   ) {
-    super(); // 👈 BASE ZORUNLU
+    super();
 
-    /* EFFECT #1 → USER */
+    /* 🔥 EFFECT → görev değişince data yükle */
     effect(() => {
-      this.user.set(this.meservice.userSignal());
-    });
-
-    /* EFFECT #2 → MENU / GÖREV */
-    effect(() => {
-      const menu = this.meservice.selectedMenu();
-      const altmenu = this.meservice.selectedAltMenu();
-      const gorev = this.meservice.selectedGorev();
-
-      if (!menu || !altmenu || !gorev) {
-        this.lastKey = '';
-        return;
-      }
-
-      const key = `${menu}-${altmenu.id}-${gorev.kimlik}`;
-      if (key === this.lastKey) return;
-
-      this.lastKey = key;
-
-      this.anaekran = key;
-      this.yanekran = `${altmenu.isim} -*- ${gorev.isim}`;
-
-      this.altmenuid.set(altmenu.id);
-      this.gorevid.set(gorev.kimlik);
-      this.gorevadi.set(gorev.isim);
+      const gorevId = this.gorevid();
+      if (!gorevId) return;
 
       this.loadData();
     });
   }
 
+  // -------------------- GLOBAL STATE (SERVICE) --------------------
+
+  readonly user = computed(() => this.meservice.userSignal());
+  readonly userdepo = computed(() =>
+    this.meservice.userSignal()?.subeNo  ?? 0
+  );
+
+  readonly gorevid = computed(() =>
+    this.meservice.selectedGorev()?.id ?? 0
+  );
+
+  readonly gorevadi = computed(() =>
+    this.meservice.selectedGorev()?.isim ?? ''
+  );
+
+  readonly altmenuid = computed(() =>
+    this.meservice.selectedAltMenu()?.id ?? 0
+  );
+
+  readonly anaekran = computed(() => {
+    const m = this.meservice.selectedMenu();
+    const a = this.meservice.selectedAltMenu();
+    const g = this.meservice.selectedGorev();
+
+    if (!m || !a || !g) return '';
+
+    return `${m}-${a.id}-${g.id}`;
+  });
+
+  readonly yanekran = computed(() => {
+    const a = this.meservice.selectedAltMenu();
+    const g = this.meservice.selectedGorev();
+
+    if (!a || !g) return '';
+
+    return `${a.isim} -*- ${g.isim}`;
+  });
+
+  // --------------------
+
+    // Kart görünümü için paginated data
+    readonly paginatedCardData = computed(() => {
+      const filtered = this.DataSource.filteredData;
+      const start = this.pageIndex() * this.pageSize();
+      const end = start + this.pageSize();
+      return filtered.slice(start, end);
+    });
+
   ngAfterViewInit() {
     this.DataSource.sort = this.sort;
     this.DataSource.paginator = this.paginator;
+
+      // Paginator değişikliklerini izle
+      this.paginator.page.subscribe((event) => {
+        this.pageIndex.set(event.pageIndex);
+        this.pageSize.set(event.pageSize);
+      });
   }
 
   // -------------------- DATA --------------------
+
   loadData(): void {
     this.DataSource.data = [];
     this.startLoading();
 
-
     this.saleOrdersService
-      .getBranchOrders(this.altmenuid(), 'bugun')
+      .getBranchOrders(this.gorevid(), 'bugun')
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.stopLoading())
       )
       .subscribe({
-        next: data => this.DataSource.data = data.siparisler,
+        next: (data: EvrakListResponse) => {
+          this.DataSource.data = data.evraklar;
+          this.nextgorevid.set(data.siradakiGorev?.id ?? null);
+        },
         error: () => this.error('Veriler yüklenirken hata oluştu')
       });
   }
 
   onDateChanged(): void {
-    const start = this.datePipe.transform(this.dateRange.get('start')?.value, 'yyyy-MM-dd');
-    const end = this.datePipe.transform(this.dateRange.get('end')?.value, 'yyyy-MM-dd');
+    const start = this.datePipe.transform(
+      this.dateRange.get('start')?.value,
+      'yyyy-MM-dd'
+    );
+
+    const end = this.datePipe.transform(
+      this.dateRange.get('end')?.value,
+      'yyyy-MM-dd'
+    );
+
     if (!start || !end) return;
 
     this.startLoading();
@@ -138,31 +179,42 @@ export class WarehouseSaleOrder extends BaseComponent {
     const zamanlama = `aralik-${start}-${end}`;
 
     this.saleOrdersService
-      .getBranchOrders(this.altmenuid(), zamanlama)
+      .getBranchOrders(this.gorevid(), zamanlama)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.stopLoading())
       )
       .subscribe({
-        next: data => this.DataSource.data = data.siparisler,
+        next: (data: EvrakListResponse) => {
+          this.DataSource.data = data.evraklar;
+          this.nextgorevid.set(data.siradakiGorev?.id ?? null);
+        },
         error: () => this.error('Filtreleme sırasında hata oluştu')
       });
   }
 
   // -------------------- ACTIONS --------------------
+
   taskDetay(seri: string, sira: number): void {
+    this.startLoading();
     this.saleOrdersService
       .detailsBranchOrder(this.gorevid(), seri, sira)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: data => {
+        next: (data: SiparisDetayResponse) => {
+          this.stopLoading();
           this.dialog.open(WarehouseSaleOrderDetailComponent, {
             width: '50%',
             height: '70%',
-            data: data.siparis
+             disableClose: true,
+            data
           });
         },
-        error: () => this.error('Detay alınamadı')
+        error: () => {
+          this.stopLoading();
+          this.error('Detay alınamadı');
+        },
+        complete: () => this.stopLoading()
       });
   }
 
@@ -174,35 +226,51 @@ export class WarehouseSaleOrder extends BaseComponent {
       height: isMobile ? '100vh' : '70vh',
       maxWidth: '100vw',
       disableClose: true,
-      panelClass: isMobile ? 'full-screen-dialog' : '',
-      data: [this.gorevadi(), this.gorevid()]
+      panelClass: isMobile ? 'full-screen-dialog' : ''
     });
   }
 
   return(evrak: any) {
+    this.startLoading();
     const isMobile = this.breakpointObserver.isMatched(Breakpoints.Handset);
 
     this.saleOrdersService
-      .detailsBranchOrder(this.gorevid(), evrak.evrakNoSeri, evrak.evrakNoSira)
+      .detailsBranchOrder(
+        this.gorevid(),
+        evrak.seri,
+        evrak.sira
+      )
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: data => {
-          this.dialog.open(warehouseSalesOrderToShipment, {
+        next: (data: SiparisDetayResponse) => {
+          this.dialog.open(WarehouseSalesOrderToShipment, {
             width: isMobile ? '100vw' : '40vw',
             height: isMobile ? '100vh' : '70vh',
             maxWidth: '100vw',
-            disableClose: true,
-            panelClass: isMobile ? 'full-screen-dialog' : '',
-            data
+             disableClose: true,
+
+  panelClass: 'click-through-dialog',
+            data: {
+              detay: data,
+              nextgorevid: this.nextgorevid()
+            }
           });
         },
-        error: () => this.error('Task detayı alınırken hata oluştu')
+        error: () => {
+          this.error('Task detayı alınırken hata oluştu');
+          this.stopLoading();
+        },
+        complete: () => this.stopLoading()
       });
   }
 
   // -------------------- FILTER --------------------
+
   applyFilter(event: Event) {
-    const value = (event.target as HTMLInputElement).value.trim().toLowerCase();
+    const value = (event.target as HTMLInputElement)
+      .value
+      .trim()
+      .toLowerCase();
 
     this.DataSource.filterPredicate = (data: any, filter: string) =>
       Object.values(data).some(v =>
@@ -216,8 +284,8 @@ export class WarehouseSaleOrder extends BaseComponent {
     this.DataSource.filter = value;
   }
 
-
   // -------------------- UI HELPERS --------------------
+
   setView(view: 'table' | 'card') {
     this.currentView = view;
   }

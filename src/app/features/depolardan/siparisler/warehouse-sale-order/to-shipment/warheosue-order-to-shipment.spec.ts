@@ -1,18 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { WarehouseSalesOrderToShipment } from './warehouse-sales-order-to-shipment';
 
-import { warehouseSalesOrderToShipment} from './warehouse-sales-order-to-shipment';
-
-describe('WarheosueReceipt', () => {
-  let component: warehouseSalesOrderToShipment;
-  let fixture: ComponentFixture<warehouseSalesOrderToShipment>;
+describe('WarehouseSalesOrderToShipment', () => {
+  let component: WarehouseSalesOrderToShipment;
+  let fixture: ComponentFixture<WarehouseSalesOrderToShipment>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [warehouseSalesOrderToShipment]
-    })
-    .compileComponents();
+      imports: [WarehouseSalesOrderToShipment]
+    }).compileComponents();
 
-    fixture = TestBed.createComponent(warehouseSalesOrderToShipment);
+    fixture = TestBed.createComponent(WarehouseSalesOrderToShipment);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

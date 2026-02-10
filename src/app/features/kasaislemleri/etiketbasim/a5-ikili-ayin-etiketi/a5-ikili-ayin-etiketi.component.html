@@ -1,0 +1,39 @@
+<div *ngFor="let chunk of productsToPrintChunks; let chunkIndex = index" class="a5-page">
+
+  <div class="etiket-grid">
+    <div class="etiket" *ngFor="let product of chunk; let i = index">
+
+      <div class="etiketBaslik">AYIN ETİKETİ</div>
+
+      <div class="price-line">
+        {{ product.price.toFixed(2) }} <sup>TL</sup>
+      </div>
+
+      <div class="name-line">
+        {{ product.productName }}
+      </div>
+
+      <div class="meta">
+        <div>Ürün Kodu: {{ product.productCode }}</div>
+        <div>Üretim Yeri: {{ product.origin }}</div>
+        <div>Fiyat Değişiklik Tarihi: {{ product.priceChangeDate }}</div>
+        <div>Etiket Basım Tarihi: {{ etiketCikarmaTarihi }}</div>
+        <div>KDV Dahil: {{ product.unitPriceFactor.toFixed(2) }} TL/{{ product.alternativeUnitName }}</div>
+      </div>
+
+      <div class="footer">
+        <img *ngIf="product.origin === 'TR' || product.origin === 'TÜRKİYE'"
+             src="/assets/YerliUretim.jpg" class="yerli" />
+
+        <svg class="barcode-svg"
+             [attr.id]="'barcode-' + (chunkIndex * 2 + i)"
+             [attr.data-code]="product?.barcode"></svg>
+      </div>
+
+    </div>
+
+    <!-- eğer tek ürün varsa boş yarıyı koru -->
+    <div class="etiket etiket-empty" *ngIf="chunk.length === 1"></div>
+  </div>
+
+</div>

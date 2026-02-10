@@ -6,15 +6,18 @@ import { AltMenu, Gorev, User } from '../models/user';
 import { SetMenuHelperService } from './helper/setMenu-helper.service';
 
 
+
 @Injectable({
   providedIn: 'root'
 })
 export class MeService {
   private apiUrl = environment.apiurl;
+
   public selectedMenu = signal<string>("")
   public selectedAltMenu = signal<AltMenu | null>(null);
   public selectedGorev = signal<Gorev | null>(null)
-  public depno: number = 0;
+  public selectedrota = signal<string>("")
+  
 
 
   // Kullanıcı bilgisini saklamak için bir signal tanımlıyoruz
@@ -23,42 +26,36 @@ export class MeService {
   // Yükleniyor state'i ekleyelim
   isLoading = signal<boolean>(false);
 
-  constructor(private http: HttpClient) {
-    // LocalStorage'dan kullanıcı bilgisini yükle
+  constructor(private http: HttpClient, private setMenuHelper: SetMenuHelperService) {
 
-    // const storedGörevadi = localStorage.getItem('seçiliGörevadi');
-    // if (storedGörevadi) {
-    //   this.seçiliGörevadi.next(storedGörevadi); // Eğer varsa, stored değeri kullanıyoruz
-    // }
-
-    // const userStr = localStorage.getItem('user');
-    // if (userStr) {
-    //   const user = JSON.parse(userStr);
-    //   this.userSignal.set(user);
-    // }
     this.rehydrate() // LocalStorage'dan state'i geri yükle
   }
 
   // API çağrısını yapıp sonucu userSignal'e set eden metod
-  fetchMe(): void {
-    this.isLoading.set(true); // Yükleniyor başladı
-    this.http.get<User>(`${this.apiUrl}/kullanici/Benim`).subscribe(
-      (data) => {
+ fetchMe(): void {
+  this.isLoading.set(true);
+
+  this.http.get<User>(`${this.apiUrl}/kullanici/Benim`).subscribe({
+    next: (data) => {
 
 
-        this.depno = Number(data.depoNo);
-      //  localStorage.setItem('depoNo', this.depno.toString());
-        this.userSignal.set(data);
-        this.setUser(data);
-        this.isLoading.set(false); // Yükleniyor bitti
-      },
-      (error) => {
+      
+   
+    //  this.setUser(data);
+     const updatedUser = this.setMenuHelper.updateMenu2(data); // Menüleri güncelle
+     this.setUser(updatedUser);
+     console.log('Güncellenmiş kullanıcı bilgisi:', updatedUser); // Güncellenmiş kullanıcıyı konsola yazdır
+     console.log('Kullanıcı bilgisi başarıyla alındı:', data.eskiApiLogin); // Eski API login bilgisini konsola yazdırarak kontrol edin
 
-        console.error('Kullanıcı bilgisi alınırken hata oluştu:', error);
-        this.isLoading.set(false); // Hata durumunda da yükleniyor bitti
-      }
-    );
-  }
+      this.isLoading.set(false);
+
+    },
+    error: (error) => {
+      console.error('Kullanıcı bilgisi alınırken hata oluştu:', error);
+      this.isLoading.set(false);
+    }
+  });
+}
 
   getUserSignal(): Signal<User | null> {
     return this.userSignal;
@@ -98,6 +95,9 @@ export class MeService {
   this.selectedGorev.set(data)
   
   }
+  setrota(data:string){
+    this.selectedrota.set(data)
+  }
   private rehydrate() {
     const user = localStorage.getItem('user');
     const menu = localStorage.getItem('menu');
@@ -116,4 +116,5 @@ export class MeService {
     this.userSignal.set(null);
   }
 
+  
 }

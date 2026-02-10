@@ -6,14 +6,15 @@ import { Observable } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class StockCountService extends BaseApiService {
 
-  getResults(taskId: number,schedule:string):Observable<any[]> {
-    return this.get(`${API_PATHS.STOCK_COUNTS}/${taskId}/sayim-sonuclari/sonuclar/${schedule}`);
+  getResults(taskId: number,schedule:string):Observable<any> {
+    return this.get(`liste/${taskId}/${schedule}`);
   }
-  detailsResult(taskId: number,  sym_evrakno: number,schedule:string):Observable<any> {
-    return this.get(`${API_PATHS.STOCK_COUNTS}/${taskId}/sayim-sonuclari/sonuc/${sym_evrakno}/${schedule}`);
+  detailsResult(taskId: number,  sym_evrakno: number,seri:string | null = null):Observable<any> {
+    console.log('API çağrısı için gönderilen parametreler:', { taskId, seri, sym_evrakno });
+    return this.get(`ayrinti/${taskId}/${seri}/${sym_evrakno}`);
   }
 
   createResult(taskId: number, payload: any) {
-    return this.post(`${API_PATHS.STOCK_COUNTS}/${taskId}/sayim-sonuclari/sonuc/ekle`, payload);
+    return this.post(`ekle/${taskId}`, payload);
   }
 }

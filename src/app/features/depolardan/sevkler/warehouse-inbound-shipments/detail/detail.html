@@ -16,36 +16,43 @@
       <div class="row">
         <div class="col-md-4 col-sm-6 mb-3">
           <label class="form-label text-muted small mb-1">Evrak No:</label>
-          <div class="fw-bold">{{veri?.evrakNoSeri}} {{veri?.evrakNoSira}}</div>
+          <div class="fw-bold">{{veri.evrak.evrakNoSeri}}-{{veri.evrak.evrakNoSira}}</div>
         </div>
         <div class="col-md-4 col-sm-6 mb-3">
           <label class="form-label text-muted small mb-1">Evrak Tarihi:</label>
-          <div class="fw-bold">{{veri?.evrakTarihi | date:'dd.MM.yyyy'}}</div>
+          <div class="fw-bold">{{veri.evrak.evrakTarihi | date:'dd.MM.yyyy'}}</div>
         </div>
         <div class="col-md-4 col-sm-6 mb-3">
           <label class="form-label text-muted small mb-1">Teslim Tarihi:</label>
-          <div class="fw-bold">{{veri?.teslimTarihi | date:'dd.MM.yyyy'}}</div>
+          <div class="fw-bold">{{veri.evrak.teslimTarihi | date:'dd.MM.yyyy'}}</div>
         </div>
         <div class="col-md-4 col-sm-6 mb-3">
           <label class="form-label text-muted small mb-1">Depo:</label>
-          <div class="fw-bold">{{veri?.depo?.isim}} (No: {{veri?.depo?.no}})</div>
+          <div class="fw-bold">{{veri.evrak.depo.isim}} (No: {{veri.evrak.depo.no}})</div>
         </div>
         <div class="col-md-4 col-sm-6 mb-3">
-          <label class="form-label text-muted small mb-1">Muhatap Depo:</label>
-          <div class="fw-bold">{{veri?.muhatapDepo?.isim}} (No: {{veri?.muhatapDepo?.no}})</div>
+          <label class="form-label text-muted small mb-1">Muhatap Firma:</label>
+          <div class="fw-bold">{{veri.evrak.muhatapFirma.isim}} ({{veri.evrak.muhatapFirma.no}})</div>
+        </div>
+        <div class="col-md-4 col-sm-6 mb-3">
+          <label class="form-label text-muted small mb-1">Belge No:</label>
+          <div class="fw-bold">{{veri.evrak.belgeNo || '-'}}</div>
         </div>
         <div class="col-md-4 col-sm-6 mb-3">
           <label class="form-label text-muted small mb-1">Durum:</label>
           <div>
-            <span class="badge bg-success" *ngIf="veri?.onaylandi">Onaylandı</span>
-            <span class="badge bg-warning" *ngIf="!veri?.onaylandi">Onay Bekliyor</span>
+            <span class="badge bg-success" *ngIf="veri.evrak.onaylandi">Onaylandı</span>
+            <span class="badge bg-warning" *ngIf="!veri.evrak.onaylandi">Onay Bekliyor</span>
           </div>
         </div>
+        <div class="col-md-4 col-sm-6 mb-3" *ngIf="veri.evrak.onaylayan">
+          <label class="form-label text-muted small mb-1">Onaylayan:</label>
+          <div class="fw-bold">{{veri.evrak.onaylayan}}</div>
+        </div>
         <div class="col-md-4 col-sm-6 mb-3">
-          <label class="form-label text-muted small mb-1">Sipariş Sevk Durumu:</label>
+          <label class="form-label text-muted small mb-1">Kare Kod:</label>
           <div>
-            <span class="badge bg-success" *ngIf="veri?.siparisSevkOlundu">Sevk Edildi</span>
-            <span class="badge bg-danger" *ngIf="!veri?.siparisSevkOlundu">Sevk Edilmedi</span>
+            <code class="small">{{veri.evrak.kareKod}}</code>
           </div>
         </div>
       </div>
@@ -56,81 +63,48 @@
   <div class="card mb-4">
     <div class="card-header bg-light d-flex justify-content-between align-items-center">
       <h5 class="card-title mb-0">Evrak Kalemleri</h5>
-      <span class="badge bg-primary">{{veri?.kalemler?.length || 0}} kalem</span>
+      <span class="badge bg-primary">{{veri.kalemleri.length || 0}} kalem</span>
     </div>
     <div class="card-body">
       <div class="table-responsive">
-        <table class="table table-hover" *ngIf="veri?.kalemler?.length">
+        <table class="table table-hover" *ngIf="veri.kalemleri.length">
           <thead class="table-light">
             <tr>
               <th scope="col">Stok Kodu</th>
               <th scope="col">Ürün Adı</th>
               <th scope="col">Sipariş Miktarı</th>
-              <th scope="col">Barkod</th>
-              <th scope="col">Sipariş GUID</th>
+              <th scope="col">Sevk Miktarı</th>
+              <th scope="col">Mal Kabul Miktarı</th>
+              <th scope="col">Durum</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let item of veri?.kalemler; let i = index">
+            <tr *ngFor="let item of veri.kalemleri; let i = index">
               <td>
-                <span class="badge bg-secondary">{{item?.stok?.stokKod}}</span>
+                <span class="badge bg-secondary">{{item.stokKodu}}</span>
               </td>
-              <td>{{item?.stok?.stokIsim}}</td>
+              <td>{{item.stokIsim}}</td>
               <td>
-                <strong>{{item?.sevkMiktari}}</strong> {{item?.stok?.birimAd}}
-              </td>
-              <td>
-                <code>{{item?.stok?.barkodlar?.[0]?.barKodu || '-'}}</code>
+                <strong>{{item.siparisMiktari || 0}}</strong>
               </td>
               <td>
-                <span class="text-muted small" title="{{item?.siparisGuid}}">
-                  {{item?.siparisGuid | slice:0:8}}...
+                <strong>{{item.sevkMiktari || 0}}</strong>
+              </td>
+              <td>
+                <strong>{{item.malKabulMiktari || 0}}</strong>
+              </td>
+              <td>
+                <span class="badge" [ngClass]="item.durum === 'Tamamlandı' ? 'bg-success' : 'bg-warning'">
+                  {{item.durum || 'Bekliyor'}}
                 </span>
               </td>
             </tr>
           </tbody>
         </table>
         
-        <div *ngIf="!veri?.kalemler?.length" class="text-center py-5">
+        <div *ngIf="!veri.kalemleri.length" class="text-center py-5">
           <i class="bi bi-inbox display-4 text-muted"></i>
           <p class="text-muted mt-3">Evrakta kalem bulunmamaktadır.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Ek Bilgiler -->
-  <div class="card mb-4">
-    <div class="card-header bg-light">
-      <h5 class="card-title mb-0">Ek Bilgiler</h5>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <label class="form-label text-muted small mb-1">Açıklama:</label>
-          <div>{{veri?.aciklama || 'Açıklama yok'}}</div>
-        </div>
-        <div class="col-md-6 mb-3">
-          <label class="form-label text-muted small mb-1">Evrak ID:</label>
-          <div>
-            <small class="text-muted font-monospace">{{veri?.id}}</small>
-          </div>
-        </div>
-        <div class="col-md-6 mb-3">
-          <label class="form-label text-muted small mb-1">İade:</label>
-          <div>
-            <span class="badge" [ngClass]="veri?.iadedir ? 'bg-danger' : 'bg-secondary'">
-              {{veri?.iadedir ? 'Evet' : 'Hayır'}}
-            </span>
-          </div>
-        </div>
-        <div class="col-md-6 mb-3">
-          <label class="form-label text-muted small mb-1">Kare Kod İrsaliyesi:</label>
-          <div>
-            <span class="badge" [ngClass]="veri?.kareKodIrsaliyenindir ? 'bg-info' : 'bg-secondary'">
-              {{veri?.kareKodIrsaliyenindir ? 'Evet' : 'Hayır'}}
-            </span>
-          </div>
         </div>
       </div>
     </div>

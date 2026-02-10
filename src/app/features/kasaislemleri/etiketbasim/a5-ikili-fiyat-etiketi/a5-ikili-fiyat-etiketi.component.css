@@ -1,0 +1,46 @@
+.etiket {
+  color: black !important;
+  font-weight: bold !important;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Dikey ortalama */
+  page-break-inside: avoid;
+}
+
+
+
+.etiket h1 {
+  font-size: 32px !important;
+}
+
+.etiket h2 {
+  font-size: 21px !important;
+}
+
+.etiket h1,
+.etiket h2,
+.etiket div {
+  color: black !important;
+  font-weight: bold !important;
+}
+
+
+
+@media print {
+  .print-page {
+    page-break-after: always;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Times New Roman', Times, serif !important;
+    color: black;
+  }
+
+  @page {
+    size: A5 landscape;
+    margin: 0mm;
+  }
+}

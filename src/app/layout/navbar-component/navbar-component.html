@@ -29,8 +29,8 @@
       <!-- EN: If user data loaded, show personalized greeting and warehouse number.
            TR: Kullanıcı verisi yüklendiyse, kişisel karşılama ve depo numarasını göster. -->
       <span *ngIf="userService.isUserDataLoaded()">
-        Sayın <strong class="text-primary">{{ userService.userSignal()?.isim }}</strong>, 
-        Depo Numaranız: <strong class="text-primary">{{ userService.userSignal()?.depoNo }}</strong> – Hoş Geldiniz!
+        Sayın <strong class="text-primary">{{ userService.userSignal()?.adSoyad }}</strong>, 
+        Şube Numaranız: <strong class="text-primary">{{ userService.userSignal()?.subeNo }}</strong> – Hoş Geldiniz!
       </span>
 
       <!-- EN: While user data is loading, show spinner and 'Loading...' text.
@@ -54,7 +54,7 @@
       <!-- EN: Compact welcome text on mobile when user data is ready.
            TR: Kullanıcı verisi hazır olduğunda, mobil için kısa hoş geldiniz metni. -->
       <small *ngIf="userService.isUserDataLoaded()">
-        Hoş Geldiniz, {{ userService.userSignal()?.depoIsmi }}
+        Hoş Geldiniz, {{ userService.userSignal()?.sube }}
       </small>
 
       <!-- EN: Compact loading state with small spinner on mobile.

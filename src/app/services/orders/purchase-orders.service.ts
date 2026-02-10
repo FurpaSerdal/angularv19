@@ -6,17 +6,18 @@ import { Observable } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class PurchaseOrdersService extends BaseApiService {
 
+  
   // firma verilen siparişler
   getCompanyOrders(taskId: number, schedule: string):Observable<any> {
-    return this.get(`${API_PATHS.PURCHASE_ORDERS}/${taskId}/firmalara/siparisler/${schedule}`);
+    return this.get(`/liste/${taskId}/${schedule}`);
   }
     //firma sipariş detay
   detailsCompanyOrder(taskId: number, seri: string, sira: number):Observable<any> {
-    return this.get(`${API_PATHS.PURCHASE_ORDERS}/${taskId}/firmalara/siparis/${seri}/${sira}`);
+    return this.get(`/ayrinti/${taskId}/${seri}/${sira}`);
   }
     /** Firmaya sipariş ver */
   createCompanyOrder(taskId: number, payload: any): Observable<any> {
-    return this.post(`${API_PATHS.PURCHASE_ORDERS}/${taskId}/firmalara/siparis/et`, payload);
+    return this.post(`/ekle/${taskId}`, payload);
   }
 
 
@@ -25,16 +26,16 @@ export class PurchaseOrdersService extends BaseApiService {
 
   //şube verilen siparişler
   getBranchOrders(taskId: number, schedule: string):Observable<any> {
-    return this.get(`${API_PATHS.PURCHASE_ORDERS}/${taskId}/subelere/siparisler/${schedule}`);
+    return this.get(`liste/${taskId}/${schedule}`);
   }
 
   // Şubeden sipariş detay
   detailsBranchOrder(taskId: number, seri: string, sira: number):Observable<any> {
-    return this.get(`${API_PATHS.PURCHASE_ORDERS}/${taskId}/subelere/siparis/${seri}/${sira}`);
+    return this.get(`ayrinti/${taskId}/${seri}/${sira}`);
   }
 
   /** Şubeye sipariş ver */
   createBranchOrder(taskId: number, payload: any): Observable<any> {
-    return this.post(`${API_PATHS.PURCHASE_ORDERS}/${taskId}/subelere/siparis/et`, payload);
+    return this.post(`ekle/${taskId}`, payload);
   }
 }

@@ -1,33 +1,38 @@
 import { CommonModule } from '@angular/common';
-import { Component, effect, Inject, signal } from '@angular/core';
+import { Component, computed, effect, Inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { WarehouseService } from '../../../../../services/warehouse.service';
-import { SubeyeSevketDto } from '../../../../../models/subeyeSevkModel';
 import { ShipmentNotesService } from '../../../../../services/shipments/shipment-notes.service';
 import { MeService } from '../../../../../services/meservice.service';
 import Swal from 'sweetalert2';
-import { StokAraCT } from '../../../../../models/ortakModeller';
+import {  StokAraCT } from '../../../../../models/ortakModeller';
+import { DetayResponse, Kalem } from '../../../../../models/detay';
+import { DepolaraSevkIrsaliyeleriEkleDto } from '../../../../../models/ekleModels';
 
 
 @Component({
-  selector: 'app-warheosue-receipt',
+  selector: 'app-warehouse-sales-order-to-shipment',
   imports: [CommonModule, MatTableModule, FormsModule, MatIconModule],
   templateUrl: './warehouse-sales-order-to-shipment.html',
   styleUrl: './warehouse-sales-order-to-shipment.css',
 })
-export class warehouseSalesOrderToShipment {
-  urunAraMetni: string = '';
-  kendiDepom = signal<number>(0);
-  karsiDepo = signal<any>(null);
-  seciliAltMenu = signal<number>(0);
-  gonderiliyor = signal<boolean>(false);
+export class WarehouseSalesOrderToShipment {
+  // Form ve arama
+  urunAraMetni = '';
   
-  postorder: SubeyeSevketDto = this.initializeForm();
-  dataSource = new MatTableDataSource<any>([]);
+  // Signals
+  karsiDepo = signal<any>(null);
+  nextgorevid = signal<number>(0);
+  gonderiliyor = signal<boolean>(false);
+  urunler = signal<Kalem[]>([]);
+  
+  // Data ve form
+  postorder: DepolaraSevkIrsaliyeleriEkleDto = this.initializeForm();
+  dataSource = new MatTableDataSource<Kalem>([]);
   displayedColumns: string[] = ['UrunAdi', 'UrunKodu', 'MalKabulMiktari', 'aksiyon'];
 
   constructor(
@@ -35,63 +40,94 @@ export class warehouseSalesOrderToShipment {
     private shipmentnoteservice: ShipmentNotesService,
     private warehouseService: WarehouseService,
     private toastr: ToastrService,
-    public dialogRef: MatDialogRef<warehouseSalesOrderToShipment>,
-  @Inject(MAT_DIALOG_DATA) public data: any,
-  ) 
-  {
-    effect(() => {
-      this.seciliAltMenu.set(this.meservice.selectedAltMenu()?.id ?? 0);
-    });
+    public dialogRef: MatDialogRef<WarehouseSalesOrderToShipment>,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) {}
 
-  }
+  // Computed properties
+  readonly seciliGorevid = computed(() =>
+    this.meservice.selectedGorev()?.id ?? 0
+  );
+  readonly toplamSevkMiktari = computed(() =>
+    this.urunler().reduce((total, item) => total + (item.sevkMiktari || 0), 0)
+  );
 
 
-  private initializeForm(): SubeyeSevketDto {
+
+  private initializeForm(): DepolaraSevkIrsaliyeleriEkleDto {
     return {
-      iadedir: false,
-      muhatapDepoNo: 0,
-      kalemler: []
+      sevkTarihi: new Date(),
+      nakliyeDeposu: { depoNo: 0, plaka: '', soforAdSoyad: '' },
+      kalemler: [],
+      muhatapFirma: null,
+      muhatapSube: {
+        cariKod: '',
+        depoNo: 0,
+        adres: '',
+        vergiDairesi: '',
+        yetkiliAdSoyad: '',
+        il: '',
+        ilce: '',
+        unvan: ''
+      }
     };
   }
 
   ngOnInit(): void {
-this.dataSource.data = this.data.siparis.kalemler || [];
-this.karsiDepo.set(this.data.siparis.muhatapDepo);
+    const initialData = this.data.detay.kalemleri || [];
+    this.dataSource.data = initialData;
+    this.urunler.set(initialData);
+    this.karsiDepo.set(this.data.detay.evrak[0].muhatapDepo);
+    this.nextgorevid.set(this.data.nextgorevid);
   }
-  urunEkle() {
+  urunEkle(): void {
     const aranacak = this.urunAraMetni.trim();
+    
     if (!aranacak) {
       this.toastr.warning('Lütfen bir ürün kodu veya adı girin.', '', { timeOut: 2000 });
       return;
     }
+
     this.warehouseService.searchStock(aranacak).subscribe({
       next: (stoklar: StokAraCT[]) => {
         if (stoklar.length === 0) {
           this.toastr.info('Aranan kriterlere uygun ürün bulunamadı.', '', { timeOut: 2000 });
           return;
         }
+
         const secilenStok = stoklar[0];
-        const mevcutUrun = this.dataSource.data.find(item => item.UrunKodu === secilenStok.stokKod);
+        const mevcutUrun = this.urunler().find(item => item.stokKodu === secilenStok.stokKod);
+        
         if (mevcutUrun) {
-         this.dataSource.data = this.dataSource.data.map(item => {
-            if (item.UrunKodu === secilenStok.stokKod) {
+          const updatedData = this.urunler().map(item => {
+            if (item.stokKodu === secilenStok.stokKod) {
               return {
                 ...item,
-                MalKabulMiktari: (item.MalKabulMiktari || 0) + (secilenStok.birimKatsayisi || 1)
+                sevkMiktari: (item.sevkMiktari || 0) + (secilenStok.birimKatsayisi || 1)
               };
             }
             return item;
           });
+          this.dataSource.data = updatedData;
+          this.urunler.set(updatedData);
           this.toastr.info('Ürün zaten listede mevcut, miktarı güncellendi.', '', { timeOut: 2000 });
-
           return;
         }
-        const yeniUrun = {
-          UrunKodu: secilenStok.stokKod,
-          UrunAdi: secilenStok.stokIsim,
-          MalKabulMiktari: secilenStok.birimKatsayisi || 1
+
+        const yeniUrun: Kalem = {
+          siparisGuid: null,
+          sevkGuid: null,
+          stokKodu: secilenStok.stokKod,
+          stokIsim: secilenStok.stokIsim,
+          siparisMiktari: null,
+          malKabulMiktari: null,
+          sevkMiktari: 1,
+          durum: null
         };
-        this.dataSource.data = [...this.dataSource.data, yeniUrun];
+        
+        const newData = [...this.urunler(), yeniUrun];
+        this.dataSource.data = newData;
+        this.urunler.set(newData);
         this.toastr.success('Ürün başarıyla eklendi.', '', { timeOut: 2000 });
       },
       error: (err) => {
@@ -99,41 +135,72 @@ this.karsiDepo.set(this.data.siparis.muhatapDepo);
         console.error(err);
       }
     });
+    
     this.urunAraMetni = '';
   }
- urunCikar(urun: any) {
-  Swal.fire({
-    title: 'Emin misiniz?',
-    text: 'Bu ürünü listeden çıkarmak üzeresiniz',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Evet, sil',
-    cancelButtonText: 'Vazgeç',
-    confirmButtonColor: '#198754',
-    cancelButtonColor: '#dc3545',
-    allowOutsideClick: false,
-    allowEscapeKey: false
-  }).then((result) => {
-    if (result.isConfirmed) {
-      console.log('Silinen Ürün:', urun);
-      this.dataSource.data = this.dataSource.data
-        .filter(item => item.stok.stokKod !== urun.stok.stokKod);
 
-      Swal.fire({
-        icon: 'success',
-        title: 'Silindi',
-        text: 'Ürün listeden çıkarıldı',
-        timer: 1500,
-        showConfirmButton: false
-      });
-    }
-  });
-}
+  trackByStokKodu(index: number, item: Kalem): string {
+    return item.stokKodu;
+  }
 
-  kaydet() {
+  guncelleSignal(): void {
+    const currentData = [...this.urunler()];
+    this.dataSource.data = currentData;
+    this.urunler.set(currentData);
+  }
+
+  urunCikar(urun: any): void {
+    Swal.fire({
+      title: 'Emin misiniz?',
+      text: 'Bu ürünü listeden çıkarmak üzeresiniz',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Evet, sil',
+      cancelButtonText: 'Vazgeç',
+      confirmButtonColor: '#198754',
+      cancelButtonColor: '#dc3545',
+      allowOutsideClick: false,
+      allowEscapeKey: false
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const filteredData = this.urunler().filter(
+          item => item.stokKodu !== urun.stokKodu
+        );
+        this.dataSource.data = filteredData;
+        this.urunler.set(filteredData);
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Silindi',
+          text: 'Ürün listeden çıkarıldı',
+          timer: 1500,
+          showConfirmButton: false
+        });
+      }
+    });
+  }
+
+  kaydet(): void {
     this.gonderiliyor.set(true);
-    this.postorder.muhatapDepoNo = this.karsiDepo().no;
-    this.postorder.kalemler = this.dataSource.data;
+    
+    this.postorder.muhatapSube = {
+      cariKod: '',
+      depoNo: this.karsiDepo()?.no,
+      adres: '',
+      vergiDairesi: '',
+      yetkiliAdSoyad: '',
+      il: '',
+      ilce: '',
+      unvan: ''
+    };
+    
+    this.postorder.nakliyeDeposu = {
+      depoNo: this.karsiDepo()?.no,
+      plaka: '',
+      soforAdSoyad: ''
+    };
+    
+    this.postorder.kalemler = this.urunler();
 
     const toastRef = this.toastr.show('Gönderiliyor...', '', {
       disableTimeOut: true,
@@ -143,9 +210,9 @@ this.karsiDepo.set(this.data.siparis.muhatapDepo);
       toastClass: 'ngx-toastr info-toast'
     });
 
-    this.shipmentnoteservice.createBranchShipment(this.seciliAltMenu(), this.postorder)
+    this.shipmentnoteservice.createBranchShipment(this.nextgorevid(), this.postorder)
       .subscribe({
-        next: (res) => {
+        next: () => {
           this.toastr.clear(toastRef.toastId);
           this.toastr.success('Başarıyla kaydedildi!');
           this.gonderiliyor.set(false);
@@ -159,14 +226,14 @@ this.karsiDepo.set(this.data.siparis.muhatapDepo);
       });
   }
 
-  temizle() {
+  temizle(): void {
     this.dataSource.data = [];
+    this.urunler.set([]);
     this.postorder = this.initializeForm();
     this.toastr.info('Form temizlendi', '', { timeOut: 2000 });
   }
 
-  kapat() {
+  kapat(): void {
     this.dialogRef.close();
   }
-
 }

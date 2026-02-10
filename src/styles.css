@@ -423,6 +423,13 @@
   height: 1rem;
 }
 
+.cdk-overlay-container {
+  z-index: 2000 !important;
+}
+
+
+
+
 
 /* ============================================================
    RESPONSIVE BREAKPOINTS / DUYARLI (RESPONSIVE) KIRILIMLAR
@@ -503,7 +510,7 @@
 
 /* EN: Hide sidebar and floating UI when printing, make content full width.
    TR: Yazdırma sırasında sidebar ve yüzen elemanları gizler, içeriği tam genişlik yapar. */
-@media print {
+/* @media print {
   .sidebar,
   .mobile-overlay,
   .scroll-to-top {
@@ -514,4 +521,4 @@
     margin-left: 0 !important;
     width: 100% !important;
   }
-}
+} */

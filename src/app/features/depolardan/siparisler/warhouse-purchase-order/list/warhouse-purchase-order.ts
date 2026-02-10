@@ -4,7 +4,8 @@ import {
   signal,
   ViewChild,
   DestroyRef,
-  inject
+  inject,
+  computed
 } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
@@ -23,6 +24,8 @@ import { MeService } from '../../../../../services/meservice.service';
 import { PurchaseOrdersService } from '../../../../../services/orders/purchase-orders.service';
 import { WarehouseOrderComponent } from '../create/warehouse-order';
 import { WarehousePurchaseOrderDetailComponent } from '../detail/detail';
+import { EvrakListResponse } from '../../../../../models/evrakListModel';
+import { DetayResponse, SiparisDetayResponse } from '../../../../../models/detay';
 
 
 @Component({
@@ -44,14 +47,10 @@ export class WarhousePurchaseOrder {
   });
 
   // -------------------- SIGNAL STATE --------------------
-  user = signal<User | null>(null);
   yukleniyor = signal(false);
-  gorevid = signal(0);
-  gorevadi = signal('');
-  altmenuid = signal(0);
-
-  anaekran = '';
-  yanekran = '';
+    // Signals ekle
+  pageIndex = signal(0);
+  pageSize = signal(10);
 
   // -------------------- UI STATE --------------------
   currentView: 'table' | 'card' = 'table';
@@ -63,6 +62,8 @@ export class WarhousePurchaseOrder {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
+
+  
   // -------------------- EFFECT CONTROL --------------------
   private lastKey = '';
 
@@ -72,46 +73,77 @@ export class WarhousePurchaseOrder {
     private dialog: MatDialog,
     private datePipe: DatePipe,
     private toastr: ToastrService,
-    private route: ActivatedRoute,
     private breakpointObserver: BreakpointObserver
   ) {
 
-    /* EFFECT #1 → USER SYNC */
+    /* 🔥 EFFECT → görev değişince data yükle */
     effect(() => {
-      this.user.set(this.meservice.userSignal());
-    });
-
-    /* EFFECT #2 → MENU / GÖREV BASED LOAD */
-    effect(() => {
-      const menu = this.meservice.selectedMenu();
-      const altmenu = this.meservice.selectedAltMenu();
-      const gorev = this.meservice.selectedGorev();
-
-      if (!menu || !altmenu || !gorev) {
-        this.lastKey = '';
-        return;
-      }
-
-      const key = `${menu}-${altmenu.id}-${gorev.kimlik}`;
-      if (key === this.lastKey) return;
-
-      this.lastKey = key;
-
-      this.anaekran = key;
-      this.yanekran = `${altmenu.isim} -*- ${gorev.isim}`;
-
-      this.altmenuid.set(altmenu.id);
-      this.gorevid.set(gorev.kimlik);
-      this.gorevadi.set(gorev.isim);
+      const gorevId = this.gorevid();
+      if (!gorevId) return;
 
       this.loadData();
     });
   }
 
+
+
+  // Computed signal ekle
+  paginatedCardData = computed(() => {
+    const filtered = this.DataSource.filteredData;
+    const start = this.pageIndex() * this.pageSize();
+    const end = start + this.pageSize();
+    return filtered.slice(start, end);
+  });
+
+  // -------------------- GLOBAL STATE (SERVICE) --------------------
+
+  readonly user = computed(() => this.meservice.userSignal());
+
+  readonly userdepo = computed(() =>
+    this.meservice.userSignal()?.subeNo  ?? 0
+  );
+
+  readonly gorevid = computed(() =>
+    this.meservice.selectedGorev()?.id ?? 0
+  );
+
+  readonly gorevadi = computed(() =>
+    this.meservice.selectedGorev()?.isim ?? ''
+  );
+
+  readonly altmenuid = computed(() =>
+    this.meservice.selectedAltMenu()?.id ?? 0
+  );
+
+  readonly anaekran = computed(() => {
+    const m = this.meservice.selectedMenu();
+    const a = this.meservice.selectedAltMenu();
+    const g = this.meservice.selectedGorev();
+
+    if (!m || !a || !g) return '';
+
+    return `${m}-${a.id}-${g.id}`;
+  });
+
+  readonly yanekran = computed(() => {
+    const a = this.meservice.selectedAltMenu();
+    const g = this.meservice.selectedGorev();
+
+    if (!a || !g) return '';
+
+    return `${a.isim} -*- ${g.isim}`;
+  });
+
+  // --------------------
   // -------------------- LIFECYCLE --------------------
   ngAfterViewInit() {
     this.DataSource.sort = this.sort;
     this.DataSource.paginator = this.paginator;
+
+    this.paginator.page.subscribe((event) => {
+      this.pageIndex.set(event.pageIndex);
+      this.pageSize.set(event.pageSize);
+    });
   }
 
   // -------------------- DATA --------------------
@@ -120,13 +152,13 @@ export class WarhousePurchaseOrder {
     this.yukleniyor.set(true);
 
     this.purchaseOrdersService
-      .getBranchOrders(this.altmenuid(), 'bugun')
+      .getBranchOrders(this.gorevid(), 'bugun')
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.yukleniyor.set(false))
       )
       .subscribe({
-        next: (data: any) => this.DataSource.data = data.siparisler,
+        next: (data: EvrakListResponse) => this.DataSource.data = data.evraklar,
         error: () => this.toastr.error('Veriler yüklenirken hata oluştu', 'Hata')
       });
   }
@@ -143,31 +175,41 @@ export class WarhousePurchaseOrder {
     const zamanlama = `aralik-${start}-${end}`;
 
     this.purchaseOrdersService
-      .getBranchOrders(this.altmenuid(), zamanlama)
+      .getBranchOrders(this.gorevid(), zamanlama)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.yukleniyor.set(false))
       )
       .subscribe({
-        next: (data: any) => this.DataSource.data = data?.siparisler ?? [],
+        next: (data: EvrakListResponse) => this.DataSource.data = data.evraklar,
         error: () => this.toastr.error('Filtreleme sırasında hata oluştu', 'Hata')
       });
   }
 
   // -------------------- ACTIONS --------------------
   taskDetay(seri: string, sira: number): void {
+    this.yukleniyor.set(true);
     this.purchaseOrdersService
       .detailsBranchOrder(this.gorevid(), seri, sira)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (data: any) => {
+        next: (data: SiparisDetayResponse) => {
           this.dialog.open(WarehousePurchaseOrderDetailComponent, {
             width: '50%',
             height: '70%',
-            data: data.siparis
+            maxWidth: '100vw',
+            disableClose: true,
+            panelClass: '',
+            data: data
+
           });
+          this.yukleniyor.set(false);
         },
-        error: () => this.toastr.error('Detay alınamadı', 'Hata')
+        error: () => {
+          this.toastr.error('Detay alınamadı', 'Hata');
+          this.yukleniyor.set(false);
+        },
+        complete: () => this.yukleniyor.set(false)
       });
   }
 
@@ -184,22 +226,6 @@ export class WarhousePurchaseOrder {
     });
   }
 
-  
-  // EVRAK ÇEVİR
-  return(evrak: any) {
-    this.purchaseOrdersService.detailsBranchOrder(this.gorevid(), evrak.evrakNoSeri, evrak.evrakNoSira).subscribe({
-      next: (data: any) => {
-        this.dialog.open(WarehouseOrderComponent, {
-          width: '50vw',
-          height: '70vh',
-          data: data
-        });
-      },
-      error: () => {
-        this.toastr.error('Task detayı alınırken hata oluştu', 'Hata');
-      }
-    });
-  }
 
 
   // -------------------- FILTER --------------------

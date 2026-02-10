@@ -2,7 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
-import { Evrak } from '../../../../../models/ortakModeller';
+import { DetayResponse, SiparisDetayResponse } from '../../../../../models/detay';
 
 @Component({
   selector: 'app-warehouse-purchase-order-detail',
@@ -12,17 +12,14 @@ import { Evrak } from '../../../../../models/ortakModeller';
   styleUrls: ['./detail.css']
 })
 export class WarehousePurchaseOrderDetailComponent {
-  veri!: any;
 
   constructor(
     private toastr: ToastrService,
     public dialogRef: MatDialogRef<WarehousePurchaseOrderDetailComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: Evrak,
+    @Inject(MAT_DIALOG_DATA) public data: SiparisDetayResponse,
   ) {}
 
   ngOnInit() {
-    this.veri = this.data;
-    console.log('Gelen veri:', this.data);
   }
 
   kapat() {

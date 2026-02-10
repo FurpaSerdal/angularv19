@@ -1,0 +1,244 @@
+<div class="container-fluid mt-3">
+  <div class="card shadow-sm border-0">
+    <!-- Başlık Kısmı -->
+    <header class="card-header bg-primary text-white py-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <h1 class="h5 mb-0">
+          <i class="bi bi-file-earmark-text me-2" aria-hidden="true"></i>Gelen Faturalar
+        </h1>
+        <span class="badge bg-light text-primary">{{dataSourceFiltreli.data.length}} Fatura</span>
+      </div>
+    </header>
+
+    <main class="card-body p-4">
+      <!-- Filtreleme Bölümü -->
+      <section aria-labelledby="filter-section-title">
+        <h2 id="filter-section-title" class="visually-hidden">Filtreleme Seçenekleri</h2>
+        
+        <!-- Tarih Aralığı -->
+        <div class="row g-3 mb-4 align-items-end">
+          <div class="col-md-3 col-sm-6">
+            <label for="startDate" class="form-label small fw-semibold text-muted">Başlangıç Tarihi</label>
+            <div class="input-group input-group-sm">
+              <span class="input-group-text bg-light border-end-0">
+                <i class="bi bi-calendar text-muted" aria-hidden="true"></i>
+              </span>
+              <input id="startDate" type="date" class="form-control shadow-none" 
+                     [max]="bitisTarihi()" [ngModel]="baslangicTarihi()"
+                     (ngModelChange)="baslangicTarihi.set($event)" aria-label="Başlangıç tarihi seçin">
+            </div>
+          </div>
+
+          <div class="col-md-3 col-sm-6">
+            <label for="endDate" class="form-label small fw-semibold text-muted">Bitiş Tarihi</label>
+            <div class="input-group input-group-sm">
+              <span class="input-group-text bg-light border-end-0">
+                <i class="bi bi-calendar text-muted" aria-hidden="true"></i>
+              </span>
+              <input id="endDate" type="date" class="form-control shadow-none" 
+                     [min]="baslangicTarihi()" [ngModel]="bitisTarihi()"
+                     (ngModelChange)="bitisTarihi.set($event)" aria-label="Bitiş tarihi seçin">
+            </div>
+          </div>
+
+          <div class="col-md-2 col-sm-6">
+            <button class="btn btn-primary btn-sm w-100" (click)="faturagetir()" aria-label="Faturaları yenile">
+              <i class="bi bi-arrow-repeat me-1" aria-hidden="true"></i> Faturaları Getir
+            </button>
+          </div>
+
+          <div class="col-md-2 col-sm-6 ms-auto">
+            <button class="btn btn-outline-primary btn-sm w-100"  aria-label="Uyumsoft'tan veri eşitle">
+              <i class="bi bi-cloud-arrow-down me-1" aria-hidden="true"></i> Eşitle
+            </button>
+          </div>
+        </div>
+
+        <!-- Arama Bölümü -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label for="invoiceSearch" class="form-label small fw-semibold text-muted">Fatura Arama</label>
+            <div class="input-group input-group-sm shadow-sm">
+              <span class="input-group-text bg-light border-end-0">
+                <i class="bi bi-search text-muted" aria-hidden="true"></i>
+              </span>
+              <input id="invoiceSearch" type="search" class="form-control" 
+                     placeholder="Fatura no, müşteri adı..." aria-label="Fatura arama"
+                     [ngModel]="aramaKelimesi()" (ngModelChange)="aramaKelimesi.set($event)" 
+                     (keyup.enter)="faturaAra()">
+              <button class="btn btn-outline-primary" type="button" (click)="faturaAra()" aria-label="Faturaları filtrele">
+                <i class="bi bi-funnel me-1" aria-hidden="true"></i> Filtrele
+              </button>
+              <button class="btn btn-outline-secondary" type="button" (click)="filtreyiSifirla()" aria-label="Filtreleri temizle">
+                <i class="bi bi-x-lg" aria-hidden="true"></i>
+              </button>
+            </div>
+            <small class="text-muted">Fatura no, müşteri adı veya tutar ile arama yapabilirsiniz</small>
+          </div>
+
+          <div class="col-md-6">
+            <label for="qrSearch" class="form-label small fw-semibold text-muted">QR Kod ile Arama</label>
+            <div class="input-group input-group-sm shadow-sm">
+              <span class="input-group-text bg-light border-end-0">
+                <i class="bi bi-qr-code-scan text-muted" aria-hidden="true"></i>
+              </span>
+              <input id="qrSearch" type="text" class="form-control" 
+                     placeholder="QR kod okut veya irsaliye no girin" aria-label="QR kod veya irsaliye no ile arama"
+                     [(ngModel)]="qrIrsaliyeNo" >
+              <button class="btn btn-outline-success" type="button" aria-label="Fatura ara">
+                <i class="bi bi-search me-1" aria-hidden="true"></i> Bul
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tablo Bölümü -->
+      <section aria-labelledby="invoices-table-title">
+        <h2 id="invoices-table-title" class="visually-hidden">Fatura Listesi</h2>
+        
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="col-md-3">
+            <label for="printFilter" class="form-label small fw-semibold text-muted visually-hidden">Yazdırma Durumu</label>
+            <select id="printFilter" class="form-select form-select-sm"
+                    [(ngModel)]="yazdirildi" (ngModelChange)="yazdirildiFiltrele()">
+              <option [ngValue]="0">Yazdırılmamış Faturalar</option>
+              <option [ngValue]="1">Yazdırılmış Faturalar</option>
+              <option [ngValue]="2">Tümü</option>
+            </select>
+          </div>
+        </div>
+
+      <div class="table-responsive border rounded-3">
+ <table mat-table [dataSource]="dataSourceFiltreli" matSort class="w-100">
+          <!-- Fatura No Column -->
+          <ng-container matColumnDef="cha_belge_no">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="ps-3">Fatura No</th>
+       <td mat-cell *matCellDef="let fatura" class="ps-3">
+  <span class="fw-semibold">{{ fatura.cha_belge_no }}</span>
+</td>
+          </ng-container>
+
+          <!-- Gönderen Column -->
+          <ng-container matColumnDef="eFaturaUnvani">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Gönderen</th>
+            <td mat-cell *matCellDef="let fatura">
+              <span class="text-truncate d-inline-block" style="max-width: 200px;" [title]="fatura.eFaturaUnvani">
+                {{ fatura.eFaturaUnvani }}
+              </span>
+            </td>
+          </ng-container>
+
+
+       <!-- Tarih Column -->
+<ng-container matColumnDef="cha_tarihi">
+  <th mat-header-cell *matHeaderCellDef mat-sort-header>Tarih</th>
+  <td mat-cell *matCellDef="let fatura">
+    <span class="badge bg-light text-dark fs-6 ">
+      {{ fatura.cha_tarihi | date: 'dd.MM.yyyy HH:mm' : '' : 'tr' }}
+    </span>
+  </td>
+</ng-container>
+
+<!-- Gönderilme Tarihi Column -->
+<ng-container matColumnDef="gonderilme_tarihi">
+  <th mat-header-cell *matHeaderCellDef mat-sort-header>Gönderilme Tarihi</th>
+  <td mat-cell *matCellDef="let fatura">
+    <span class="badge bg-light text-dark fs-6 ">
+      {{ fatura.eFaturaNushaDamgasi | date: 'dd.MM.yyyy HH:mm' : '' : 'tr' }}
+    </span>
+  </td>
+</ng-container>
+          <!-- İrsaliye Column -->
+          <ng-container matColumnDef="irsaliyeNo">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>İrsaliye No</th>
+            <td mat-cell *matCellDef="let fatura">
+              <span *ngIf="fatura.irsaliyeNo">
+                {{ fatura.irsaliyeNo }}
+              </span>
+              <span *ngIf="!fatura.irsaliyeNo" class="text-muted">-</span>
+            </td>
+          </ng-container>
+
+                <!-- vkntckn-->
+          <ng-container matColumnDef="vkntckn">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Tc & Vergi No</th>
+            <td mat-cell *matCellDef="let fatura">
+              <span *ngIf="fatura.vkntckn">
+                {{ fatura.vkntckn }}
+              </span>
+              <span *ngIf="!fatura.vkntckn" class="text-muted">-</span>
+            </td>
+          </ng-container>
+          <!-- İrsaliye Column -->
+          <ng-container matColumnDef="yazdirildi">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Durumu</th>
+            <td mat-cell *matCellDef="let fatura">
+              <ng-container *ngIf="fatura.yazdirildi; else yazdirilmamis">
+                <span class="text-success">
+                  <i class="bi bi-check-circle-fill"></i>
+                  Yazdırıldı
+                </span>
+              </ng-container>
+              <ng-template #yazdirilmamis>
+                <span class="text-muted">
+                  <i class="bi bi-hourglass-split"></i>
+                  Yazdırılmadı
+                </span>
+              </ng-template>
+            </td>
+          </ng-container>
+    
+
+          <!-- İşlemler Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef class="text-center pe-3">İşlemler</th>
+            <td mat-cell *matCellDef="let fatura" class="text-center pe-3">
+              <div class="btn-group btn-group-sm" role="group">
+                <button class="btn btn-outline-primary" title="PDF İndir">
+                  <i class="bi bi-file-earmark-pdf"></i>
+                </button>
+                <button class="btn btn-outline-secondary"  title="Yazdır">
+                  <i class="bi bi-printer"></i>
+                </button>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Header Row -->
+          <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-light"></tr>
+
+          <!-- Data Row -->
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="hover-effect"></tr>
+
+          <!-- Empty State -->
+          <tr *matNoDataRow>
+            <td class="text-center py-5" [attr.colspan]="displayedColumns.length">
+              <div *ngIf="yukleniyor()" class="text-primary">
+                <mat-spinner diameter="40" class="mx-auto"></mat-spinner>
+                <div class="mt-2">Faturalar yükleniyor...</div>
+              </div>
+              <div *ngIf="!yukleniyor()" class="text-muted">
+                <i class="bi bi-file-earmark-excel display-6 opacity-50"></i>
+                <h5 class="mt-2 mb-1">Fatura bulunamadı</h5>
+                <p class="small mb-0">Filtre kriterlerinize uygun fatura bulunamadı</p>
+              </div>
+            </td>
+          </tr>
+        </table>
+</div>
+
+        <!-- Sayfalama -->
+        <footer class="d-flex justify-content-between align-items-center mt-3">
+          <p class="text-muted small m-0">
+            Toplam {{dataSourceFiltreli.data.length}} fatura listeleniyor
+          </p>
+          <mat-paginator [pageSize]="100" [pageSizeOptions]="[5, 10, 20, 50]" 
+                         showFirstLastButtons class="custom-paginator"
+                         aria-label="Fatura sayfalandırma">
+          </mat-paginator>
+        </footer>
+      </section>
+    </main>
+  </div>
+</div>

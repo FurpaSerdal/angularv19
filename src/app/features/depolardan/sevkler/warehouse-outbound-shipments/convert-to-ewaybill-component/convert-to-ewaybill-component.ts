@@ -1,9 +1,9 @@
-import { Component, Input, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { SendOutboxShippingDespatch } from '../../../../../models/e-IrsaliyeGonderModel';
-import { Evrak } from '../../../../../models/ortakModeller';
+import { WarehouseService } from '../../../../../services/warehouse.service';
 
 @Component({
   selector: 'app-convert-to-ewaybill-component',
@@ -13,17 +13,20 @@ import { Evrak } from '../../../../../models/ortakModeller';
   styleUrl: './convert-to-ewaybill-component.css',
 })
 export class ConvertToEWaybillComponent implements OnInit {
-  @Input() detailData?: Evrak;
   
   shipmentData!: SendOutboxShippingDespatch;
   isLoading = false;
   successMessage = '';
   errorMessage = '';
   showConfirmDialog = false;
+  
+  // UI için yardımcı değişkenler
+  isFormValid = false;
 
   constructor(
     public dialogRef: MatDialogRef<ConvertToEWaybillComponent>,
-    @Inject(MAT_DIALOG_DATA) public data?: Evrak,
+    private warehouseService: WarehouseService,
+    @Inject(MAT_DIALOG_DATA) public data?: any,
   ) {
     this.shipmentData = this.initializeForm();
   }
@@ -33,129 +36,163 @@ export class ConvertToEWaybillComponent implements OnInit {
   }
 
   private loadShipmentData(): void {
-    const receivedData = this.detailData || this.data;
+    const receivedData = this.data;
     
-    if (receivedData) {
-      // Detail component'ten gelen veriyi SendOutboxShippingDespatch'e mapla
-      this.shipmentData = {
-        documentSerie: receivedData.evrakNoSeri || '',
-        documentOrderNo: receivedData.evrakNoSira || 0,
-        documentNo: receivedData.belgeNo || '',
-        targetWarehouseNo: receivedData.muhatapDepo?.no || 0,
-        sourceWarehouseNo: receivedData.depo?.no || 0,
-        driverNameSurname: receivedData.teslimEden || '',
-        driverTCKN: receivedData.furpaVknTckn || '',
-        plaque: '',
-        cart: {
-          cartLines: receivedData.kalemler?.map(k => ({
-            product: {
-              bulkSaleTaxRate: 0,
-              productCode: k.stok?.stokKod || '',
-              productName: k.stok?.stokIsim || '',
-              barcode: k.stok?.barkodlar?.[0]?.barKodu || '',
-              price: k.stok?.fiyat?.fiyati || 0,
-              productPriceDocNumber: '',
-              oldPrice: 0,
-              promotionPrice: 0,
-              priceChangeDate: '',
-              supplierCode: '',
-              isClosedToSale: 0,
-              isClosedToOrder: 0,
-              isClosedToReceiving: 0,
-              isPassive: false,
-              unitName: k.stok?.birimAd || '',
-              unitName2: '',
-              typeCode: '',
-              origin: '',
-              isDomestic: 1,
-              unitPriceFactor: 1,
-              alternativeUnitName: '',
-              pluNo: 0,
-              packageFactor: '',
-              quantity: k.sevkMiktari || 0,
-              expirationDate: '',
-              barcodeContent: '',
-              categoryCode: '',
-              productImage: '',
-            },
-            quantity: k.sevkMiktari || 0,
-            total: (k.stok?.fiyat?.fiyati || 0) * (k.sevkMiktari || 0),
-            deliveredQuantity: 0,
-            recommendedQuantity: k.onerilenSiparisMiktari || 0,
-          })) || [],
-          creator: receivedData.onaylayan || '',
-          acceptor: receivedData.teslimAlan || '',
+    if (receivedData?.evrak) {
+      const kalemler: any[] = (receivedData.kalemleri || []).map((k: any) => ({
+        stok: {
+          stokKodu: k.stokKodu || '',
+          stokIsmi: k.stokIsim || '',
+          birim: k.birimAd || '',
+          barkodu: k.barkod || '',
         },
+        miktar: k.sevkMiktari ?? 0,
+        onerilenMiktar: k.siparisMiktari ?? k.onerilenSiparisMiktari ?? 0,
+        teslimMiktari: k.malKabulMiktari ?? 0,
+      }));
+
+      this.shipmentData = {
+        seri: receivedData.evrak.evrakNoSeri || '',
+        sira: receivedData.evrak.evrakNoSira || 0,
+        belgeNo: receivedData.evrak.belgeNo || '',
+        hedefDepoNo: receivedData.evrak.muhatapDepo?.no || receivedData.evrak.muhatapFirma?.no || 0,
+        kaynakDepoNo: receivedData.evrak.depo?.no || 0,
+        aracPlaka: '',
+        kalemler,
+        soforAdSoyad: '',
+        soforTckn: '',
+        sevkEdenAdSoyad: receivedData.teslimEden || '',
+        siparisEdenAdSoyad: receivedData.onaylayan || receivedData.teslimAlan || '',
       };
+      
+      this.checkFormValidity();
     }
   }
 
   private initializeForm(): SendOutboxShippingDespatch {
     return {
-      documentSerie: '',
-      documentOrderNo: 0,
-      documentNo: '',
-      targetWarehouseNo: 0,
-      sourceWarehouseNo: 0,
-      driverNameSurname: '',
-      driverTCKN: '',
-      plaque: '',
-      cart: {
-        cartLines: [],
-        creator: '',
-        acceptor: '',
-      },
+      seri: '',
+      sira: 0,
+      belgeNo: '',
+      hedefDepoNo: 0,
+      kaynakDepoNo: 0,
+      aracPlaka: '',
+      kalemler: [],
+      soforAdSoyad: '',
+      soforTckn: '',
+      sevkEdenAdSoyad: '',
+      siparisEdenAdSoyad: '',
     };
   }
 
+  // Form değişikliklerini dinle
+  onFormChange(): void {
+    this.checkFormValidity();
+  }
+
+  private checkFormValidity(): void {
+    this.isFormValid = this.validateForm();
+  }
+
   openConfirmDialog(): void {
-    if (this.validateForm()) {
+    if (this.isFormValid) {
       this.showConfirmDialog = true;
+    } else {
+      this.errorMessage = 'Lütfen tüm gerekli alanları doldurunuz.';
     }
   }
 
   closeConfirmDialog(): void {
     this.showConfirmDialog = false;
   }
+  close(){
+    this.dialogRef.close();
+  }
 
   convertToEWaybill(): void {
-    if (!this.validateForm()) {
+    if (!this.isFormValid) {
       this.errorMessage = 'Lütfen tüm gerekli alanları doldurunuz.';
       return;
     }
+
+    const payload: SendOutboxShippingDespatch = {
+      ...this.shipmentData,
+      soforAdSoyad: this.shipmentData.soforAdSoyad.trim(),
+      soforTckn: this.shipmentData.soforTckn.trim(),
+      aracPlaka: this.shipmentData.aracPlaka.trim(),
+    };
 
     this.isLoading = true;
     this.successMessage = '';
     this.errorMessage = '';
 
-    try {
-      // Sevkiye e-İrsaliye'ye dönüştür
-      this.successMessage = 'Sevkiye başarıyla e-İrsaliye\'ye dönüştürüldü.';
-      this.showConfirmDialog = false;
-      this.resetForm();
-    } catch (error) {
-      this.errorMessage = 'E-İrsaliye dönüştürme işlemi başarısız oldu.';
-      console.error('Error:', error);
-    } finally {
-      this.isLoading = false;
-    }
+    this.warehouseService.SendOutboxShippingDespatch(payload).subscribe({
+      next: (response: any) => {
+        this.successMessage = 'Sevkiye başarıyla e-İrsaliye\'ye dönüştürüldü.';
+        this.showConfirmDialog = false;
+        this.resetForm();
+        // 3 saniye sonra dialog'u kapat
+        setTimeout(() => {
+          this.dialogRef.close({ success: true });
+        }, 3000);
+      },
+      error: (error) => {
+        this.errorMessage = error.error?.message || 'E-İrsaliye dönüştürme işlemi başarısız oldu.';
+        console.error('Error:', error);
+        this.isLoading = false;
+      },
+      complete: () => {
+        this.isLoading = false;
+      }
+    });
   }
 
   private validateForm(): boolean {
-    if (!this.shipmentData.documentNo || !this.shipmentData.driverNameSurname) {
+    // Zorunlu alan kontrolü
+    if (!this.shipmentData.soforAdSoyad?.trim() || 
+        !this.shipmentData.soforTckn?.trim() || 
+        !this.shipmentData.aracPlaka?.trim()) {
       return false;
     }
-    if (!this.shipmentData.cart.cartLines || this.shipmentData.cart.cartLines.length === 0) {
+    
+    // TCKN format kontrolü (11 haneli sayı)
+    const tcknRegex = /^[1-9]{1}[0-9]{10}$/;
+    if (!tcknRegex.test(this.shipmentData.soforTckn.trim())) {
       return false;
     }
+    
+    // Kalem kontrolü
+    if (!this.shipmentData.kalemler || this.shipmentData.kalemler.length === 0) {
+      return false;
+    }
+    
+    // Kalem miktar kontrolleri
+    const hasValidItems = this.shipmentData.kalemler.every(item => 
+      item.miktar > 0 && item.onerilenMiktar >= 0 && item.teslimMiktari >= 0
+    );
+    
+    if (!hasValidItems) {
+      return false;
+    }
+    
     return true;
   }
 
-  public resetForm(): void {
+  private resetForm(): void {
     this.shipmentData = this.initializeForm();
+    this.isFormValid = false;
   }
+  // TypeScript dosyasına ekleyin (class içinde)
+getTotal(property: 'miktar' | 'onerilenMiktar' | 'teslimMiktari'): number {
+  if (!this.shipmentData.kalemler) return 0;
+  return this.shipmentData.kalemler.reduce((total, item) => total + (item[property] || 0), 0);
+}
 
   cancelConversion(): void {
     this.closeConfirmDialog();
+  }
+
+  closeDialog(): void {
+    this.dialogRef.close();
   }
 }

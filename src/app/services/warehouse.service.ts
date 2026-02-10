@@ -2,7 +2,8 @@ import { Injectable } from "@angular/core";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { environment } from "../../environment";
-import { StokAraCT } from "../models/ortakModeller";
+import { DepoCari, StokAraCT } from "../models/ortakModeller";
+import { SendOutboxShippingDespatch } from "../models/e-IrsaliyeGonderModel";
 
 
 @Injectable({
@@ -28,6 +29,20 @@ export class WarehouseService {
       { params }
     );
   }
-
   
-}
+  searchWarehouse(search: string): Observable<DepoCari[]> {
+    return this.http.get<DepoCari[]>(
+      `${this.apiUrl}/subeler/sube-bilgileri/ara/${search}`,
+   
+    );
+  }
+
+  SendOutboxShippingDespatch(shipmentData: SendOutboxShippingDespatch): Observable<any> {
+    return this.http.post<any>(
+      `${this.apiUrl}/EIrsaliye/gonder/depo-irsaliyesi`,
+      shipmentData
+    );
+  }
+
+
+  }

@@ -1,112 +1,175 @@
-<div class="container my-3">
-    <div class="card shadow-sm border-0 rounded-3">
-
-        <!-- Header -->
-        <div class="card-header bg-light text-dark d-flex justify-content-between align-items-center py-3">
-            <div>
-                <h5 class="mb-0 fw-semibold">
-                    <i class="bi bi-inbox-fill me-2"></i> Siparişi sevk et
-                </h5>
-                <small class="opacity-75">
-                    Sipariş sevk işlemlerinizi buradan yapabilirsiniz
-                </small>
-
-                <small class="opacity-75">
-                    (Sevk edilecek depo: {{karsiDepo().no}},{{ karsiDepo()?.isim }} )
-                </small>
-            </div>
-
-            <button class="btn btn-sm btn-danger" (click)="kapat()">
-                <i class="bi bi-x-lg"></i>
-            </button>
+<div class="container-fluid my-3">
+  <!-- Başlık Kartı -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-truck me-2"></i>
+              Depolardan Alınan (Satış) Siparişinden Sevk Evrakı Oluştur
+            </h5>
+            <button type="button" class="btn-close" aria-label="Kapat" (click)="kapat()"></button>
+          </div>
         </div>
-
         <div class="card-body">
-
-            <!-- Ürün İşlemleri -->
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="fw-semibold text-primary mb-0">
-                    <i class="bi bi-box-seam me-2"></i> Ürün İşlemleri
-                </h5>
-                <span class="badge bg-primary">
-                    {{ dataSource.data.length }} ürün
-                </span>
-            </div>
-            <div class="d-flex gap-2 mb-4">
-                <input type="text" class="form-control" placeholder="Ürün ara..."
-                    [(ngModel)]="urunAraMetni"
-                    (keyup.enter)="urunEkle()"/>
-
-                <button class="btn btn-primary" (click)="urunEkle()">
-                    <i class="bi bi-plus-lg me-1"></i> Ürün Ekle
-                </button>
-            </div>
-
-            <!-- Tablo -->
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Ürün</th>
-                            <th>Kod</th>
-                            <th>Sipariş</th>
-                            <th>Sevk</th>
-                            <th>İşlemler</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        <tr *ngIf="dataSource.data.length === 0">
-                            <td colspan="5" class="text-center text-muted py-4">
-                                Henüz ürün eklenmedi
-                            </td>
-                        </tr>
-
-                        <tr *ngFor="let element of dataSource.data">
-                            <td>
-                                <strong>{{ element.UrunAdi }}</strong><br>
-                                <small class="text-muted">{{ element.stok.stokIsim }}</small>
-                            </td>
-
-                            <td>{{ element.stok.stokKod }}</td>
-                            <td>{{ element.siparisMiktari }}</td>
-
-                            <td style="max-width:140px">
-                                <input type="number" class="form-control form-control-sm"
-                                    [(ngModel)]="element.sevkMiktari"
-                                    [min]="element.stok?.barkodlar?.[0]?.birimKatSayisi"
-                                    [step]="element.stok?.barkodlar?.[0]?.birimKatSayisi" />
-                            </td>
-
-                            <td>
-                                <button class="btn btn-sm btn-outline-danger"
-                                    (click)="urunCikar(element)">
-                                    <i class="bi bi-trash3-fill"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Footer Buttons -->
-            <div class="d-flex justify-content-end gap-2 mt-4">
-                <button class="btn btn-outline-secondary" (click)="temizle()">
-                    <i class="bi bi-eraser me-1"></i> Temizle
-                </button>
-
-                <button class="btn btn-primary" (click)="kaydet()"
-                    [disabled]="gonderiliyor() || dataSource.data.length === 0">
-                    <span *ngIf="!gonderiliyor()">
-                        <i class="bi bi-save me-1"></i> Kaydet
-                    </span>
-                    <span *ngIf="gonderiliyor()">
-                        <span class="spinner-border spinner-border-sm me-1"></span>
-                        Kaydediliyor
-                    </span>
-                </button>
-            </div>
-
+          <p class="card-text text-muted mb-0">
+            Bu sayfada, depolardan satış siparişinden sevk evrakı oluşturabilirsiniz.
+            Lütfen ürün ekleyin ve sevk miktarlarını belirleyin.
+          </p>
         </div>
+      </div>
     </div>
+  </div>
+
+  <!-- Ana İçerik -->
+  <div class="row mt-3">
+    <div class="col-lg-8">
+      <!-- Ürün İşlemleri -->
+      <div class="card shadow-sm border-0 rounded-3 mb-3">
+        <div class="card-header bg-light">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="fw-semibold text-primary mb-0">
+              <i class="bi bi-box-seam me-2"></i>Ürün İşlemleri
+            </h5>
+            <span class="badge bg-primary">
+              {{ urunler().length }} ürün
+            </span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row g-2">
+            <div class="col-md-9">
+              <input 
+                type="text" 
+                class="form-control" 
+                placeholder="Ürün kodu veya adı girin..."
+                [(ngModel)]="urunAraMetni"
+                (keyup.enter)="urunEkle()" />
+            </div>
+            <div class="col-md-3">
+              <button 
+                class="btn btn-primary w-100" 
+                (click)="urunEkle()">
+                <i class="bi bi-plus-lg me-1"></i>Ekle
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <!-- Sevk Deposu Kartı -->
+      <div class="card shadow-sm border-0 rounded-3 mb-3">
+        <div class="card-header bg-light">
+          <h5 class="card-title mb-0">
+            <i class="bi bi-building me-2"></i>Sevk Deposu
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="fw-bold text-dark">{{ karsiDepo()?.isim || '-' }}</div>
+          <div class="text-muted small">Depo No: {{ karsiDepo()?.no || '-' }}</div>
+        </div>
+      </div>
+        
+      <!-- Sevk Özeti Kartı -->
+      <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-header bg-light">
+          <h5 class="card-title mb-0">
+            <i class="bi bi-clipboard-data me-2"></i>Sevk Özeti
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="text-muted">Toplam Ürün:</span>
+            <span class="badge bg-info">{{ urunler().length }}</span>
+          </div>
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="text-muted">Toplam Sevk Miktarı:</span>
+            <span class="badge bg-success">{{ toplamSevkMiktari() }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Ürün Listesi Tablosu -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th><i class="bi bi-box me-1"></i>Ürün Adı</th>
+                  <th><i class="bi bi-upc me-1"></i>Kod</th>
+                  <th class="text-center">Sipariş Miktarı</th>
+                  <th class="text-center">Sevk Miktarı</th>
+                  <th class="text-center">İşlemler</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngIf="urunler().length === 0">
+                  <td colspan="5" class="text-center text-muted py-5">
+                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                    Henüz ürün eklenmedi
+                  </td>
+                </tr>
+                <tr *ngFor="let element of urunler(); let i = index; trackBy: trackByStokKodu">
+                  <td>
+                    <div class="fw-bold">{{ element.stokIsim }}</div>
+                  </td>
+                  <td>
+                    <code class="text-primary">{{ element.stokKodu }}</code>
+                  </td>
+                  <td class="text-center">
+                    <span class="badge bg-light text-dark">{{ element.siparisMiktari || '-' }}</span>
+                  </td>
+                  <td style="max-width: 140px;">
+                    <input 
+                      type="number" 
+                      class="form-control form-control-sm text-center"
+                      [(ngModel)]="element.sevkMiktari"
+                      (blur)="guncelleSignal()"
+                      min="0" />
+                  </td>
+                  <td class="text-center">
+                    <button 
+                      class="btn btn-sm btn-outline-danger" 
+                      (click)="urunCikar(element)"
+                      title="Ürünü Çıkar">
+                      <i class="bi bi-trash3-fill"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Footer Butonlar -->
+          <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+            <button 
+              class="btn btn-outline-secondary" 
+              (click)="temizle()"
+              [disabled]="gonderiliyor()">
+              <i class="bi bi-eraser me-1"></i>Temizle
+            </button>
+            <button 
+              class="btn btn-primary" 
+              (click)="kaydet()"
+              [disabled]="gonderiliyor() || urunler().length === 0">
+              <span *ngIf="!gonderiliyor()">
+                <i class="bi bi-save me-1"></i>Kaydet ve Gönder
+              </span>
+              <span *ngIf="gonderiliyor()">
+                <span class="spinner-border spinner-border-sm me-1"></span>
+                Kaydediliyor...
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

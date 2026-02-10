@@ -9,12 +9,12 @@
 
         <!-- Sol: Ana Ekran -->
         <h1 class="text-primary mb-0 fw-bold">
-          {{ anaekran }}
+          {{ anaekran() }}
         </h1>
 
         <!-- Sağ: Yan Ekran -->
         <h3 class="text-danger mb-0 fw-bold">
-          {{ yanekran }}
+          {{ yanekran() }}
         </h3>
       </div>
 
@@ -79,7 +79,14 @@
     </div>
   </div>
 
+  <!-- Yükleme Göstergesi -->
+  <div *ngIf="yukleniyor()" class="d-flex flex-column justify-content-center align-items-center"
+    style="min-height: 200px;">
 
+
+    <mat-spinner color="primary" diameter="60"></mat-spinner>
+
+  </div>
 
   <!-- Görünüm Seçimi -->
   <div class="view-toggle mb-3">
@@ -106,7 +113,7 @@
               <th mat-header-cell *matHeaderCellDef mat-sort-header class="ps-3">Evrak No</th>
               <td mat-cell *matCellDef="let evrak" class="ps-3">
                 <div class="evrak-no">
-                  <span class="badge bg-primary rounded-pill fs-6">{{ evrak.evrakNoSeri }}/{{ evrak.evrakNoSira
+                  <span class="badge bg-primary rounded-pill fs-6">{{ evrak.seri }}/{{ evrak.sira
                     }}</span>
                 </div>
               </td>
@@ -118,7 +125,7 @@
               <td mat-cell *matCellDef="let evrak">
                 <div class="d-flex align-items-center">
                   <i class="bi bi-calendar3 me-2 text-muted"></i>
-                  <span>{{ evrak.evrakTarihi | date: 'dd.MM.yyyy' }}</span>
+                  <span>{{ evrak.tarih | date: 'dd.MM.yyyy' }}</span>
                 </div>
               </td>
             </ng-container>
@@ -160,12 +167,10 @@
               <td mat-cell *matCellDef="let evrak" class="text-center pe-3">
                 <div class="action-buttons">
                   <button mat-icon-button class="btn-view" matTooltip="Görüntüle"
-                    (click)="taskDetay(evrak.evrakNoSeri, evrak.evrakNoSira)">
+                    (click)="taskDetay(evrak.seri, evrak.sira)">
                     <i class="bi bi-eye"></i>
                   </button>
-                  <button mat-icon-button class="btn-edit ms-2" matTooltip="Çevir" (click)="return(evrak)">
-                    <i class="bi bi-arrow-repeat"></i>
-                  </button>
+              
                   <button mat-icon-button class="btn-pdf ms-2" matTooltip="PDF İndir">
                     <i class="bi bi-file-earmark-pdf"></i>
                   </button>
@@ -187,13 +192,13 @@
   <!-- Kart Görünümü -->
   <div *ngIf="currentView === 'card'" class="card-view">
     <div class="row g-4">
-      <div *ngFor="let evrak of DataSource.filteredData" class="col-12 col-md-6 col-lg-4">
+      <div *ngFor="let evrak of paginatedCardData()" class="col-12 col-md-6 col-lg-4">
         <div class="evrak-card card shadow-sm h-100">
           <!-- Kart Header -->
           <div class="card-header bg-light d-flex justify-content-between align-items-center">
             <div>
               <h5 class="mb-0">
-                <span class="badge bg-primary">{{ evrak.evrakNoSeri }}/{{ evrak.evrakNoSira }}</span>
+                <span class="badge bg-primary">{{ evrak.seri }}/{{ evrak.sira }}</span>
               </h5>
               <small class="text-muted">
                 <i class="bi bi-calendar3 me-1"></i>{{ evrak.evrakTarihi | date: 'dd.MM.yyyy' }}
@@ -239,7 +244,7 @@
             <!-- Teslim Bilgisi -->
             <div *ngIf="evrak.teslimTarihi" class="delivery-info">
               <small class="text-muted">
-                <i class="bi bi-clock me-1"></i>Teslim: {{ evrak.teslimTarihi | date: 'dd.MM.yyyy HH:mm' }}
+                <i class="bi bi-clock me-1"></i>Teslim: {{ evrak.tarih | date: 'dd.MM.yyyy HH:mm' }}
               </small>
             </div>
           </div>
@@ -247,13 +252,11 @@
           <!-- Kart Footer (İşlemler) -->
           <div class="card-footer bg-transparent border-top-0 pt-0">
             <div class="d-flex justify-content-between">
-              <button class="btn btn-outline-primary btn-sm" (click)="taskDetay(evrak.evrakNoSeri, evrak.evrakNoSira)">
+              <button class="btn btn-outline-primary btn-sm" (click)="taskDetay(evrak.seri, evrak.sira)">
                 <i class="bi bi-eye me-1"></i>Detay
               </button>
               <div class="btn-group">
-                <button class="btn btn-outline-info btn-sm" (click)="return(evrak)">
-                  <i class="bi bi-arrow-repeat me-1"></i>Çevir
-                </button>
+           
                 <button class="btn btn-outline-danger btn-sm">
                   <i class="bi bi-file-earmark-pdf me-1"></i>PDF
                 </button>
@@ -273,14 +276,7 @@
   </div>
 
 
-  <!-- Yükleme Göstergesi -->
-  <div *ngIf="yukleniyor()" class="d-flex flex-column justify-content-center align-items-center"
-    style="min-height: 200px;">
 
-
-    <mat-spinner color="primary" diameter="60"></mat-spinner>
-
-  </div>
   <!-- Boş Durum -->
   <div *ngIf="!yukleniyor() && DataSource.data.length === 0" class="empty-state text-center py-5">
     <div class="empty-icon mb-3">

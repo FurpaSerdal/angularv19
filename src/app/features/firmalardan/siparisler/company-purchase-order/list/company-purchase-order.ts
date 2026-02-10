@@ -1,5 +1,5 @@
 
-import { Component, effect, signal, ViewChild } from '@angular/core';
+import { Component, computed, effect, signal, ViewChild } from '@angular/core';
 
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
@@ -16,10 +16,12 @@ import { SharedImports } from '../../../../../core/pipes/shared-imports';
 import { User } from '../../../../../models/user';
 import { PurchaseOrdersService } from '../../../../../services/orders/purchase-orders.service';
 import { MeService } from '../../../../../services/meservice.service';
-import { DetailModalComponent } from '../../../../../modal/detail/detail';
-import { CompanyOrder } from '../company-order/company-order';
 import { CompanyGoodsReceipt } from '../company-goods-receipt/company-goods-receipt';
-import { ReceiveMode } from '../../../../../models/depoMalKabulModel';
+import { CompanyOrder } from '../company-order/company-order';
+import { DetayResponse } from '../../../../../models/detay';
+import { EvrakListResponse } from '../../../../../models/evrakListModel';
+import { ReceiveMode } from '../../../../../models/ekleModels';
+import { CompanyPurchaseOrderDetailComponent } from '../detail/detail';
 
 
 @Component({
@@ -37,15 +39,14 @@ export class CompanyPurchaseOrder {
     end: new FormControl<Date | null>(null)
   });
 
-  user = signal<User | null>(null);
-  yukleniyor = signal(false);
-  gorevid = signal(0);
-  gorevadi = signal('');
-  altmenuid = signal(0);
 
-  anaekran:string=""
-  yanekran:string=""
-  
+  yukleniyor = signal(false);
+  // Signals ekle
+pageIndex = signal(0);
+pageSize = signal(10);
+
+  nextTaskId:number=0;
+
   // Yeni değişkenler
   currentView: 'table' | 'card' = 'table';
   selectedRow: any = null;
@@ -70,51 +71,63 @@ constructor(
   private toastr: ToastrService,
   private route: ActivatedRoute,
   private breakpointObserver: BreakpointObserver
-) {
+){
 
-  /*
-   * EFFECT #1→ UI SYNC
-   * User signal'ını component state'e bağlar
-   */
-  effect(() => {
-    const user = this.meservice.userSignal();
-    console.log(user)
-    this.user.set(user);
-    console.log(Number(this.user()?.depoNo))
+    /* 🔥 EFFECT → görev değişince data yükle */
+    effect(() => {
+      const gorevId = this.gorevid();
+      if (!gorevId) return;
 
+      this.loadData();
+    });
+  }
+
+// Computed signal ekle
+paginatedCardData = computed(() => {
+  const filtered = this.DataSource.filteredData;
+  const start = this.pageIndex() * this.pageSize();
+  const end = start + this.pageSize();
+  return filtered.slice(start, end);
+});
+
+
+
+  // -------------------- GLOBAL STATE (SERVICE) --------------------
+
+  readonly user = computed(() => this.meservice.userSignal());
+
+  readonly gorevid = computed(() =>
+    this.meservice.selectedGorev()?.id ?? 0
+  );
+
+  readonly gorevadi = computed(() =>
+    this.meservice.selectedGorev()?.isim ?? ''
+  );
+
+  readonly altmenuid = computed(() =>
+    this.meservice.selectedAltMenu()?.id ?? 0
+  );
+
+  readonly anaekran = computed(() => {
+    const m = this.meservice.selectedMenu();
+    const a = this.meservice.selectedAltMenu();
+    const g = this.meservice.selectedGorev();
+
+    if (!m || !a || !g) return '';
+
+    return `${m}-${a.id}-${g.id}`;
   });
 
-  /*
-   * EFFECT #2→ BUSINESS (loadData)
-   * Menü + Alt Menü + Görev hazırsa veri yükler
-   */
-  effect(() => {
-    const menu = this.meservice.selectedMenu();
-    const altmenu = this.meservice.selectedAltMenu();
-    const gorev = this.meservice.selectedGorev();
+  readonly yanekran = computed(() => {
+    const a = this.meservice.selectedAltMenu();
+    const g = this.meservice.selectedGorev();
 
-    // Eksik state varsa DUR
-    if (!menu || !altmenu || !gorev) {
-      this.lastKey = '';
-      return;
-    }
+    if (!a || !g) return '';
 
-    const key = `${menu}-${altmenu.id}-${gorev.kimlik}`;
-    this.anaekran=key
-    this.yanekran=`${altmenu.isim} -*- ${gorev.isim}`
-
-    // Aynı kombinasyonda tekrar yükleme
-    if (key === this.lastKey) return;
-    this.lastKey = key;
-
-    this.altmenuid.set(altmenu.id);
-    this.gorevid.set(gorev.kimlik);
-
-    console.log('loadData tetiklendi:', key);
-    this.loadData();
+    return `${a.isim} -*- ${g.isim}`;
   });
-}
 
+  // --------------------
 
   ngOnInit() {
   }
@@ -122,15 +135,21 @@ constructor(
   ngAfterViewInit() {
     this.DataSource.sort = this.sort;
     this.DataSource.paginator = this.paginator;
+
+this.paginator.page.subscribe((event) => {
+  this.pageIndex.set(event.pageIndex);
+  this.pageSize.set(event.pageSize);
+});
   }
 
   loadData(): void {
     this.DataSource.data = [];
 
     this.yukleniyor.set(true);
-    this.purchaseOrdersService.getCompanyOrders(this.altmenuid(), "bugun").subscribe({
-      next: (data: any) => {
-        this.DataSource.data = data.siparisler;
+    this.purchaseOrdersService.getCompanyOrders(this.gorevid(), "bugun").subscribe({
+      next: (data: EvrakListResponse) => {
+        this.DataSource.data = data.evraklar;
+        this.nextTaskId=data.siradakiGorev.id;
         this.yukleniyor.set(false);
       },
       error: () => {
@@ -150,9 +169,11 @@ constructor(
 
      this.DataSource.data = [];
       this.yukleniyor.set(true);
-      this.purchaseOrdersService.getCompanyOrders(this.altmenuid(), zamanlama).subscribe({
-        next: (data: any) => {
-          this.DataSource.data = data.siparisler;
+      this.purchaseOrdersService.getCompanyOrders(this.gorevid(), zamanlama).subscribe({
+        next: (data: EvrakListResponse) => {
+          this.DataSource.data = data.evraklar;
+          this.nextTaskId=data.siradakiGorev.id;
+
           this.yukleniyor.set(false);
         },
         error: () => {
@@ -164,23 +185,25 @@ constructor(
   }
 
   taskDetay(seri: string, sira: number): void {
+    this.yukleniyor.set(true);
     this.purchaseOrdersService.detailsCompanyOrder(this.gorevid(), seri, sira).subscribe({
-      next: (data: any) => {
-        this.dialog.open(DetailModalComponent, {
+      next: (data: DetayResponse) => {
+        this.yukleniyor.set(false);
+        this.dialog.open(CompanyPurchaseOrderDetailComponent, {
           width: "50%",
           height: "70%",
           data: data
         });
-        console.log('Task Detay:', data);
       },
       error: () => {
+        this.yukleniyor.set(false);
         this.toastr.error('Task detayı alınırken hata oluştu', 'Hata');
-      }
+      },
+      complete: () => this.yukleniyor.set(false)
     });
   }
 
   yeniEvrak(): void {
-    console.log('Yeni Evrak Oluşturma');
     const isMobile = this.breakpointObserver.isMatched(Breakpoints.Handset);
 
     this.dialog.open(CompanyOrder, {
@@ -196,23 +219,25 @@ constructor(
 
   // EVRAK ÇEVİR
   return(evrak: any) {
-    console.log('Evrak Çevir:', evrak);
-    this.purchaseOrdersService.detailsCompanyOrder(this.altmenuid(), evrak.evrakNoSeri, evrak.evrakNoSira).subscribe({
-      next: (data: any) => {
+    this.yukleniyor.set(true);
+    this.purchaseOrdersService.detailsCompanyOrder(this.gorevid(), evrak.evrakNoSeri, evrak.evrakNoSira).subscribe({
+      next: (data: DetayResponse) => {
+        this.yukleniyor.set(false);
         this.dialog.open(CompanyGoodsReceipt, {
           width: '50vw',
           height: '70vh',
           panelClass: 'full-screen-dialog',
           disableClose: true,
            data: {
-                          order: data,
+                          detay: data,
                           mode: 'select' as ReceiveMode,
-                          iadeGorevId: data.iadeGorevKimlik
+                          nextTaskId: this.nextTaskId
                           }
         });
       },
       error: () => {
         this.toastr.error('Task detayı alınırken hata oluştu', 'Hata');
+        this.yukleniyor.set(false);
       }
     });
   }

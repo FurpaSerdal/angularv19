@@ -1,0 +1,58 @@
+<div class="page" *ngFor="let p of tagsPaged">
+  <div class="tag-wrapper" *ngFor="let tag of p.items; let i = index">
+
+    <div class="tag-header">
+      <h4 class="tag-title">
+        {{ tag.productName }} ({{ tag.goodsGenus }})
+      </h4>
+
+      <div class="tag-band">
+        <div class="tag-band-text">{{ tag.goodsType }}</div>
+      </div>
+    </div>
+
+    <div class="barcode-box">
+      <svg id="barcode-{{ p.startIndex + i }}"></svg>
+
+    </div>
+
+    <div class="etiket-text">
+      <div class="etikett-row">
+        <span class="label-detail">Üretim Yeri/Gümrük Kapısı :</span>
+        {{ tag.productionDistrict }} {{ tag.productionCity }}
+      </div>
+
+      <div class="etikett-row">
+        <span class="label-detail">Üretim/İthalat Tarihi :</span>
+        {{ tag.productionDate | date: "dd.MM.yyyy HH:mm" }}
+      </div>
+
+      <div class="etikett-row">
+        <span class="label-detail">Miktarı :</span>
+        {{ (tag.quantity).toFixed(2) }}
+      </div>
+
+      <div class="etikett-row">
+        <span class="label-detail">Alış Fiyatı :</span>
+        {{ tag.buyingPrice || "" }}
+      </div>
+
+      <div class="etikett-row">
+        <span class="label-detail">Üretici :</span>
+        {{ tag.manufacturer }}
+      </div>
+
+      <div class="etikett-row">
+        <span class="label-detail">İşletme Adı :</span>
+        {{ tag.buyer }}
+      </div>
+
+      <div class="etiket-footer">
+        Gümrük ve Ticaret Bakanlığı Hal Kayıt Sistemi'nden alınan künye
+        bilgilerini, www.hal.gov.tr adresinde künye numarası ile
+        sorgulayabilirsiniz.
+      </div>
+    </div>
+
+  </div>
+</div>

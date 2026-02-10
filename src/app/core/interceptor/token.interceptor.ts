@@ -21,9 +21,13 @@ export const TokenInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
   const router = inject(Router);
 
-  const accessToken = auth.getAccessToken();
+  // Sadece v15 API isteklerine token ekle
+  // Eski API isteklerinde token eklemiyoruz, böylece eski API'ye erişim etkilenmez
+  
+const accessToken = auth.getAccessToken();
+const isV15Api = req.url.includes('/v15/');
 
-  const authReq = accessToken
+  const authReq = accessToken && isV15Api
     ? req.clone({
         setHeaders: { Authorization: `Bearer ${accessToken}` }
       })

@@ -2,19 +2,21 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+
 import { AuthService } from '../services/auth.service';
 import { MeService } from '../services/meservice.service';
 import { SetMenuHelperService } from '../services/helper/setMenu-helper.service';
-
+import { environment } from '../../environment';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule,FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './login.html',
   styleUrls: ['./login.css'],
 })
+
+
 export class LoginComponent {
   email = '';
   password = '';
@@ -35,49 +37,49 @@ export class LoginComponent {
       this.router.navigate(['/admin']);
     }
   }
+login(): void {
+  this.isFormSubmitted = true;
+  this.errorMessage = '';
 
-  login(): void {
-    this.isFormSubmitted = true;
-    this.errorMessage = '';
-    this.helperService.updateMenu();
-     this.router.navigate(['/admin']);
+  if (this.email && this.password) {
+    this.isLoading = true;
 
-    if (this.email && this.password) {
-      this.isLoading = true;
-      
-      this.authService.login({ email: this.email, password: this.password }).subscribe({
-        next: (response: any) => {
-          console.log('Giriş başarılı:', response);
-          
-          this.authService.saveTokens(response.accessToken, response.refreshToken);
-          this.meService.fetchMe(); // Kullanıcı bilgilerini çek
-          
-          // Başarı animasyonu için kısa bekleme
-          setTimeout(() => {
-            this.isLoading = false;
-            this.router.navigate(['/admin']);
-          }, 1000);
-        },
-        
-        error: (err) => {
-          console.error('Giriş başarısız:', err);
+    this.authService.login({ email: this.email, password: this.password }).subscribe({
+      next: (response: any) => {
+        console.log('Giriş başarılı:', response);
+
+        this.authService.saveTokens(response.accessToken, response.refreshToken);
+        this.meService.fetchMe(); // Kullanıcı bilgilerini çek
+
+        // Başarı animasyonu için kısa bekleme
+        setTimeout(() => {
           this.isLoading = false;
+          this.router.navigate(['/admin']).then(() => {
+           // window.location.reload();
+          });
+        }, 1000);
+      },
+      error: (err) => {
+        console.error('Giriş başarısız:', err);
+        this.isLoading = false;
 
-          if (err.status === 0) {
-            this.errorMessage = 'Sunucuya bağlanılamıyor. Lütfen internet bağlantınızı kontrol edin.';
-          } else if (err.status === 500) {
-            this.errorMessage = 'Sunucu hatası. Lütfen tekrar deneyin.';
-          } else if (err.status === 401) {
-            this.errorMessage = 'E-posta veya şifre hatalı. Lütfen bilgilerinizi kontrol edin.';
-          } else {
-            this.errorMessage = err.error?.message || 'Bir hata oluştu. Lütfen tekrar deneyin.';
-          }
+        if (err.status === 0) {
+          this.errorMessage = 'Sunucuya bağlanılamıyor. Lütfen internet bağlantınızı kontrol edin.';
+        } else if (err.status === 500) {
+          this.errorMessage = 'Sunucu hatası. Lütfen tekrar deneyin.';
+        } else if (err.status === 401) {
+          this.errorMessage = 'E-posta veya şifre hatalı. Lütfen bilgilerinizi kontrol edin.';
+        } else {
+          this.errorMessage = err.error?.message || 'Bir hata oluştu. Lütfen tekrar deneyin.';
         }
-      });
-    } else {
-      this.errorMessage = 'Lütfen tüm alanları doldurun.';
-    }
+      }
+    });
+
+  } else {
+    this.errorMessage = 'Lütfen tüm alanları doldurun.';
   }
+}
+
 
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;

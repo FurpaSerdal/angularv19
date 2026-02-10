@@ -1,0 +1,182 @@
+/* ============================
+   A4 PAGE (SCREEN + PRINT GRID)
+============================ */
+.page {
+  width: 210mm;
+  height: 297mm;
+
+  padding: 10mm;
+  box-sizing: border-box;
+
+  /* Debug için istersen aç */
+  /* border: red solid 1mm; */
+
+  display: grid;
+  grid-template-columns: repeat(2, 90mm);
+  grid-template-rows: repeat(2, 110mm);
+  gap: 10mm;
+
+  background: white;
+  page-break-after: always;
+
+  justify-content: center;
+  align-content: flex-start;
+
+  justify-items: center;
+  align-items: center;
+}
+
+/* ============================
+   SINGLE LABEL
+============================ */
+.tag-wrapper {
+  width: 90mm;
+  height: 110mm;
+
+  box-sizing: border-box;
+  border: 0.5mm solid black;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+
+  /* PRINT: bölünmeyi engelle */
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+/* ============================
+   HEADER
+============================ */
+.tag-header {
+  text-align: center;
+  padding: 2mm 2mm 0 2mm;
+}
+
+.tag-title {
+  font-family: "Times New Roman", serif;
+  font-size: 16px;
+  font-weight: bold;
+  margin: 0 0 2mm;
+}
+
+/* ============================
+   BLACK BAND
+============================ */
+.tag-band {
+  width: 100%;
+  height: 10mm;
+
+  background: black;
+  margin: 2mm 0;
+
+  display: flex;
+  align-items: center;
+
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.tag-band-text {
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  padding-left: 3mm;
+
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* ============================
+   BARCODE
+============================ */
+.barcode-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 2mm 0;
+}
+
+
+.barcode-label {
+  font-family: "Times New Roman", serif;
+  font-size: 12px;
+  margin-top: 1mm;
+}
+
+/* ============================
+   DETAILS
+============================ */
+.etiket-text {
+  font-family: "Times New Roman", serif;
+  font-size: 14px;
+  line-height: 1.2;
+  padding: 0 3mm 3mm 3mm;
+}
+
+.etikett-row {
+  margin-bottom: 1mm;
+}
+
+.label-detail {
+  font-weight: bold;
+}
+
+/* ============================
+   FOOTER
+============================ */
+.etiket-footer {
+  font-size: 12px;
+  margin-top: auto;
+  text-align: justify;
+}
+
+/* ============================
+   PRINT FIX
+============================ */
+@page {
+  margin: 0;
+  size: 210mm 297mm;
+}
+
+@media print {
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 210mm !important;
+    height: 297mm !important;
+  }
+
+  /* print'te de grid aynı kalacak */
+  .page {
+    width: 210mm !important;
+    height: 297mm !important;
+    padding: 10mm !important;
+
+    display: grid !important;
+    grid-template-columns: repeat(2, 90mm) !important;
+    grid-template-rows: repeat(2, 130mm) !important;
+    gap: 10mm !important;
+
+    justify-content: center !important;
+    align-content: flex-start !important;
+    justify-items: center !important;
+    align-items: center !important;
+
+    page-break-after: always !important;
+  }
+
+  .tag-wrapper {
+    width: 90mm !important;
+    height: 130mm !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .tag-band,
+  .tag-wrapper {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

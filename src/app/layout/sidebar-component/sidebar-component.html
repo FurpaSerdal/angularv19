@@ -61,20 +61,20 @@
                                    [class.altmenuactive]="activeAltMenuId === altMenu.id"
                                    [class.active]="isActiveSubTask(altMenu.id)">
                                    <span class="me-auto submenu-text">{{ altMenu.isim }}</span>
-                                   @if (altMenu.evrakMenuleri) {
+                                   @if (altMenu.gorevler?.length) {
                                    <i class="nav-arrow bi bi-chevron-down ms-2" 
                                       [class.rotate-180]="activeAltMenuId === altMenu.id"></i>
                                    }
                               </button>
 
                               <!-- ALT MENÜ İÇİNDEKİ GÖREVLER -->
-                              @if (altMenu.evrakMenuleri && activeAltMenuId === altMenu.id) {
+                              @if (altMenu.gorevler && activeAltMenuId === altMenu.id) {
                               <div class="third-level-menu">
-                                   @for (gorev of altMenu.evrakMenuleri; track gorev.kimlik) {
+                                   @for (gorev of altMenu.gorevler; track gorev.id) {
                                    <div class="third-level-item">
                                         <button class="btn btn-link text-white text-decoration-none w-100 py-2 px-4 border-0"
                                              (click)="seciligorev(gorev)"
-                                             [class.active]="selectedSubTaskId === gorev.kimlik">
+                                             [class.active]="selectedSubTaskId === gorev.id">
                                              <span class="third-level-text">{{ gorev.isim }}</span>
                                         </button>
                                    </div>
