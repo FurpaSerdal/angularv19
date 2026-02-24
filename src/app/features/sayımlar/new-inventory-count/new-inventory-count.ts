@@ -6,7 +6,8 @@ import { StockCountService } from '../../../services/inventory/stock-count.servi
 import { WarehouseService } from '../../../services/warehouse.service';
 import { StokAraCT } from '../../../models/ortakModeller';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
-import { KalemDto, SayimSonuclariEkleDto } from '../../../models/ekleModels';
+import { SayimSonuclariEkleDto, SayimSonucuKalemiDto } from '../../../models/ekle-dtolari.model';
+import { KalemDto } from '../../../models/ayrinti-dtolari.model';
 
 @Component({
   selector: 'app-new-inventory-count',
@@ -24,9 +25,9 @@ export class NewInventoryCount {
 
 
   postData: SayimSonuclariEkleDto = {
-    muhatapFirma: null,
-    muhatapSube: { depoNo: 0, cariKod: '' },
-    kalemler: []
+    sayanAdSoyad  : '',
+    kalemler  : []
+
   };
 
   constructor(
@@ -101,19 +102,17 @@ export class NewInventoryCount {
   }
 
 
-  private mapToDto(): KalemDto[] {
+  private mapToDto(): SayimSonucuKalemiDto[] {
     return this.listOfData().map(item => ({
-      stokKodu: item.stokkodu,
-      stokAdi: item.stokadi,
-      brimMusiri: item.brimMusiri,
+      parcalanacakMiktar: item.miktar,
+      parcalanacakStokKodu: item.stokkodu,
+      virmanMiktari: item.miktar,
+      virmaniYapilacakStokKodu: item.stokkodu
 
-
-      sevkMiktari: item.miktar
     }));
   }
 
   save(): void {
-    this.postData.muhatapSube = { depoNo: this.data.depono, cariKod: '' };
     this.postData.kalemler = this.mapToDto();
 
     this.sending.set(true);

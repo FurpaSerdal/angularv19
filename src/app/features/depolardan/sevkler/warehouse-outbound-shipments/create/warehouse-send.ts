@@ -10,12 +10,12 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { MatTableModule } from '@angular/material/table';
 import { ToastrService } from 'ngx-toastr';
 
-import { SevkIrsaliyeleriEkleDto } from '../../../../../models/ekleModels';
 import { listProducts } from '../../../../../models/listProduct';
 import { DepoCari, StokAraCT } from '../../../../../models/ortakModeller';
 import { MeService } from '../../../../../services/meservice.service';
 import { ShipmentNotesService } from '../../../../../services/shipments/shipment-notes.service';
 import { WarehouseService } from '../../../../../services/warehouse.service';
+import { DepolaraSevkIrsaliyeleriEkleDto } from '../../../../../models/ekle-dtolari.model';
 
 @Component({
   selector: 'app-warehouse-send',
@@ -221,24 +221,16 @@ export class WarehouseSend {
     this.saveError.set(null);
     this.saveSuccess.set(false);
 
-    const dto: SevkIrsaliyeleriEkleDto = {
-      sevkTarihi: new Date(),
+    const dto: DepolaraSevkIrsaliyeleriEkleDto = {
       iadedir: this.iade(),
-      muhatapFirma: null,
-      muhatapSube: {
-        depoNo: this.selectedDepo?.depoNo || 0,
-        cariKod: '',
-      },
-      nakliyeDeposu: {
-        depoNo: this.selectedDepo?.depoNo || 0,
-        plaka: this.plaka() || '',
-        soforAdSoyad: '',
-      },
+      muhatapDepoNo: this.selectedDepo.depoNo,
+      sevkedenAdSoyad: "",
       kalemler: this.listProducts().map(k => ({
         stokKodu: k.stokKodu,
         sevkMiktari: k.miktar,
         duzeltmedir: this.duzeltme(),
       })),
+      
     };
 
     this.shipmentService

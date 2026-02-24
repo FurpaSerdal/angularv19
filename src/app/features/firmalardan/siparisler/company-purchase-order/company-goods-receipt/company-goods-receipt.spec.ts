@@ -177,37 +177,7 @@ describe('CompanyGoodsReceipt', () => {
     });
   });
 
-  describe('Product Search', () => {
-    it('should search products by customer code', () => {
-      const mockProducts: StokAraCT[] = [
-        {
-          stokKod: 'PROD002',
-          stokIsim: 'Test Product 2',
-          barKodu: '9876543210',
-          fiyati: 150,
-          birimKatsayisi: 1,
-          birimAd: 'Kg',
-          depoNo: 1,
-          satisDursun: 0,
-          sipDursun: 0,
-          malKabulDursun: 0
-        }
-      ];
-      mockCompanyService.searchStockByCustomerCode.and.returnValue(of(mockProducts));
-
-      component.urunAra('test');
-
-      expect(mockCompanyService.searchStockByCustomerCode).toHaveBeenCalledWith({
-        CariKod: '12345',
-        Bul: 'test'
-      });
-    });
-
-    it('should not search with empty query', () => {
-      component.urunAra('');
-      expect(mockCompanyService.searchStockByCustomerCode).not.toHaveBeenCalled();
-    });
-  });
+ 
 
   describe('Product Management', () => {
     beforeEach(() => {

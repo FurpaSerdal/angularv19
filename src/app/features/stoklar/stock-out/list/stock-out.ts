@@ -13,6 +13,7 @@ import { BreakpointObserver, Breakpoints } from "@angular/cdk/layout";
 import { StockOutService } from "../../../../services/inventory/stock-out.service";
 import { DetailStockOut } from "../detail-stock-out/detail-stock-out";
 import { NewStockOut } from "../new-stock-out/new-stock-out";
+import { CikisFisleriListeDto } from "../../../../models/liste-dtolari.model";
 
 
 @Component({
@@ -121,8 +122,8 @@ constructor(
 
     this.yukleniyor.set(true);
     this.stockOutService.getReceipts(this.gorevid(), "bugun").subscribe({
-      next: (data: any) => {
-        this.DataSource.data = data.evraklar;
+      next: (data: CikisFisleriListeDto[]) => {
+        this.DataSource.data = data;
         this.yukleniyor.set(false);
       },
       error: () => {
@@ -147,8 +148,8 @@ constructor(
     if (baslangic && bitis) {
       this.yukleniyor.set(true);
       this.stockOutService.getReceipts(this.gorevid(), zamanlama).subscribe({
-        next: (data: any) => {
-          this.DataSource.data = data.evraklar;
+        next: (data: CikisFisleriListeDto[]) => {
+          this.DataSource.data = data;
           this.yukleniyor.set(false);
         },
         error: () => {

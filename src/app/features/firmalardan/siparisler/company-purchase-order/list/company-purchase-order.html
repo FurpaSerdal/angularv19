@@ -92,13 +92,7 @@
     </div>
   </div>
 
-  <!-- Yükleme Göstergesi -->
-  <div *ngIf="yukleniyor()" class="d-flex flex-column justify-content-center align-items-center"
-    style="min-height: 200px;">
 
-    <mat-spinner color="primary" diameter="60"></mat-spinner>
-
-  </div>
 
   <!-- Tablo Görünümü -->
   <div *ngIf="currentView === 'table'" class="table-view">
@@ -111,8 +105,7 @@
               <th mat-header-cell *matHeaderCellDef mat-sort-header class="ps-3">Evrak No</th>
               <td mat-cell *matCellDef="let evrak" class="ps-3">
                 <div class="evrak-no">
-                  <span class="badge bg-primary rounded-pill fs-6">{{ evrak.evrakNoSeri }}/{{ evrak.evrakNoSira
-                    }}</span>
+                  <span class="badge bg-primary rounded-pill fs-6">{{ evrak.seri  }}/{{ evrak.sira  }}</span>
                 </div>
               </td>
             </ng-container>
@@ -123,30 +116,33 @@
               <td mat-cell *matCellDef="let evrak">
                 <div class="d-flex align-items-center">
                   <i class="bi bi-calendar3 me-2 text-muted"></i>
-                  <span>{{ evrak.evrakTarihi | date: 'dd.MM.yyyy' }}</span>
+                  <span>{{ evrak.tarih | date: 'dd.MM.yyyy' }}</span>
                 </div>
               </td>
             </ng-container>
-
-            <!-- Transfer -->
-            <ng-container matColumnDef="transfer">
-              <th mat-header-cell *matHeaderCellDef>Transfer</th>
-              <td mat-cell *matCellDef="let evrak">
-                <div class="transfer-info">
-                  <div class="d-flex align-items-center mb-1">
-                    <i class="bi bi-arrow-up-circle text-success me-2"></i>
-                    <span class="fw-bold">Kaynak:</span>
-                    <span class="ms-2 badge bg-light text-dark">#{{ evrak.depo?.no }} {{ evrak.depo?.isim }}</span>
-                  </div>
+              <!-- Kaynak -->
+              <ng-container matColumnDef="kaynak">
+                <th mat-header-cell *matHeaderCellDef>Kaynak</th>
+                <td mat-cell *matCellDef="let evrak">
                   <div class="d-flex align-items-center">
-                    <i class="bi bi-arrow-down-circle text-primary me-2"></i>
-                    <span class="fw-bold">Hedef:</span>
-                    <span class="ms-2 badge bg-light text-dark">#{{ evrak.muhatapFirma?.no }} {{ evrak.muhatapFirma?.isim
-                      }}</span>
+                    <i class="bi bi-building me-2 text-muted"></i>
+                          <span>#{{ user()?.subeNo}} {{ user()?.sube}}</span>
+
                   </div>
-                </div>
-              </td>
-            </ng-container>
+                </td>
+              </ng-container>
+              <!-- Hedef -->
+              <ng-container matColumnDef="hedef">
+                <th mat-header-cell *matHeaderCellDef>Hedef</th>
+                <td mat-cell *matCellDef="let evrak">
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-people me-2 text-muted"></i>
+                      <span>#{{ evrak.muhatap }} </span> 
+                  </div>
+                </td>
+              </ng-container>
+
+           
 
             <!-- Durum -->
             <ng-container matColumnDef="durum">
@@ -175,7 +171,7 @@
               <td mat-cell *matCellDef="let evrak" class="text-center pe-3">
                 <div class="action-buttons">
                   <button mat-icon-button class="btn-view" matTooltip="Görüntüle"
-                    (click)="taskDetay(evrak.evrakNoSeri, evrak.evrakNoSira)">
+                    (click)="taskDetay(evrak.seri ?? '', evrak.sira ?? 0)">
                     <i class="bi bi-eye"></i>
                   </button>
                   <button  mat-icon-button class="btn-edit ms-2" matTooltip="Çevir" 
@@ -189,11 +185,11 @@
               </td>
             </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="['evrakNo', 'tarih', 'transfer', 'onay', 'durum', 'islemler']"
+            <tr mat-header-row *matHeaderRowDef="['evrakNo', 'tarih', 'kaynak','hedef', 'onay', 'durum', 'islemler']"
               class="table-header"></tr>
-            <tr mat-row *matRowDef="let row; columns: ['evrakNo', 'tarih', 'transfer', 'onay', 'durum', 'islemler'];"
+            <tr mat-row *matRowDef="let row; columns: ['evrakNo', 'tarih', 'kaynak','hedef', 'onay', 'durum', 'islemler'];"
               class="table-row" [class.selected]="selectedRow === row"
-              [ngClass]="{ 'row-danger': row.malKabulFazlasiVar === true || isSFDS(row) }" (click)="selectRow(row)">
+           (click)="selectRow(row)">
             </tr>
           </table>
         </div>
@@ -210,10 +206,10 @@
           <div class="card-header bg-light d-flex justify-content-between align-items-center">
             <div>
               <h5 class="mb-0">
-                <span class="badge bg-primary">{{ evrak.evrakNoSeri }}/{{ evrak.evrakNoSira }}</span>
+                <span class="badge bg-primary">{{ evrak.seri  }}/{{ evrak.sira }}</span>
               </h5>
               <small class="text-muted">
-                <i class="bi bi-calendar3 me-1"></i>{{ evrak.evrakTarihi | date: 'dd.MM.yyyy' }}
+                <i class="bi bi-calendar3 me-1"></i>{{ evrak.tarih | date: 'dd.MM.yyyy' }}
               </small>
             </div>
             <div [ngClass]="getStatusClass(evrak)" class="status-indicator">
@@ -232,7 +228,7 @@
                   </div>
                   <div class="depo-details">
                     <small class="text-muted">Kaynak Depo</small>
-                    <div class="fw-bold">#{{ evrak.depo?.no }} {{ evrak.depo?.isim }}</div>
+                    <div class="fw-bold">#{{ user()?.subeNo}} {{ user()?.sube }}</div>
                   </div>
                 </div>
                 <div class="d-flex align-items-center">
@@ -240,23 +236,23 @@
                     <i class="bi bi-box-arrow-in-down"></i>
                   </div>
                   <div class="depo-details">
-                    <small class="text-muted">Hedef Depo</small>
-                    <div class="fw-bold">#{{ evrak.muhatapDepo?.no }} {{ evrak.muhatapDepo?.isim }}</div>
+                    <small class="text-muted">Hedef Müşteri</small>
+                    <div class="fw-bold">#{{ evrak.muhatap }} </div>
                   </div>
                 </div>
               </div>
             </div>
 
             <!-- Ek Bilgiler -->
-            <div *ngIf="evrak.aciklama" class="description mb-3">
+            <div *ngIf="evrak.durumu" class="description mb-3">
               <small class="text-muted">Açıklama:</small>
-              <p class="mb-0 small">{{ evrak.aciklama }}</p>
+              <p class="mb-0 small">{{ evrak.durumu }}</p>
             </div>
 
             <!-- Teslim Bilgisi -->
-            <div *ngIf="evrak.teslimTarihi" class="delivery-info">
+            <div *ngIf="evrak.tarih" class="delivery-info">
               <small class="text-muted">
-                <i class="bi bi-clock me-1"></i>Teslim: {{ evrak.teslimTarihi | date: 'dd.MM.yyyy HH:mm' }}
+                <i class="bi bi-clock me-1"></i>Teslim: {{ evrak.tarih | date: 'dd.MM.yyyy HH:mm' }}
               </small>
             </div>
           </div>
@@ -264,7 +260,7 @@
           <!-- Kart Footer (İşlemler) -->
           <div class="card-footer bg-transparent border-top-0 pt-0">
             <div class="d-flex justify-content-between">
-              <button class="btn btn-outline-primary btn-sm" (click)="taskDetay(evrak.evrakNoSeri, evrak.evrakNoSira)">
+              <button class="btn btn-outline-primary btn-sm" (click)="taskDetay(evrak.seri , evrak.sira )">
                 <i class="bi bi-eye me-1"></i>Detay
               </button>
               <div class="btn-group">

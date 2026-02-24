@@ -2,12 +2,13 @@ import { Component, Inject, signal } from '@angular/core';
 import { SharedImports } from '../../../../core/pipes/shared-imports';
 import { FormsModule } from '@angular/forms';
 import { StokAraCT } from '../../../../models/ortakModeller';
-import { KalemDto, VirmanEkleDto } from '../../../../models/ekleModels';
 import { VirmansTransaction } from '../../../../services/virmans/virmans-transaction';
 import { WarehouseService } from '../../../../services/warehouse.service';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { share } from 'rxjs';
 import { Toast } from 'ngx-toastr';
+import { VirmanEkleDto, VirmanKalemiDto } from '../../../../models/ekle-dtolari.model';
+import { KalemDto } from '../../../../models/ayrinti-dtolari.model';
 
 @Component({
   selector: 'app-new-virman-exit',
@@ -33,9 +34,9 @@ export class NewVirmanExit {
 
 
   postData: VirmanEkleDto = {
-    muhatapSube: { depoNo: 0, cariKod: '' },
-    kalemler: [],
-    muhatapFirma: null
+    virmanYapanAdSoyad: '',
+    kalemler  : []
+
 
   };
 
@@ -164,17 +165,17 @@ sevkMiktari : this.quantity2() || 0,
   }
 
 
-  private mapToDto(): KalemDto[] {
+  private mapToDto(): VirmanKalemiDto[] {
     return this.listOfData().map(item => ({
-      stokKodu: item.stokKod,
-      brimMusiri: item.brimMusiri,
-      virmancikisi: item.virmancikisi,
-      sevkMiktari: item.miktar
+      parcalanacakStokKodu: item.stokKod,
+      parcalanacakMiktar: item.virmancikisi ? item.miktar : 0,
+      virmaniYapilacakStokKodu: item.stokKod,
+      virmanMiktari: item.virmancikisi ? 0 : item.miktar
+
     }));
   }
 
   save(): void {
-    this.postData.muhatapSube = { depoNo: this.data.depono, cariKod: '' };
     this.postData.kalemler = this.mapToDto();
 
     this.sending.set(true);

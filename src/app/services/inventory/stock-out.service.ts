@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BaseApiService } from '../shared/base-api.service';
 import { API_PATHS } from '../shared/api-paths';
-import { Observable } from 'rxjs';
+import { catchError, Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class StockOutService extends BaseApiService {
@@ -15,6 +15,12 @@ export class StockOutService extends BaseApiService {
 
 
   createReceipt(taskId: number, payload: any):Observable<any> {
-    return this.post(`ekle/${taskId}`, payload);
+    return this.post(`ekle/${taskId}`, payload).pipe(
+      // map(response => response) // Gerekirse yanıtı işleyebilirsiniz
+      catchError(error => {
+        console.error('Sevk irsaliyesi oluşturulurken hata oluştu:', error);
+        throw error; // Hatanın üst katmanlara iletilmesi
+      })
+    );
   }
 }

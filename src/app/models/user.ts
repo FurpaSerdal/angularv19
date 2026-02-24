@@ -27,6 +27,7 @@ export interface Gorev {
   isim: string;
   sebike?: string;
   iadeGorevi?: IadeGorevi;
+  siradakiGorev?: NextGorev; // Sıradaki görev id'si
 }
 export interface IadeGorevi {
   id: number;
@@ -34,6 +35,11 @@ export interface IadeGorevi {
   sebike?: string;
 }
 
+export interface NextGorev {
+  id: number;
+  isim: string;
+  sebike?: string;
+}
 
 export interface LoginResponse {
   tokenType: string;

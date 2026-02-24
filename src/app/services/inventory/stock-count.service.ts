@@ -9,9 +9,8 @@ export class StockCountService extends BaseApiService {
   getResults(taskId: number,schedule:string):Observable<any> {
     return this.get(`liste/${taskId}/${schedule}`);
   }
-  detailsResult(taskId: number,  sym_evrakno: number,seri:string | null = null):Observable<any> {
-    console.log('API çağrısı için gönderilen parametreler:', { taskId, seri, sym_evrakno });
-    return this.get(`ayrinti/${taskId}/${seri}/${sym_evrakno}`);
+  detailsResult(taskId: number, tarih: string, sym_evrakno: number):Observable<any> {
+    return this.get(`ayrinti/${taskId}/sayim-sonuclari/${tarih}/${sym_evrakno}`);
   }
 
   createResult(taskId: number, payload: any) {

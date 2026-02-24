@@ -14,6 +14,7 @@ import 'zone.js'; // Angular 19 normal zone’lu yapı için gerekli
 
 import { routes } from './app.routes';
 import { TokenInterceptor } from './core/interceptor/token.interceptor';
+import { ErrorInterceptor } from './core/interceptor/error.interceptor';
 
 
 // Türkçe yerel ayar kaydı
@@ -23,8 +24,8 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideAnimations(), // ✅ animasyonlar aktif
-    provideZoneChangeDetection({ eventCoalescing: true }),
-    provideHttpClient(withInterceptors([TokenInterceptor])),
+   // provideZoneChangeDetection({ eventCoalescing: true }),
+    provideHttpClient(withInterceptors([TokenInterceptor, ErrorInterceptor])),
     provideRouter(routes),
     { provide: LOCALE_ID, useValue: 'tr-TR' },
 

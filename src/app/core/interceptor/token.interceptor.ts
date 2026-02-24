@@ -8,72 +8,70 @@ import {
   throwError,
   shareReplay,
   finalize,
-  map,
-  tap
+  map
 } from 'rxjs';
 import { Observable } from 'rxjs';
+import { MeService } from '../../services/meservice.service';
 
-// Tek bir refresh isteğini paylaşmak için hafızada tutulan observable
 let refreshToken$: Observable<string> | null = null;
 
 export const TokenInterceptor: HttpInterceptorFn = (req, next) => {
 
   const auth = inject(AuthService);
-  const router = inject(Router);
+  const meService = inject(MeService);
 
-  // Sadece v15 API isteklerine token ekle
-  // Eski API isteklerinde token eklemiyoruz, böylece eski API'ye erişim etkilenmez
-  
-const accessToken = auth.getAccessToken();
-const isV15Api = req.url.includes('/v15/');
+  const BranchNo = meService.getUserSignal()()?.subeNo
+  const accessToken = auth.getAccessToken();
+  const isV18Api = req.url.includes('/v18/');
 
-  const authReq = accessToken && isV15Api
+  const authReq = accessToken && isV18Api
     ? req.clone({
-        setHeaders: { Authorization: `Bearer ${accessToken}` }
+        setHeaders: { Authorization: `Bearer ${accessToken}`, 'X-Branch': `${BranchNo}` }
       })
     : req;
 
   return next(authReq).pipe(
     catchError(error => {
 
-      if (error.status !== 401) {
+      // 🔐 SADECE 401 + V18 API
+      if (error.status !== 401 || !isV18Api) {
         return throwError(() => error);
       }
 
-      // Refresh token yoksa doğrudan login'e at
+      // Refresh token yoksa logout
       if (!auth.getRefreshToken()) {
         auth.clearTokens();
-        router.navigate(['/login']);
         return throwError(() => error);
       }
 
-      // Tek bir refresh isteğini paylaş
+      // Tek refresh sistemi
       if (!refreshToken$) {
         refreshToken$ = auth.refreshToken().pipe(
-          tap(res => auth.saveTokens(res.accessToken, res.refreshToken)),
-          map(res => res.accessToken),
+          map(res => {
+            auth.saveTokens(res.accessToken, res.refreshToken);
+            return res.accessToken;
+          }),
           shareReplay(1),
+
+          catchError(refreshError => {
+            auth.clearTokens();
+            return throwError(() => refreshError);
+          }),
+
           finalize(() => {
             refreshToken$ = null;
           })
         );
       }
 
-      const refresh$ = refreshToken$;
-
-      return refresh$!.pipe(
+      return refreshToken$!.pipe(
         switchMap(token =>
           next(
             req.clone({
-              setHeaders: { Authorization: `Bearer ${token}` }
+              setHeaders: { Authorization: `Bearer ${token}`, 'X-Branch': `${BranchNo}` }
             })
           )
-        ),
-        catchError(err => {
-          auth.clearTokens();
-          router.navigate(['/login']);
-          return throwError(() => err);
-        })
+        )
       );
     })
   );

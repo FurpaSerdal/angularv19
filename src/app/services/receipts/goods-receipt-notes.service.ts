@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { BaseApiService } from '../shared/base-api.service';
 import { API_PATHS } from '../shared/api-paths';
 import { Observable } from 'rxjs';
-import { DetayResponse } from '../../models/detay';
 
 @Injectable({ providedIn: 'root' })
 export class GoodsReceiptNotesService extends BaseApiService {
@@ -12,12 +11,12 @@ export class GoodsReceiptNotesService extends BaseApiService {
     return this.get(`liste/${taskId}/${schedule}`);
   }
 
-    detailsCompanyReceipt(taskId: number, seri: string, sira: number): Observable<DetayResponse> {
-    return this.get(`/ayrinti/${taskId}/${seri}/${sira}`);
+    detailsCompanyReceipt(taskId: number, seri: string, sira: number): Observable<any> {
+    return this.get(`ayrinti/${taskId}/${seri}/${sira}`);
   }
 
    createCompanyReceipt(taskId: number,payload: any): Observable<any> {
-    return this.post(`/ekle/${taskId}`, payload);
+    return this.post(`ekle/${taskId}`, payload);
   }
 
   // subelerden mal kabul işlemleri
@@ -27,7 +26,7 @@ export class GoodsReceiptNotesService extends BaseApiService {
   }
 
 
-  detailsBranchReceipt(taskId: number, seri: string, sira: number): Observable<DetayResponse> {
+  detailsBranchReceipt(taskId: number, seri: string, sira: number): Observable<any> {
     return this.get(`ayrinti/${taskId}/${seri}/${sira}`);
   }
 
@@ -36,7 +35,7 @@ export class GoodsReceiptNotesService extends BaseApiService {
     return this.post(`ekle/${taskId}`, payload);
   }
 
-  findshipmentnote(taskId: number, evrakNo?: string, qrData?: string): Observable<DetayResponse> {
+  findshipmentnote(taskId: number, evrakNo?: string, qrData?: string): Observable<any> {
     return this.post(`evrak-bul/${taskId}`, { evrakNo, qrData });
 
   }

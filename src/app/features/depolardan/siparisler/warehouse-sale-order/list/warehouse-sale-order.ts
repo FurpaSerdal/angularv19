@@ -24,9 +24,9 @@ import { SalesOrdersService } from '../../../../../services/orders/sales-orders.
 import { WarehouseOrderComponent } from '../create/warehouse-order';
 import { WarehouseSaleOrderDetailComponent } from '../detail/detail';
 
-import { EvrakListResponse } from '../../../../../models/evrakListModel';
-import { DetayResponse, SiparisDetayResponse } from '../../../../../models/detay';
 import { WarehouseSalesOrderToShipment } from '../to-shipment/warehouse-sales-order-to-shipment';
+import { AlinanDepoSiparisleriListeDto } from '../../../../../models/liste-dtolari.model';
+import { AlinanDepoSiparisleriAyrintiDto } from '../../../../../models/ayrinti-dtolari.model';
 
 @Component({
   selector: 'app-warehouse-sale-order',
@@ -44,15 +44,13 @@ export class WarehouseSaleOrder extends BaseComponent {
     end: new FormControl<Date | null>(null)
   });
 
-  // -------------------- SIGNAL STATE --------------------
-  nextgorevid = signal<number | null>(null);
 
   // -------------------- UI STATE --------------------
   currentView: 'table' | 'card' = 'table';
-  selectedRow: any = null;
+  selectedRow: AlinanDepoSiparisleriListeDto | null = null;
 
   displayedColumns = ['evrakNo', 'tarih', 'transfer', 'durum', 'islemler'];
-  DataSource = new MatTableDataSource<any>([]);
+  DataSource = new MatTableDataSource<AlinanDepoSiparisleriListeDto>([]);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -66,7 +64,6 @@ export class WarehouseSaleOrder extends BaseComponent {
     private saleOrdersService: SalesOrdersService,
     private dialog: MatDialog,
     private datePipe: DatePipe,
-    private route: ActivatedRoute,
     private breakpointObserver: BreakpointObserver
   ) {
     super();
@@ -83,6 +80,10 @@ export class WarehouseSaleOrder extends BaseComponent {
   // -------------------- GLOBAL STATE (SERVICE) --------------------
 
   readonly user = computed(() => this.meservice.userSignal());
+  readonly nextgorevid = computed(() => {
+    const gorev = this.meservice.selectedGorev();
+    return gorev?.siradakiGorev?.id ?? null;
+  });
   readonly userdepo = computed(() =>
     this.meservice.userSignal()?.subeNo  ?? 0
   );
@@ -152,9 +153,8 @@ export class WarehouseSaleOrder extends BaseComponent {
         finalize(() => this.stopLoading())
       )
       .subscribe({
-        next: (data: EvrakListResponse) => {
-          this.DataSource.data = data.evraklar;
-          this.nextgorevid.set(data.siradakiGorev?.id ?? null);
+        next: (data: AlinanDepoSiparisleriListeDto[]) => {
+          this.DataSource.data = data;
         },
         error: () => this.error('Veriler yüklenirken hata oluştu')
       });
@@ -185,9 +185,8 @@ export class WarehouseSaleOrder extends BaseComponent {
         finalize(() => this.stopLoading())
       )
       .subscribe({
-        next: (data: EvrakListResponse) => {
-          this.DataSource.data = data.evraklar;
-          this.nextgorevid.set(data.siradakiGorev?.id ?? null);
+        next: (data: AlinanDepoSiparisleriListeDto[]) => {
+          this.DataSource.data = data;
         },
         error: () => this.error('Filtreleme sırasında hata oluştu')
       });
@@ -201,7 +200,7 @@ export class WarehouseSaleOrder extends BaseComponent {
       .detailsBranchOrder(this.gorevid(), seri, sira)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (data: SiparisDetayResponse) => {
+        next: (data: AlinanDepoSiparisleriAyrintiDto) => {
           this.stopLoading();
           this.dialog.open(WarehouseSaleOrderDetailComponent, {
             width: '50%',
@@ -230,19 +229,19 @@ export class WarehouseSaleOrder extends BaseComponent {
     });
   }
 
-  return(evrak: any) {
+  return(evrak: AlinanDepoSiparisleriListeDto): void {
     this.startLoading();
     const isMobile = this.breakpointObserver.isMatched(Breakpoints.Handset);
 
     this.saleOrdersService
       .detailsBranchOrder(
         this.gorevid(),
-        evrak.seri,
-        evrak.sira
+        evrak.seri ?? '',
+        evrak.sira ?? 0
       )
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (data: SiparisDetayResponse) => {
+        next: (data: AlinanDepoSiparisleriAyrintiDto) => {
           this.dialog.open(WarehouseSalesOrderToShipment, {
             width: isMobile ? '100vw' : '40vw',
             height: isMobile ? '100vh' : '70vh',
@@ -272,14 +271,19 @@ export class WarehouseSaleOrder extends BaseComponent {
       .trim()
       .toLowerCase();
 
-    this.DataSource.filterPredicate = (data: any, filter: string) =>
-      Object.values(data).some(v =>
-        typeof v === 'string'
-          ? v.toLowerCase().includes(filter)
-          : typeof v === 'number'
-            ? v.toString().includes(filter)
-            : false
-      );
+    this.DataSource.filterPredicate = (data: AlinanDepoSiparisleriListeDto, filter: string) => {
+      return Object.keys(data).some(key => {
+        const value = data[key as keyof AlinanDepoSiparisleriListeDto];
+        if (typeof value === 'string') {
+          return value.toLowerCase().includes(filter);
+        }
+        if (typeof value === 'number') {
+          return value.toString().includes(filter);
+        }
+      
+        return false;
+      });
+    };
 
     this.DataSource.filter = value;
   }
@@ -290,32 +294,57 @@ export class WarehouseSaleOrder extends BaseComponent {
     this.currentView = view;
   }
 
-  selectRow(row: any) {
+  selectRow(row: AlinanDepoSiparisleriListeDto) {
     this.selectedRow = this.selectedRow === row ? null : row;
   }
 
-  isSFDS(e: any): boolean {
-    return e.evrakNoSeri?.startsWith('SFDS') ?? false;
+  getStatusText(e: AlinanDepoSiparisleriListeDto): string {
+    if (e.durumu=== '1') {
+      return 'siparişi verildi/alındı';
+    }
+    else if (e.durumu === '2') {
+      return 'Sevk Hazır / irsaliye bekleniyor';}
+    else if (e.durumu === '3') {
+      return 'Yolda';}
+    else if (e.durumu === '4') {
+      return 'Mal Kabulu Yapıldı';
+    }
+    else {
+      return 'Bilinmeyen Durum';
+    }
   }
 
-  getStatusText(e: any): string {
-    if (e.siparisSevkOlundu) return 'Sevk Edildi';
-    if (e.onaylandi && e.sevkTeslimAlindi) return 'Teslim Edildi';
-    if (e.onaylandi) return 'Onaylandı';
-    return 'Bekliyor';
+  getStatusClass(e: AlinanDepoSiparisleriListeDto): string {
+    if (e.durumu === '1') {
+      return 'badge bg-warning';
+    }
+    if (e.durumu === '2') {
+      return 'badge bg-info';
+    }
+    if (e.durumu === '3') {
+      return 'badge bg-primary';
+    }
+    if (e.durumu === '4') {
+      return 'badge bg-success';
+    }
+    return 'badge bg-secondary';
   }
 
-  getStatusClass(e: any): string {
-    if (e.siparisSevkOlundu) return 'status-success';
-    if (e.onaylandi && e.sevkTeslimAlindi) return 'status-success';
-    if (e.onaylandi) return 'status-warning';
-    return 'status-pending';
-  }
+  getStatusIcon(e: AlinanDepoSiparisleriListeDto): string {
+    if (e.durumu === '1') {
+      return 'bi bi-hourglass-split';
+    }
+    if (e.durumu === '2') {
+      return 'bi bi-check2-circle';
+    }
+    if (e.durumu === '3') {
+      return 'bi bi-truck';
+    }
+    if (e.durumu === '4') {
+      return 'bi bi-check-circle';
+    }
+    return 'bi bi-question-circle';
 
-  getStatusIcon(e: any): string {
-    if (e.siparisSevkOlundu) return 'bi bi-check-circle';
-    if (e.onaylandi && e.sevkTeslimAlindi) return 'bi bi-check-circle';
-    if (e.onaylandi) return 'bi bi-clock';
-    return 'bi bi-hourglass';
+  
   }
 }

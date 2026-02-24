@@ -14,18 +14,16 @@ import { MatSort } from '@angular/material/sort';
 import { MatDialog } from '@angular/material/dialog';
 import { DatePipe } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
-import { ActivatedRoute } from '@angular/router';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { finalize } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SharedImports } from '../../../../../core/pipes/shared-imports';
-import { User } from '../../../../../models/user';
 import { MeService } from '../../../../../services/meservice.service';
 import { PurchaseOrdersService } from '../../../../../services/orders/purchase-orders.service';
 import { WarehouseOrderComponent } from '../create/warehouse-order';
 import { WarehousePurchaseOrderDetailComponent } from '../detail/detail';
-import { EvrakListResponse } from '../../../../../models/evrakListModel';
-import { DetayResponse, SiparisDetayResponse } from '../../../../../models/detay';
+import { VerilenDepoSiparisleriListeDto } from '../../../../../models/liste-dtolari.model';
+import { VerilenDepoSiparisleriAyrintiDto } from '../../../../../models/ayrinti-dtolari.model';
 
 
 @Component({
@@ -54,10 +52,10 @@ export class WarhousePurchaseOrder {
 
   // -------------------- UI STATE --------------------
   currentView: 'table' | 'card' = 'table';
-  selectedRow: any = null;
+  selectedRow: VerilenDepoSiparisleriListeDto | null = null;
 
   displayedColumns = ['evrakNo', 'tarih', 'transfer', 'durum', 'islemler'];
-  DataSource = new MatTableDataSource<any>([]);
+  DataSource = new MatTableDataSource<VerilenDepoSiparisleriListeDto>([]);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -158,7 +156,7 @@ export class WarhousePurchaseOrder {
         finalize(() => this.yukleniyor.set(false))
       )
       .subscribe({
-        next: (data: EvrakListResponse) => this.DataSource.data = data.evraklar,
+        next: (data: VerilenDepoSiparisleriListeDto[]) => this.DataSource.data = data,
         error: () => this.toastr.error('Veriler yüklenirken hata oluştu', 'Hata')
       });
   }
@@ -181,7 +179,7 @@ export class WarhousePurchaseOrder {
         finalize(() => this.yukleniyor.set(false))
       )
       .subscribe({
-        next: (data: EvrakListResponse) => this.DataSource.data = data.evraklar,
+        next: (data: VerilenDepoSiparisleriListeDto[]) => this.DataSource.data = data,
         error: () => this.toastr.error('Filtreleme sırasında hata oluştu', 'Hata')
       });
   }
@@ -193,7 +191,7 @@ export class WarhousePurchaseOrder {
       .detailsBranchOrder(this.gorevid(), seri, sira)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (data: SiparisDetayResponse) => {
+        next: (data: VerilenDepoSiparisleriAyrintiDto) => {
           this.dialog.open(WarehousePurchaseOrderDetailComponent, {
             width: '50%',
             height: '70%',
@@ -231,45 +229,80 @@ export class WarhousePurchaseOrder {
   // -------------------- FILTER --------------------
   applyFilter(event: Event) {
     const value = (event.target as HTMLInputElement).value.trim().toLowerCase();
-    this.DataSource.filterPredicate = (data: any, filter: string) =>
-      Object.values(data).some(v =>
-        typeof v === 'string'
-          ? v.toLowerCase().includes(filter)
-          : typeof v === 'number'
-          ? v.toString().includes(filter)
-          : false
-      );
+    this.DataSource.filterPredicate = (data: VerilenDepoSiparisleriListeDto, filter: string) => {
+      return Object.keys(data).some(key => {
+        const value = data[key as keyof VerilenDepoSiparisleriListeDto];
+        if (typeof value === 'string') {
+          return value.toLowerCase().includes(filter);
+        }
+        if (typeof value === 'number') {
+          return value.toString().includes(filter);
+        }
+        return false;
+      });
+    };
 
     this.DataSource.filter = value;
   }
 
+
+  
   // -------------------- UI HELPERS --------------------
   setView(view: 'table' | 'card') {
     this.currentView = view;
   }
 
-  selectRow(row: any) {
+  selectRow(row: VerilenDepoSiparisleriListeDto) {
     this.selectedRow = this.selectedRow === row ? null : row;
   }
 
-  getStatusText(e: any): string {
-    if (e.siparisSevkOlundu) return 'Sevk Edildi';
-    if (e.onaylandi && e.sevkTeslimAlindi) return 'Teslim Edildi';
-    if (e.onaylandi) return 'Onaylandı';
-    return 'Bekliyor';
-  }
-
-  getStatusClass(e: any): string {
-    if (e.siparisSevkOlundu) return 'status-success';
-    if (e.onaylandi && e.sevkTeslimAlindi) return 'status-success';
-    if (e.onaylandi) return 'status-warning';
-    return 'status-pending';
-  }
-
-  getStatusIcon(e: any): string {
-    if (e.siparisSevkOlundu) return 'bi bi-check-circle';
-    if (e.onaylandi && e.sevkTeslimAlindi) return 'bi bi-check-circle';
-    if (e.onaylandi) return 'bi bi-clock';
-    return 'bi bi-hourglass';
-  }
+  getStatusText(e: VerilenDepoSiparisleriListeDto): string {
+     if (e.durumu=== '1') {
+       return 'Sevke Hazırlanıyor';
+     }
+     else if (e.durumu === '2') {
+       return 'Sevk Hazır';}
+     else if (e.durumu === '3') {
+       return 'Yolda';}
+     else if (e.durumu === '4') {
+       return 'Mal Kabulü Yapıldı';
+     }
+     else {
+       return 'Bilinmeyen Durum';
+     }
+   }
+ 
+   getStatusClass(e: VerilenDepoSiparisleriListeDto): string {
+     if (e.durumu === ' 1') {
+       return 'badge bg-warning';
+     }
+     if (e.durumu === '2') {
+       return 'badge bg-info';
+     }
+     if (e.durumu === '3') {
+       return 'badge bg-primary';
+     }
+     if (e.durumu === '4') {
+       return 'badge bg-success';
+     }
+     return 'badge bg-secondary';
+   }
+ 
+   getStatusIcon(e: VerilenDepoSiparisleriListeDto): string {
+     if (e.durumu === ' 1') {
+       return 'bi bi-hourglass-split';
+     }
+     if (e.durumu === '2') {
+       return 'bi bi-check2-circle';
+     }
+     if (e.durumu === '3') {
+       return 'bi bi-truck';
+     }
+     if (e.durumu === '4') {
+       return 'bi bi-check-circle';
+     }
+     return 'bi bi-question-circle';
+ 
+   
+   }
 }

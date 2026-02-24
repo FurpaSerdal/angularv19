@@ -1,9 +1,10 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, Signal, signal, WritableSignal, computed, inject } from '@angular/core';
+import { Injectable, Signal, signal, WritableSignal, computed, inject, effect } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { environment } from '../../environment';
 import { AltMenu, Gorev, User } from '../models/user';
 import { SetMenuHelperService } from './helper/setMenu-helper.service';
+import { Router } from '@angular/router';
 
 
 
@@ -11,6 +12,8 @@ import { SetMenuHelperService } from './helper/setMenu-helper.service';
   providedIn: 'root'
 })
 export class MeService {
+  private router = inject(Router);
+
   private apiUrl = environment.apiurl;
 
   public selectedMenu = signal<string>("")
@@ -26,9 +29,18 @@ export class MeService {
   // Yükleniyor state'i ekleyelim
   isLoading = signal<boolean>(false);
 
-  constructor(private http: HttpClient, private setMenuHelper: SetMenuHelperService) {
+
+  constructor(private http: HttpClient, private setMenuHelper: SetMenuHelperService,) {
 
     this.rehydrate() // LocalStorage'dan state'i geri yükle
+      effect(() => {
+    const gorev = this.selectedGorev();
+    const currentUrl = this.router.url;
+
+    if (!gorev && currentUrl.includes('/admin/task')) {
+      this.router.navigate(['/admin']);
+    }
+  });
   }
 
   // API çağrısını yapıp sonucu userSignal'e set eden metod
@@ -37,15 +49,11 @@ export class MeService {
 
   this.http.get<User>(`${this.apiUrl}/kullanici/Benim`).subscribe({
     next: (data) => {
-
-
-      
-   
-    //  this.setUser(data);
-     const updatedUser = this.setMenuHelper.updateMenu2(data); // Menüleri güncelle
-     this.setUser(updatedUser);
-     console.log('Güncellenmiş kullanıcı bilgisi:', updatedUser); // Güncellenmiş kullanıcıyı konsola yazdır
-     console.log('Kullanıcı bilgisi başarıyla alındı:', data.eskiApiLogin); // Eski API login bilgisini konsola yazdırarak kontrol edin
+   this.setUser(data);
+    //  const updatedUser = this.setMenuHelper.updateMenu2(data); // Menüleri güncelle
+    //  this.setUser(updatedUser);
+    //  console.log('Güncellenmiş kullanıcı bilgisi:', updatedUser); // Güncellenmiş kullanıcıyı konsola yazdır
+    //  console.log('Kullanıcı bilgisi başarıyla alındı:', data.eskiApiLogin); // Eski API login bilgisini konsola yazdırarak kontrol edin
 
       this.isLoading.set(false);
 
@@ -59,6 +67,9 @@ export class MeService {
 
   getUserSignal(): Signal<User | null> {
     return this.userSignal;
+  }
+  clearUserSignal(): void {
+    this.userSignal.set(null);
   }
 
   // User menülerini almak için computed property
@@ -83,16 +94,19 @@ export class MeService {
     this.selectedMenu.set(menu); 
     this.selectedAltMenu.set(null)
     this.selectedGorev.set(null)
-  //  localStorage.setItem('selectedMenu', this.selectedMenu());
-  }
+    localStorage.setItem('menu', JSON.stringify(menu));  }
 
   setaltmenu(data:AltMenu){
   this.selectedAltMenu.set(data)
-  this.selectedGorev.set(null)
+   this.selectedGorev.set(null)
+   localStorage.setItem('altmenu', JSON.stringify(data));     
+
   }
   
   setgorev(data:Gorev){
   this.selectedGorev.set(data)
+    localStorage.setItem('gorev', JSON.stringify(data));
+
   
   }
   setrota(data:string){
@@ -111,10 +125,6 @@ export class MeService {
   }
 
 
-    clearUser() {
-    localStorage.removeItem('user');
-    this.userSignal.set(null);
-  }
 
   
 }

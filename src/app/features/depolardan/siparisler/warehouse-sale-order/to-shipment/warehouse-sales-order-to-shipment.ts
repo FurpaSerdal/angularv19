@@ -10,9 +10,20 @@ import { ShipmentNotesService } from '../../../../../services/shipments/shipment
 import { MeService } from '../../../../../services/meservice.service';
 import Swal from 'sweetalert2';
 import {  StokAraCT } from '../../../../../models/ortakModeller';
-import { DetayResponse, Kalem } from '../../../../../models/detay';
-import { DepolaraSevkIrsaliyeleriEkleDto } from '../../../../../models/ekleModels';
 
+import { DepolaraSevkIrsaliyeleriEkleDto } from '../../../../../models/ekle-dtolari.model';
+import { AlinanDepoSiparisleriAyrintiDto } from '../../../../../models/ayrinti-dtolari.model';
+
+export interface Kalem {
+  stokKodu: string;
+  stokIsim: string;
+  sevkGuid: string | null;
+  siparisGuid: string | null;
+  siparisMiktari: number | null;
+  malKabulMiktari: number | null;
+  sevkMiktari: number | null;
+  durum?: string | null;
+}
 
 @Component({
   selector: 'app-warehouse-sales-order-to-shipment',
@@ -25,7 +36,8 @@ export class WarehouseSalesOrderToShipment {
   urunAraMetni = '';
   
   // Signals
-  karsiDepo = signal<any>(null);
+  karsiDepo = signal<number | null>(null);
+  detay = signal<AlinanDepoSiparisleriAyrintiDto | null>(null);
   nextgorevid = signal<number>(0);
   gonderiliyor = signal<boolean>(false);
   urunler = signal<Kalem[]>([]);
@@ -56,30 +68,40 @@ export class WarehouseSalesOrderToShipment {
 
   private initializeForm(): DepolaraSevkIrsaliyeleriEkleDto {
     return {
-      sevkTarihi: new Date(),
-      nakliyeDeposu: { depoNo: 0, plaka: '', soforAdSoyad: '' },
-      kalemler: [],
-      muhatapFirma: null,
-      muhatapSube: {
-        cariKod: '',
-        depoNo: 0,
-        adres: '',
-        vergiDairesi: '',
-        yetkiliAdSoyad: '',
-        il: '',
-        ilce: '',
-        unvan: ''
-      }
+        iadedir: false,
+        muhatapDepoNo: this.karsiDepo() ?? 0,
+        sevkedenAdSoyad: '',
+        kalemler: []
+   
     };
   }
 
-  ngOnInit(): void {
-    const initialData = this.data.detay.kalemleri || [];
-    this.dataSource.data = initialData;
-    this.urunler.set(initialData);
-    this.karsiDepo.set(this.data.detay.evrak[0].muhatapDepo);
-    this.nextgorevid.set(this.data.nextgorevid);
-  }
+ngOnInit(): void {
+  this.detay.set(this.data.detay);
+
+  const initialData = this.detay()?.kalemler ?? [];
+
+  const kalem: Kalem[] = initialData.map(k => ({
+    stokKodu: k.stokKodu ?? '',
+    stokIsim: k.stokIsmi ?? '',
+
+    sevkGuid: k.sevkGuid ?? null,
+    siparisGuid: k.siparisGuid ?? null,
+
+    siparisMiktari: k.siparisMiktari ?? null,
+    malKabulMiktari: k.malKabulMiktari ?? null,
+    sevkMiktari: k.sevkMiktari ?? null,
+
+    durum: null
+  }));
+
+  this.dataSource.data = kalem;
+  this.urunler.set(kalem);
+
+ this.postorder.muhatapDepoNo =this.detay()?.muhatapDepoNo ?? 0;
+ this.karsiDepo.set(this.detay()?.muhatapDepoNo ?? null);
+  this.nextgorevid.set(this.data.nextgorevid);
+}
   urunEkle(): void {
     const aranacak = this.urunAraMetni.trim();
     
@@ -183,24 +205,16 @@ export class WarehouseSalesOrderToShipment {
   kaydet(): void {
     this.gonderiliyor.set(true);
     
-    this.postorder.muhatapSube = {
-      cariKod: '',
-      depoNo: this.karsiDepo()?.no,
-      adres: '',
-      vergiDairesi: '',
-      yetkiliAdSoyad: '',
-      il: '',
-      ilce: '',
-      unvan: ''
-    };
-    
-    this.postorder.nakliyeDeposu = {
-      depoNo: this.karsiDepo()?.no,
-      plaka: '',
-      soforAdSoyad: ''
-    };
-    
-    this.postorder.kalemler = this.urunler();
+  
+this.postorder.kalemler = this.urunler().map(x => ({
+  ...x,
+  siparisGuid: x.siparisGuid ?? undefined,
+  sevkGuid: x.sevkGuid ?? undefined,
+  siparisMiktari: x.siparisMiktari ?? undefined,
+  malKabulMiktari: x.malKabulMiktari ?? undefined,
+  sevkMiktari: x.sevkMiktari ?? undefined,
+  durum: x.durum ?? undefined
+}));
 
     const toastRef = this.toastr.show('Gönderiliyor...', '', {
       disableTimeOut: true,
@@ -216,6 +230,7 @@ export class WarehouseSalesOrderToShipment {
           this.toastr.clear(toastRef.toastId);
           this.toastr.success('Başarıyla kaydedildi!');
           this.gonderiliyor.set(false);
+          this.temizle();
         },
         error: (err) => {
           this.toastr.clear(toastRef.toastId);

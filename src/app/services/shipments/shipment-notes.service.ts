@@ -2,8 +2,6 @@ import { Injectable } from '@angular/core';
 import { BaseApiService } from '../shared/base-api.service';
 import { API_PATHS } from '../shared/api-paths';
 import { Observable } from 'rxjs';
-import { EkleResponseDto } from '../../models/ekleModels';
-import { DetayResponse } from '../../models/detay';
 
 @Injectable({ providedIn: 'root' })
 export class ShipmentNotesService extends BaseApiService {
@@ -16,7 +14,7 @@ export class ShipmentNotesService extends BaseApiService {
     return this.post(`ekle/${taskId}`, payload);
   }
 
-    detailsCompanyShipment(taskId: number, seri: string, sira: number):Observable<DetayResponse> {
+    detailsCompanyShipment(taskId: number, seri: string, sira: number):Observable<any> {
     return this.get(`ayrinti/${taskId}/${seri}/${sira}`);
   }
 
@@ -26,12 +24,12 @@ export class ShipmentNotesService extends BaseApiService {
     return this.get(`liste/${taskId}/${schedule}`);
   }
 
-  detailsBranchShipment(taskId: number, seri: string, sira: number):Observable<DetayResponse> {
+  detailsBranchShipment(taskId: number, seri: string, sira: number):Observable<any> {
     return this.get(`ayrinti/${taskId}/${seri}/${sira}`);
   }
 
 
-  createBranchShipment(taskId: number, payload: any):Observable<EkleResponseDto> {
+  createBranchShipment(taskId: number, payload: any):Observable<any> {
     return this.post(`ekle/${taskId}`, payload);
   }
 }

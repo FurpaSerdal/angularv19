@@ -12,14 +12,13 @@ import { ToastrService } from 'ngx-toastr';
 import { ActivatedRoute } from '@angular/router';;
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { SharedImports } from '../../../../../core/pipes/shared-imports';
-import { User } from '../../../../../models/user';
 import { MeService } from '../../../../../services/meservice.service';
 import { GoodsReceiptNotesService } from '../../../../../services/receipts/goods-receipt-notes.service';
 import { WarehouseGoodsReceipt } from '../warehouse-goods-receipt/warehouse-goods-receipt';
 import { WarehouseInboundShipmentsDetailComponent } from '../detail/detail';
-import { ReceiveMode } from '../../../../../models/ekleModels';
-import { EvrakListResponse } from '../../../../../models/evrakListModel';
-import { DetayResponse } from '../../../../../models/detay';
+import { DepolardanMalKabulIrsaliyeleriListeDto } from '../../../../../models/liste-dtolari.model';
+import { DepolardanMalKabulIrsaliyeleriAyrintiDto } from '../../../../../models/ayrinti-dtolari.model';
+
 
 
 
@@ -28,7 +27,7 @@ import { DetayResponse } from '../../../../../models/detay';
   standalone: true,
   imports: [CommonModule, NgIf, NgForOf, ...SharedImports],
   templateUrl: './warehouse-inbound-shipments.html',
-  styleUrl: './warehouse-inbound-shipments.css',
+  styleUrls: ['./warehouse-inbound-shipments.css'],
   providers: [DatePipe]
 })
 export class WarehouseInboundShipments {
@@ -45,11 +44,11 @@ export class WarehouseInboundShipments {
   
   // Yeni değişkenler
   currentView: 'table' | 'card' = 'table';
-  selectedRow: any = null;
+  selectedRow: DepolardanMalKabulIrsaliyeleriListeDto | null = null;
   
   // Tablo kolonları güncellendi
-  displayedColumns = ['evrakNo', 'tarih', 'transfer','belgeNo', 'durum', 'islemler'];
-  DataSource: MatTableDataSource<any> = new MatTableDataSource<any>([]);
+  displayedColumns = ['seri', 'sira', 'tarih', 'hedef','kaynak','belgeNo', 'durum', 'islemler'];
+  DataSource: MatTableDataSource<DepolardanMalKabulIrsaliyeleriListeDto> = new MatTableDataSource<DepolardanMalKabulIrsaliyeleriListeDto>([]);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -73,7 +72,6 @@ constructor(
   private dialog: MatDialog,
   private datePipe: DatePipe,
   private toastr: ToastrService,
-  private route: ActivatedRoute,
   private breakpointObserver: BreakpointObserver
 ) {
 
@@ -150,8 +148,8 @@ constructor(
 
     this.yukleniyor.set(true);
     this.goodsReceiptNotesService.getBranchReceipts(this.gorevid(), "bugun").subscribe({
-      next: (data: EvrakListResponse) => {
-        this.DataSource.data = data.evraklar;
+      next: (data: DepolardanMalKabulIrsaliyeleriListeDto[]) => {
+        this.DataSource.data = data;
         this.yukleniyor.set(false);
       },
       error: () => {
@@ -162,8 +160,6 @@ constructor(
   }
 
   onDateChanged(): void {
-
-
 
     const baslangic = this.datePipe.transform(this.dateRange.get('start')?.value, 'yyyy-MM-dd');
     const bitis = this.datePipe.transform(this.dateRange.get('end')?.value, 'yyyy-MM-dd');
@@ -176,8 +172,8 @@ constructor(
     if (baslangic && bitis) {
       this.yukleniyor.set(true);
       this.goodsReceiptNotesService.getBranchReceipts(this.gorevid(), zamanlama).subscribe({
-        next: (data: EvrakListResponse) => {
-          this.DataSource.data = data.evraklar;
+        next: (data: DepolardanMalKabulIrsaliyeleriListeDto[]) => {
+          this.DataSource.data = data;
           this.yukleniyor.set(false);
         },
         error: () => {
@@ -192,7 +188,7 @@ constructor(
   taskDetay(seri: string, sira: number): void {
     this.yukleniyor.set(true);
     this.goodsReceiptNotesService.detailsBranchReceipt(this.gorevid(), seri, sira).subscribe({
-      next: (data: DetayResponse) => {
+      next: (data: DepolardanMalKabulIrsaliyeleriAyrintiDto) => {
         this.yukleniyor.set(false);
         this.dialog.open(WarehouseInboundShipmentsDetailComponent, {
           width: "50%",
@@ -215,27 +211,30 @@ constructor(
       width: isMobile ? '100vw' : '40vw',
       height: isMobile ? '100vh' : '70vh',
       maxWidth: '100vw',
+                disableClose: true,
+
       panelClass: isMobile ? 'full-screen-dialog' : '',
-         data: {  mode:'Scan'  as ReceiveMode }
+         data: {  mode:'Scan'   }
     });
   }
 
   // EVRAK ÇEVİR
-  return(evrak: any) {
+  return(evrak: DepolardanMalKabulIrsaliyeleriListeDto) {
 
     this.yukleniyor.set(true);
      this.toastr.show('Evrak Çevirme İşlemi Başlatıldı irsaliye bilgileri alınıyor', 'Bilgi' ,
       { timeOut: 10000, progressBar: true, progressAnimation: 'increasing' , }
      );
-    this.goodsReceiptNotesService.detailsBranchReceipt(this.gorevid(), evrak.evrakNoSeri, evrak.evrakNoSira).subscribe({
-      next: (data: DetayResponse) => {
+    this.goodsReceiptNotesService.detailsBranchReceipt(this.gorevid(), evrak.seri ?? '', evrak.sira ?? 0).subscribe({
+      next: (data: DepolardanMalKabulIrsaliyeleriAyrintiDto) => {
         this.yukleniyor.set(false);
         this.dialog.open(WarehouseGoodsReceipt, {
           width: '50vw',
           height: '70vh',
+          disableClose: true,
            data: {
                  detay: data,
-                 mode: 'select' as ReceiveMode,
+                 mode: 'select' ,
                  iadegorevid: this.iadegorevid()
                  }
         });
@@ -249,19 +248,15 @@ constructor(
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
-    this.DataSource.filterPredicate = (data: any, filter: string) => {
+    this.DataSource.filterPredicate = (data: DepolardanMalKabulIrsaliyeleriListeDto, filter: string) => {
       return Object.keys(data).some(key => {
-        const value = data[key as keyof any];
+        const value = data[key as keyof DepolardanMalKabulIrsaliyeleriListeDto];
         if (typeof value === 'string') {
           return value.toLowerCase().includes(filter);
         } else if (typeof value === 'number') {
           return value.toString().includes(filter);
         } else if (value && typeof value === 'object') {
-          // Depo objelerini de filtrele
-          if (key === 'depo' || key === 'muhatapDepo') {
-            return value.no.toString().includes(filter) || 
-                   value.isim.toLowerCase().includes(filter);
-          }
+      
         }
         return false;
       });
@@ -282,53 +277,56 @@ constructor(
 
 
   // Satır seçme
-  selectRow(row: any): void {
+  selectRow(row: DepolardanMalKabulIrsaliyeleriListeDto): void {
     this.selectedRow = this.selectedRow === row ? null : row;
   }
 
   // Durum class'larını belirleyen fonksiyon
-  getStatusClass(evrak: any): string {
-     if (evrak.siparisSevkOlundu == true) {
-        return 'status-success';
+  getStatusClass(evrak: DepolardanMalKabulIrsaliyeleriListeDto): string {
+      if (evrak.durumu === '1') {
+        return "siparis-hazir";
+      } else if (evrak.durumu === '2') {
+        return 'sevk-hazir';
+      } else if (evrak.durumu === '3') {
+        return 'yolda';
       }
-    if (evrak.onaylandi && evrak.sevkTeslimAlindi) {
-      return 'status-success';
-    } else if (evrak.onaylandi && !evrak.sevkTeslimAlindi) {
-      return 'status-warning';
-    } else {
-     
-      return 'status-pending';
-    }
+        else if (evrak.durumu === '4') {
+          return 'mal-kabulu-yapildi';
+        }
+      return 'status-default';
   }
 
   // Durum icon'larını belirleyen fonksiyon
-  getStatusIcon(evrak: any): string {
-      if (evrak.siparisSevkOlundu == true) {
-        return 'bi bi-check-circle';
-      }
+  getStatusIcon(evrak: DepolardanMalKabulIrsaliyeleriListeDto): string {
 
-    if (evrak.onaylandi && evrak.sevkTeslimAlindi) {
-      return 'bi bi-check-circle';
-    } else if (evrak.onaylandi && !evrak.sevkTeslimAlindi) {
-      return 'bi bi-clock';
-    } else {
-    
-      return 'bi bi-hourglass';
-    }
+      if (evrak.durumu === '1') {
+        return 'bi bi-hourglass';
+      } else if (evrak.durumu === '2') {
+        return 'bi bi-check-lg';
+      } else if (evrak.durumu === '3') {
+        return 'bi bi-truck';
+      }
+        else if (evrak.durumu === '4') {
+          return 'bi bi-check-circle';
+        }
+      return 'bi bi-question-circle';
   }
 
   // Durum metnini belirleyen fonksiyon
-  getStatusText(evrak: any): string {
-         if (evrak.siparisSevkOlundu == true) {
-        return 'Sevk Edildi';
-      }
-    if (evrak.onaylandi && evrak.sevkTeslimAlindi) {
-      return 'Teslim Edildi';
-    } else if (evrak.onaylandi && !evrak.sevkTeslimAlindi) {
-      return 'Onaylandı';
-    } else {
+  getStatusText(evrak: DepolardanMalKabulIrsaliyeleriListeDto): string {
  
-      return 'Bekliyor';
-    }
+      if (evrak.durumu === '1') {
+        return 'Sipariş Hazır';
+      }
+      else if (evrak.durumu === '2') {
+        return 'Sevk Hazır';
+      }
+      else if (evrak.durumu === '3') {
+        return 'Yolda';
+      }
+        else if (evrak.durumu === '4') {
+          return 'Mal Kabulu Yapıldı';
+        }
+      return 'Bilinmeyen Durum';
   }
 }

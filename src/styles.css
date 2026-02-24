@@ -424,6 +424,9 @@
 }
 
 .cdk-overlay-container {
+  z-index: 1500 !important;
+}
+.swal2-container {
   z-index: 2000 !important;
 }
 
@@ -504,21 +507,3 @@
 }
 
 
-/* ============================================================
-   PRINT STYLES / YAZDIRMA STİLLERİ
-   ============================================================ */
-
-/* EN: Hide sidebar and floating UI when printing, make content full width.
-   TR: Yazdırma sırasında sidebar ve yüzen elemanları gizler, içeriği tam genişlik yapar. */
-/* @media print {
-  .sidebar,
-  .mobile-overlay,
-  .scroll-to-top {
-    display: none !important;
-  }
-  
-  .content-wrapper {
-    margin-left: 0 !important;
-    width: 100% !important;
-  }
-} */

@@ -19,8 +19,9 @@ import { CompanyService } from '../../../../../services/company.service';
 import { finalize } from 'rxjs';
 import { StokAraCT, StokBulDto } from '../../../../../models/ortakModeller';
 import Swal from 'sweetalert2';
-import { KalemDto, MalKabulIrsaliyeleriEkleDto, SevkIrsaliyeleriEkleDto } from '../../../../../models/ekleModels';
-import { DetayResponse, Kalem } from '../../../../../models/detay';
+import { KalemDto, VerilenSiparislerAyrintiDto } from '../../../../../models/ayrinti-dtolari.model';
+import { MalKabulIrsaliyeleriEkleDto, SevkIrsaliyeleriEkleDto } from '../../../../../models/ekle-dtolari.model';
+
 
 
 @Component({
@@ -36,10 +37,11 @@ export class CompanyGoodsReceipt {
   secilencari = signal<number | null>(null);
   seriNoGirdisi = signal<string>('');
   siraNoGirdisi = signal<number>(0);
-  evrakdetay = signal<DetayResponse | null>(null);
+  evrakdetay = signal<VerilenSiparislerAyrintiDto | null>(null);
   firmaNo = signal<number>(0);
   barkodGirdisi = signal<string>('');
-  nextTaskId = signal(0);
+  malKbulTuru = signal<string>(''); // 'Siparişe Bağlı', 'Siparişsiz', 'Fark Mal Kabul'
+
   aramaGirdisi = signal<string>('');
   gonderiliyor = signal<boolean>(false);
 
@@ -49,6 +51,9 @@ export class CompanyGoodsReceipt {
   );
   readonly gorevid = computed(() => 
     this.meservice.selectedGorev()?.id ?? 0
+  );
+  readonly nextTaskId = computed(() =>
+    this.meservice.selectedGorev()?.siradakiGorev?.id ?? 0
   );
   readonly iadegorevid = computed(() => 
     this.meservice.selectedGorev()?.iadeGorevi?.id ?? 0
@@ -66,13 +71,15 @@ export class CompanyGoodsReceipt {
 
 
   postorder: MalKabulIrsaliyeleriEkleDto = {
-    evrakNoSeri: '',
-    evrakNoSira: 0,
-    muhatapFirma: { cariKod: '', unvan: '' },
-    muhatapSube: null,
-    belgeNo: "",
-    qrCode: "",
+    cariKod: '',
+    belgeNo: '',
+    qrData: '',
+    aracPlaka: '',
+    eIrsaliyeTarihi: new Date(),
+    teslimEdenAdSoyad: '',
     kalemler: []
+    
+
 
   };
   urunListesi = signal<any[]>([]);
@@ -164,15 +171,12 @@ export class CompanyGoodsReceipt {
     //   }
     // });
 
+    // Eğer data varsa, evrak detayını ve kalemleri yükle siparişe bağlı mal kabul için
     if (this.data) {
-      this.nextTaskId.set(this.data.nextTaskId);
       this.evrakdetay.set(this.data.detay);
-      this.postorder.muhatapFirma = {
-        cariKod: this.evrakdetay()?.evrak.muhatapFirma?.no.toString() || '',
-        unvan: this.evrakdetay()?.evrak.muhatapFirma?.isim || ''
-      };
-      this.cariKoduGirdisi.set(this.evrakdetay()?.evrak.muhatapFirma?.no?.toString() || '');
-
+      this.postorder.cariKod = this.evrakdetay()?.cariKod || '';
+      this.cariKoduGirdisi.set(this.evrakdetay()?.cariKod || '');
+      this.malKbulTuru.set(this.data.mode === 'select' ? 'Siparişe Bağlı' : this.data.mode === 'Scan' ? 'Siparişsiz' : 'Fark Mal Kabul' );
 
       this.tabloMapForReturn(this.evrakdetay());
 
@@ -182,27 +186,25 @@ export class CompanyGoodsReceipt {
   }
 
 
-  tabloMapForReturn(data: DetayResponse | null) {
+  tabloMapForReturn(data: VerilenSiparislerAyrintiDto | null) {
 
-    const veri = data?.kalemleri?.map((urun: Kalem) => {
+    const veri = data?.kalemler?.map((urun: KalemDto) => {
       const sevkMiktari = urun.sevkMiktari ?? 0;
       const malKabulMiktari = urun.malKabulMiktari ?? 0;
 
       return {
-        UrunAdi: urun.stokIsim,
-        UrunKodu: urun.stokKodu,
+        UrunAdi: urun.stokIsmi || '',
+        UrunKodu: urun.stokKodu || '',
         verilenSiparisMiktari: urun.siparisMiktari ?? 0,
         sevkmiktari: sevkMiktari,
         MalKabulMiktari: malKabulMiktari,
         sipId: urun.siparisGuid,
         sevkId: urun.sevkGuid,
-        durum: urun.durum,
         fark: malKabulMiktari - sevkMiktari
       };
     }) ?? [];
     this.urunListesi.set(veri);
     this.dataSource.data = veri
-    console.log("Tablo Verisi:", this.dataSource.data);
   }
 
   barkodOku(barkod: string) {
@@ -211,11 +213,7 @@ export class CompanyGoodsReceipt {
       .subscribe({
         next: value => {
           this.evrakdetay.set(value);
-          this.firmaNo.set(Number(value.evrak?.muhatapFirma?.no) || 0);
-          this.postorder.muhatapFirma = {
-            cariKod: value.evrak?.muhatapFirma?.no?.toString() || '',
-            unvan: value.evrak?.muhatapFirma?.isim || ''
-          };
+          this.firmaNo.set(Number(value.muhatapFirma?.no) || 0);
           this.tabloMapForReturn(value);
           this.barkodGirdisi.set('');
         },
@@ -233,11 +231,8 @@ export class CompanyGoodsReceipt {
       .subscribe({
         next: value => {
           this.evrakdetay.set(value);
-          this.firmaNo.set(Number(value.evrak?.muhatapFirma?.no) || 0);
-          this.postorder.muhatapFirma = {
-            cariKod: value.evrak?.muhatapFirma?.no?.toString() || '',
-            unvan: value.evrak?.muhatapFirma?.isim || ''
-          };
+          this.firmaNo.set(Number(value.muhatapFirma?.no) || 0);
+    
           this.tabloMapForReturn(value);
           this.seriNoGirdisi.set('');
           this.siraNoGirdisi.set(0);
@@ -250,71 +245,34 @@ export class CompanyGoodsReceipt {
         }
       });
   }
+async urunAra(aranacak: string) {
 
-  urunAra(aranacak: string) {
-    if (!aranacak?.trim()) return;
+  if (!aranacak?.trim()) return;
 
-    const aranacakKelime = aranacak.toLowerCase();
+  const aranacakKelime = aranacak.toLowerCase();
+  const evrak = this.evrakdetay();
 
-    // const kalem = this.urunListesi().find(urun =>
-    //   urun.UrunKodu?.toLowerCase().includes(aranacakKelime) ||
-    //   urun.UrunAdi?.toLowerCase().includes(aranacakKelime)
-    // );
+  // ✅ API çağrısı
+  const dto: StokBulDto = {
+    CariKod: evrak?.cariKod || '',
+    Bul: aranacakKelime
+  };
 
-    // if (kalem) {
-    //   this.toastr.success(
-    //     'Aranan ürün mevcut sipariş kalemleri arasında bulundu ve eklendi.',
-    //     'Başarılı',
-    //     { timeOut: 3000 }
-    //   );
+  this.companyService.searchStockByCustomerCode(dto).subscribe({
+    next: value => {
+      const isMobile = window.innerWidth <= 768;
 
-    //   const varmi = this.dataSource.data.find(
-    //     u => u.UrunKodu === kalem.UrunKodu
-    //   );
-
-    //   if (varmi) {
-    //     this.dataSource.data = this.dataSource.data.map(u =>
-    //       u.UrunKodu === kalem.UrunKodu
-    //         ? { ...u, MalKabulMiktari: (u.MalKabulMiktari ?? 0) + 1 }
-    //         : u
-    //     );
-    //   } else {
-    //     this.dataSource.data = [
-    //       ...this.dataSource.data,
-    //       { ...kalem, MalKabulMiktari: 1 }
-    //     ];
-    //   }
-
-    //   return;
-    // }
-
-    // // 🔍 Siparişte yok → stoktan ara
-    // this.toastr.info(
-    //   'Aranan ürün sipariş kalemlerinde bulunamadı. Stoktan aranıyor...',
-    //   'Bilgi',
-    //   { timeOut: 3000 }
-    // );
+      if (isMobile) {
+        this.secilenUrun.set(value?.[0] ?? null);
+      } else {
+        this.bulunanUrunler.set(value ?? []);
+      }
+    },
+    error: err => console.error('StokAra hatası:', err)
+  });
+}
 
 
-
-    const dto: StokBulDto = {
-      CariKod: this.postorder.muhatapFirma?.cariKod ?? '',
-      Bul: aranacakKelime
-    };
-    this.companyService.searchStockByCustomerCode(dto).subscribe({
-      next: value => {
-        const isMobile = window.innerWidth <= 768;
-        if (isMobile) {
-          this.secilenUrun.set(value[0]);
-        }
-        else {
-
-          this.bulunanUrunler.set(value)
-        }
-      },
-      error: err => console.error('StokAra hatası:', err)
-    });
-  }
 
 
 
@@ -326,40 +284,83 @@ export class CompanyGoodsReceipt {
     this.bulunanUrunler.set([]);
   }
 
-  urunEkle() {
-    const secilenUrun = this.secilenUrun();
-    if (!secilenUrun) return;
+async urunEkle() {
 
-    const eklenecekUrun: any = {
-      UrunAdi: secilenUrun.stokIsim,
-      UrunKodu: secilenUrun.stokKod,
-      barkodu: secilenUrun.barKodu,
-      fiyat: secilenUrun.fiyati,
-      birimkatsayisi: secilenUrun.birimKatsayisi,
-      sto_birim_ad: secilenUrun.birimAd,
-      MalKabulMiktari: 1,
-      aciklama: '',
-      fark: 0,
+  const secilenUrun = this.secilenUrun();
+  if (!secilenUrun) return;
 
-    };
+  const evrak = this.evrakdetay();
+  const kalemler = evrak?.kalemler ?? [];
 
-    const existingIndex = this.urunListesi().findIndex(
-      u => u.UrunKodu === eklenecekUrun.UrunKodu
+  // 🔥 Siparişe bağlı kontrolü
+  if (this.malKbulTuru() === 'Siparişe Bağlı') {
+
+    const sipdevarmi = kalemler.some(kalem =>
+      kalem.stokKodu?.toLowerCase() === secilenUrun.stokKod?.toLowerCase()
     );
 
-    if (existingIndex !== -1) {
-      const updatedList = this.urunListesi().map((item, index) =>
-        index === existingIndex
-          ? { ...item, MalKabulMiktari: (item.MalKabulMiktari ?? 0) + 1 }
-          : item
+    if (sipdevarmi) {
+      this.toastr.success(
+        'Ürün sipariş kalemlerinde bulundu, direkt ekleniyor.',
+        '',
+        { timeOut: 2000 }
       );
-      this.urunListesi.set(updatedList);
-    } else {
-      this.urunListesi.set([...this.urunListesi(), eklenecekUrun]);
-    }
+    } 
+    else {
 
-    this.dataSource.data = this.urunListesi();
+      const result = await Swal.fire({
+        title: 'Siparişte Bulunamadı',
+        text: 'Bu ürün sipariş kalemlerinde bulunamadı. Yine de eklemek istiyor musunuz?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Evet, Ekle',
+        cancelButtonText: 'Hayır',
+        reverseButtons: true
+      });
+
+      if (!result.isConfirmed) {
+        return; // ❌ Kullanıcı iptal etti
+      }
+    }
   }
+
+  // ✅ Ekleme işlemi
+  const eklenecekUrun: any = {
+    UrunAdi: secilenUrun.stokIsim,
+    UrunKodu: secilenUrun.stokKod,
+    barkodu: secilenUrun.barKodu,
+    fiyat: secilenUrun.fiyati,
+    siparisGuid: null, // Siparişe bağlı değilken boş bırakılabilir
+    birimkatsayisi: secilenUrun.birimKatsayisi,
+    sto_birim_ad: secilenUrun.birimAd,
+    MalKabulMiktari: 1,
+    aciklama: '',
+    fark: 0,
+  };
+
+  const existingIndex = this.urunListesi().findIndex(
+    u => u.UrunKodu === eklenecekUrun.UrunKodu
+  );
+
+  if (existingIndex !== -1) {
+
+    const updatedList = this.urunListesi().map((item, index) =>
+      index === existingIndex
+        ? { ...item, MalKabulMiktari: (item.MalKabulMiktari ?? 0) + 1 }
+        : item
+    );
+
+    this.urunListesi.set(updatedList);
+
+  } else {
+
+    this.urunListesi.set([...this.urunListesi(), eklenecekUrun]);
+
+  }
+
+  this.dataSource.data = this.urunListesi();
+}
+
 
   private refreshUrunListesiFromTable() {
     // Ensure signal change detection by cloning the array reference
@@ -383,7 +384,6 @@ export class CompanyGoodsReceipt {
   }
 
   firmaSec(firma: any) {
-    this.postorder.muhatapFirma = { cariKod: firma.cariKod, unvan: firma.unvan };
     this.secilencari.set(firma.id);
     this.bulunancariler.set([]);
   }
@@ -424,11 +424,13 @@ if (this.data.mode === 'select') {
       stokKodu: urun.UrunKodu,
       sevkMiktari: urun.sevkmiktari ?? 0,
     }));
+    const belgeNo = this.postorder.belgeNo || this.qrIrsaliyeNo();
+    const qrData = this.postorder.qrData || this.qrGorunurVeri() || '';
 
     this.postorder = {
       ...this.postorder,
-      belgeNo:this.qrIrsaliyeNo() ,
-      qrCode:this.qrGorunurVeri() ,
+      belgeNo,
+      qrData,
       kalemler
     };
     this.setLoading(true);
@@ -457,10 +459,12 @@ if (this.data.mode === 'select') {
       stokKodu: urun.UrunKodu,
       sevkMiktari: urun.sevkmiktari ?? 0,
     }));
+    const belgeNo = this.postorder.belgeNo || this.qrIrsaliyeNo();
+    const qrData = this.postorder.qrData || this.qrGorunurVeri() || '';
     this.postorder = {
       ...this.postorder,
-      belgeNo:this.qrIrsaliyeNo() ,
-      qrCode:this.qrGorunurVeri() ,
+      belgeNo,
+      qrData,
       kalemler
     };
     this.setLoading(true);
@@ -520,6 +524,8 @@ if (this.data.mode === 'select') {
       onerilenSiparisMiktari: urun.onerilenMiktar ?? 0,
       sevkMiktari: urun.sevkmiktari ?? 0,
       siparisMiktari: urun.verilenSiparisMiktari ?? 0,
+      skt: new Date() // geçici, gerçek tarih gelmeli
+     
 
 
     }));
@@ -586,8 +592,9 @@ if (this.data.mode === 'select') {
       aciklama: k.aciklama,
       sevkMalKabulFarkMiktari: Math.abs(k.sevkMalKabulFarkMiktari ?? 0),
       sevkMiktari: Math.abs(k.sevkMalKabulFarkMiktari ?? 0),
+      siparisGuid: null, // İade sevkiyatında siparişe direkt bağlanmaz, bu yüzden null bırakıyoruz
       stokKodu: k.stokKodu,
-      iadeyeKonuIrsaliyeGuidi: k.siparisGuid,
+      iadeyeKonuIrsaliyeGuidi: k.siparisGuid ?? undefined, // İade sevkiyatında iade konusu irsaliye guid'i olarak sipariş guid'ini kullanabiliriz
 
 
 
@@ -626,10 +633,8 @@ if (this.data.mode === 'select') {
 
         const dto: SevkIrsaliyeleriEkleDto = {
           iadedir: true,
-          muhatapFirma: this.postorder.muhatapFirma,
-          muhatapSube: this.postorder.muhatapSube,
-          sevkTarihi: new Date(),
-          nakliyeDeposu: { depoNo: 109, plaka: "sdsad", soforAdSoyad: "sadsa" },
+          cariKod: this.evrakdetay()?.cariKod || '',
+          sevkedenAdSoyad: "",
           kalemler: this.buildIadeSevkKalemleri(kalemler)
         };
 
@@ -675,10 +680,8 @@ if (this.data.mode === 'select') {
   private createFazlaMalIade(kalemler: KalemDto[]) {
     const dto: SevkIrsaliyeleriEkleDto = {
       iadedir: true,
-      muhatapFirma: this.postorder.muhatapFirma,
-      muhatapSube: this.postorder.muhatapSube,
-      sevkTarihi: new Date(),
-      nakliyeDeposu: { depoNo: 109, plaka: "sdsad", soforAdSoyad: "sadsa" },
+      cariKod: this.evrakdetay()?.cariKod || '',
+      sevkedenAdSoyad: "",
       kalemler: this.buildGercekIadeSevkKalemleri(kalemler)
     };
     this.shipmentnoteservice
@@ -739,14 +742,13 @@ if (this.data.mode === 'select') {
     this.dataSource.data = [];
     this.bulunanUrunler.set([]);
     this.postorder = {
-      evrakNoSeri: '',
-      evrakNoSira: 0,
-      muhatapFirma: null,
-      muhatapSube: null,
-      belgeNo: "",
-      qrCode: "",
-
-      kalemler: []
+       cariKod: '',
+        belgeNo: '',
+        qrData: '',
+        aracPlaka: '',
+      eIrsaliyeTarihi: new Date(),
+        teslimEdenAdSoyad: '',
+        kalemler: []
     };
     this.toastr.info('Form temizlendi', '', { timeOut: 2000 });
   }
@@ -880,32 +882,34 @@ if (this.data.mode === 'select') {
       }, 2000);
     }
   }
-  public manuelparseIrsaliyeNo(): { seri: string | null; sira: string | null } {
-    const irsaliyeNo = this.qrIrsaliyeNo();
 
-    if (!irsaliyeNo?.trim()) {
-      return { seri: null, sira: null };
-    }
+  // Manuel parse fonksiyonu (sadece seri ve sıra için)
+  // public manuelparseIrsaliyeNo(): { seri: string | null; sira: string | null } {
+  //   const irsaliyeNo = this.qrIrsaliyeNo();
 
-    const match = irsaliyeNo.match(/^([A-Za-z]+)(.*)$/);
+  //   if (!irsaliyeNo?.trim()) {
+  //     return { seri: null, sira: null };
+  //   }
 
-    if (!match) {
-      return { seri: null, sira: null };
-    }
+  //   const match = irsaliyeNo.match(/^([A-Za-z]+)(.*)$/);
 
-    const [, seri, rest] = match;
-    const numericMatch = rest.match(/\d+$/);
-    const numericPart = numericMatch?.[0] ?? '';
+  //   if (!match) {
+  //     return { seri: null, sira: null };
+  //   }
 
-    // Sağdan ilk sıfırı bul ve sağındakileri al
-    const lastZeroIndex = numericPart.lastIndexOf('0');
-    const sira = lastZeroIndex === -1
-      ? numericPart || '0'
-      : numericPart.substring(lastZeroIndex + 1) || '0';
+  //   const [, seri, rest] = match;
+  //   const numericMatch = rest.match(/\d+$/);
+  //   const numericPart = numericMatch?.[0] ?? '';
 
-    console.log('seri:', seri, 'sira:', sira);
-    return { seri, sira };
-  }
+  //   // Sağdan ilk sıfırı bul ve sağındakileri al
+  //   const lastZeroIndex = numericPart.lastIndexOf('0');
+  //   const sira = lastZeroIndex === -1
+  //     ? numericPart || '0'
+  //     : numericPart.substring(lastZeroIndex + 1) || '0';
+
+  //   console.log('seri:', seri, 'sira:', sira);
+  //   return { seri, sira };
+  // }
 
 
 

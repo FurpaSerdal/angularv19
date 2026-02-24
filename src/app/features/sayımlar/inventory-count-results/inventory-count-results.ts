@@ -9,8 +9,7 @@ import { NewInventoryCount } from '../new-inventory-count/new-inventory-count';
 import { MatDialog } from '@angular/material/dialog';
 import { MeService } from '../../../services/meservice.service';
 import { User } from '../../../models/user';
-import { Evrak, EvrakListResponse, SayimListModel } from '../../../models/evrakListModel';
-import { DetayResponse } from '../../../models/detay';
+import { SayimSonuclariListeDto } from '../../../models/liste-dtolari.model';
 
 
 
@@ -41,7 +40,7 @@ export class InventoryCountResults {
   // -------------------- UI STATE --------------------
 
 
-  listOfData: SayimListModel[] = [];
+  listOfData: SayimSonuclariListeDto[] = [];
 sortColumn: string = '';
 sortDirection: 'none' | 'asc' | 'desc' = 'none';
   constructor(
@@ -131,7 +130,7 @@ sortDirection: 'none' | 'asc' | 'desc' = 'none';
     }
 
     
-    this.stockcountService.getResults(currentGorevId, zamanlama).subscribe((data: SayimListModel[]) => {
+    this.stockcountService.getResults(currentGorevId, zamanlama).subscribe((data: SayimSonuclariListeDto[]) => {
 
       this.listOfData = data;
     });
@@ -153,12 +152,11 @@ showDetail(item: any) {
   console.log('Detay gösteriliyor için çağrıldı:', item);
   const taskId = this.gorevid();
 
-  const seri = 'deneme'; // 👈 API'nin istediği format
 
   const sym_evrakno = item.evrakNo;
 
   this.stockcountService
-    .detailsResult(taskId, sym_evrakno, seri)
+    .detailsResult(taskId, item.tarih, sym_evrakno)
     .subscribe({
       next: (data) => {
         this.detailData.set(data);

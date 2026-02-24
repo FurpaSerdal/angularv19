@@ -1,174 +1,218 @@
-<div class="container-fluid my-3">
-  <!-- Başlık Kartı -->
-  <div class="row">
+<div class="container-fluid vh-100 overflow-hidden py-2 d-flex flex-column"> <!-- py-3 -> py-2 -->
+  
+  <!-- Başlık Kartı (Sabit) -->
+  <div class="row flex-shrink-0 mb-2"> <!-- mb-3 -> mb-2 -->
     <div class="col-12">
-      <div class="card">
-        <div class="card-header">
+      <div class="card shadow-sm">
+        <div class="card-header py-2"> <!-- py-3 -> py-2 -->
           <div class="d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">
+            <h6 class="card-title mb-0 fw-semibold"> <!-- h5 -> h6 -->
               <i class="bi bi-truck me-2"></i>
               Depolardan Alınan (Satış) Siparişinden Sevk Evrakı Oluştur
-            </h5>
-            <button type="button" class="btn-close" aria-label="Kapat" (click)="kapat()"></button>
+            </h6>
+            <button type="button" class="btn-close btn-sm" aria-label="Kapat" (click)="kapat()"></button> <!-- btn-sm eklendi -->
           </div>
-        </div>
-        <div class="card-body">
-          <p class="card-text text-muted mb-0">
-            Bu sayfada, depolardan satış siparişinden sevk evrakı oluşturabilirsiniz.
-            Lütfen ürün ekleyin ve sevk miktarlarını belirleyin.
-          </p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Ana İçerik -->
-  <div class="row mt-3">
+  <!-- Ana İçerik - Üst Kısım (Sabit) -->
+  <div class="row mt-1 flex-shrink-0"> <!-- mt-3 -> mt-1 -->
     <div class="col-lg-8">
-      <!-- Ürün İşlemleri -->
-      <div class="card shadow-sm border-0 rounded-3 mb-3">
-        <div class="card-header bg-light">
-          <div class="d-flex justify-content-between align-items-center">
-            <h5 class="fw-semibold text-primary mb-0">
-              <i class="bi bi-box-seam me-2"></i>Ürün İşlemleri
-            </h5>
-            <span class="badge bg-primary">
-              {{ urunler().length }} ürün
-            </span>
+      <!-- Ürün İşlemleri (Kompakt) -->
+      <div class="card shadow-sm border-0 rounded-3 mb-2"> <!-- mb-3 -> mb-2 -->
+        <div class="card-header bg-white py-2"> <!-- py-3 -> py-2 -->
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2"> <!-- gap-3 -> gap-2 -->
+
+            <!-- Sol -->
+            <div class="d-flex align-items-center gap-2">
+              <i class="bi bi-box-seam text-primary"></i> <!-- fs-5 kaldırıldı -->
+              <h6 class="fw-semibold mb-0 small">Ürün İşlemleri</h6> <!-- small eklendi -->
+            </div>
+
+            <!-- Sağ -->
+            <div class="d-flex align-items-center gap-2"> <!-- gap-4 -> gap-2 -->
+
+              <!-- Sevk Deposu -->
+              <div class="px-2 py-0 rounded-3 bg-light border fw-semibold" style="font-size: 0.75rem;"> <!-- px-3 -> px-2, py-1 -> py-0 -->
+                <span class="text-muted me-1 small">Sevk Deposu:</span>
+                <span class="fs-6 text-dark">{{ karsiDepo() || '-' }}</span> <!-- fs-6 kaldırıldı -->
+              </div>
+
+              <!-- Ürün Sayısı -->
+              <div class="px-2 py-0 rounded-2 bg-primary bg-opacity-10 text-primary fw-semibold" style="font-size: 0.7rem;"> <!-- px-2, py-1 -> py-0 -->
+                {{ urunler().length }} ürün
+              </div>
+
+            </div>
           </div>
         </div>
-        <div class="card-body">
-          <div class="row g-2">
-            <div class="col-md-9">
-              <input 
-                type="text" 
-                class="form-control" 
-                placeholder="Ürün kodu veya adı girin..."
-                [(ngModel)]="urunAraMetni"
-                (keyup.enter)="urunEkle()" />
+
+        <div class="card-body pt-2 pb-2"> <!-- pt-3 -> pt-2, pb-3 -> pb-2 -->
+          <div class="row g-1"> <!-- g-2 -> g-1 -->
+            <div class="col-md-6">
+              <div class="input-group input-group-sm"> <!-- input-group-sm eklendi -->
+                <span class="input-group-text bg-white">
+                  <i class="bi bi-search text-muted"></i>
+                </span>
+                <input 
+                  type="text" 
+                  class="form-control"
+                  placeholder="Ürün kodu veya adı girin..."
+                  [(ngModel)]="urunAraMetni"
+                  (keyup.enter)="urunEkle()"
+                  style="font-size: 0.8rem;" />
+              </div>
             </div>
-            <div class="col-md-3">
+
+            <div class="col-md-2">
               <button 
-                class="btn btn-primary w-100" 
+                class="btn btn-primary btn-sm w-100 py-1" style="font-size: 0.8rem;" 
                 (click)="urunEkle()">
-                <i class="bi bi-plus-lg me-1"></i>Ekle
+                <i class="bi bi-plus-lg me-1"></i>
+                Ekle
               </button>
             </div>
+
+            <!-- SEVKEDEN AD SOYAD INPUT-->
+            <div class="col-md-4">
+              <input 
+                type="text" 
+                class="form-control form-control-sm" 
+                placeholder="Sevkeden Ad Soyad Girin..."
+                [(ngModel)]="postorder.sevkedenAdSoyad"
+                style="font-size: 0.8rem;" />
+             </div>
           </div>
         </div>
       </div>
     </div>
 
     <div class="col-lg-4">
-      <!-- Sevk Deposu Kartı -->
-      <div class="card shadow-sm border-0 rounded-3 mb-3">
-        <div class="card-header bg-light">
-          <h5 class="card-title mb-0">
-            <i class="bi bi-building me-2"></i>Sevk Deposu
-          </h5>
-        </div>
-        <div class="card-body">
-          <div class="fw-bold text-dark">{{ karsiDepo()?.isim || '-' }}</div>
-          <div class="text-muted small">Depo No: {{ karsiDepo()?.no || '-' }}</div>
-        </div>
-      </div>
-        
-      <!-- Sevk Özeti Kartı -->
+      <!-- Sevk Özeti Kartı (Kompakt) -->
       <div class="card shadow-sm border-0 rounded-3">
-        <div class="card-header bg-light">
-          <h5 class="card-title mb-0">
+        <div class="card-header bg-light py-1"> <!-- py-3 -> py-1 -->
+          <h6 class="card-title mb-0 fw-semibold small"> <!-- h5 -> h6, small eklendi -->
             <i class="bi bi-clipboard-data me-2"></i>Sevk Özeti
-          </h5>
+          </h6>
         </div>
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="text-muted">Toplam Ürün:</span>
-            <span class="badge bg-info">{{ urunler().length }}</span>
+        <div class="card-body py-1" style="font-size: 0.75rem;"> <!-- py-3 -> py-1 -->
+          <div class="d-flex justify-content-between align-items-center mb-1"> <!-- mb-2 -> mb-1 -->
+            <span class="text-muted small">Toplam Ürün:</span>
+            <span class="badge bg-info" style="font-size: 0.6rem;">{{ urunler().length }}</span>
           </div>
           <div class="d-flex justify-content-between align-items-center">
-            <span class="text-muted">Toplam Sevk Miktarı:</span>
-            <span class="badge bg-success">{{ toplamSevkMiktari() }}</span>
+            <span class="text-muted small">Toplam Sevk Miktarı:</span>
+            <span class="badge bg-success" style="font-size: 0.6rem;">{{ toplamSevkMiktari() }}</span>
           </div>
         </div>
       </div>
     </div>
   </div>
-  <!-- Ürün Listesi Tablosu -->
-  <div class="row">
-    <div class="col-12">
-      <div class="card shadow-sm border-0 rounded-3">
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-              <thead class="table-light">
-                <tr>
-                  <th><i class="bi bi-box me-1"></i>Ürün Adı</th>
-                  <th><i class="bi bi-upc me-1"></i>Kod</th>
-                  <th class="text-center">Sipariş Miktarı</th>
-                  <th class="text-center">Sevk Miktarı</th>
-                  <th class="text-center">İşlemler</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngIf="urunler().length === 0">
-                  <td colspan="5" class="text-center text-muted py-5">
-                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                    Henüz ürün eklenmedi
-                  </td>
-                </tr>
-                <tr *ngFor="let element of urunler(); let i = index; trackBy: trackByStokKodu">
-                  <td>
-                    <div class="fw-bold">{{ element.stokIsim }}</div>
-                  </td>
-                  <td>
-                    <code class="text-primary">{{ element.stokKodu }}</code>
-                  </td>
-                  <td class="text-center">
-                    <span class="badge bg-light text-dark">{{ element.siparisMiktari || '-' }}</span>
-                  </td>
-                  <td style="max-width: 140px;">
-                    <input 
-                      type="number" 
-                      class="form-control form-control-sm text-center"
-                      [(ngModel)]="element.sevkMiktari"
-                      (blur)="guncelleSignal()"
-                      min="0" />
-                  </td>
-                  <td class="text-center">
-                    <button 
-                      class="btn btn-sm btn-outline-danger" 
-                      (click)="urunCikar(element)"
-                      title="Ürünü Çıkar">
-                      <i class="bi bi-trash3-fill"></i>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Footer Butonlar -->
-          <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
-            <button 
-              class="btn btn-outline-secondary" 
-              (click)="temizle()"
-              [disabled]="gonderiliyor()">
-              <i class="bi bi-eraser me-1"></i>Temizle
-            </button>
-            <button 
-              class="btn btn-primary" 
-              (click)="kaydet()"
-              [disabled]="gonderiliyor() || urunler().length === 0">
-              <span *ngIf="!gonderiliyor()">
-                <i class="bi bi-save me-1"></i>Kaydet ve Gönder
-              </span>
-              <span *ngIf="gonderiliyor()">
-                <span class="spinner-border spinner-border-sm me-1"></span>
-                Kaydediliyor...
-              </span>
-            </button>
-          </div>
+  
+  <!-- Ürün Listesi Tablosu (SADECE BURADA SCROLL - Esnek yükseklik) -->
+  <div class="row mt-2 flex-fill" style="min-height: 0; overflow: hidden;"> <!-- mt-3 -> mt-2, flex-fill ve overflow hidden -->
+    <div class="col-12 h-100"> <!-- h-100 ile yüksekliği tam al -->
+      <div class="card shadow-sm border-0 rounded-3 h-100 d-flex flex-column"> <!-- flex-column ve h-100 -->
+        <div class="card-header bg-light py-1 flex-shrink-0"> <!-- flex-shrink-0 ile sabit başlık -->
+          <small class="fw-semibold" style="font-size: 0.7rem;">
+            <i class="bi bi-list-check me-2"></i>
+            Ürün Listesi ({{ urunler().length }} kalem)
+          </small>
         </div>
+        
+        <!-- Scroll sadece bu div'de, tüm kalan alanı kapla -->
+        <div class="card-body p-0 flex-fill overflow-auto"> <!-- flex-fill ve overflow-auto -->
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light sticky-top" style="top: 0; background: white; z-index: 10;">
+              <tr style="font-size: 0.7rem;">
+                <th><i class="bi bi-box me-1"></i>Ürün Adı</th>
+                <th><i class="bi bi-upc me-1"></i>Kod</th>
+                <th class="text-center">Sipariş</th>
+                <th class="text-center" width="120">Sevk Miktarı</th> <!-- width eklendi -->
+                <th class="text-center">Fark</th>
+                <th class="text-center" width="60">İşlem</th> <!-- width daraltıldı -->
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="urunler().length === 0">
+                <td colspan="6" class="text-center text-muted py-5" style="font-size: 0.75rem;">
+                  <i class="bi bi-inbox fs-4 d-block mb-2"></i> <!-- fs-1 -> fs-4 -->
+                  Henüz ürün eklenmedi
+                </td>
+              </tr>
+              <tr 
+                *ngFor="let element of urunler(); let i = index; trackBy: trackByStokKodu"
+                [ngClass]="{
+                  'table-success': ((element.siparisMiktari ?? 0) - (element.sevkMiktari ?? 0)) === 0,
+                  'table-danger': ((element.siparisMiktari ?? 0) - (element.sevkMiktari ?? 0)) > 0,
+                  'table-warning': ((element.siparisMiktari ?? 0) - (element.sevkMiktari ?? 0)) < 0
+                }"
+                style="font-size: 0.75rem;">
+                <td>
+                  <div class="fw-semibold">{{ element.stokIsim }}</div>
+                </td>
+                <td>
+                  <code class="text-primary" style="font-size: 0.7rem;">{{ element.stokKodu }}</code>
+                </td>
+                <td class="text-center">
+                  <span class="badge bg-light text-dark" style="font-size: 0.6rem;">{{ element.siparisMiktari || '-' }}</span>
+                </td>
+                <td style="max-width: 120px;">
+                  <input 
+                    type="number" 
+                    class="form-control form-control-sm text-center py-0" 
+                    [(ngModel)]="element.sevkMiktari"
+                    (blur)="guncelleSignal()"
+                    min="0"
+                    style="font-size: 0.7rem; width: 90px; margin: 0 auto;" /> <!-- width daraltıldı -->
+                </td>
+                <td class="text-center">
+                  <span 
+                class="badge bg-light text-dark"
+                    style="font-size: 0.6rem;">
+                    {{ (element.siparisMiktari ?? 0) - (element.sevkMiktari ?? 0) }}
+                  </span>
+                </td>
+                <td class="text-center">
+                  <button 
+                    class="btn btn-sm btn-outline-danger py-0" style="font-size: 0.7rem;"
+                    (click)="urunCikar(element)"
+                    title="Ürünü Çıkar">
+                    <i class="bi bi-trash3-fill"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Butonlar (Sabit) -->
+  <div class="row mt-2 flex-shrink-0"> <!-- mt-3 -> mt-2, flex-shrink-0 ile sabitlendi -->
+    <div class="col-12">
+      <div class="d-flex justify-content-end gap-2">
+        <button 
+          class="btn btn-outline-secondary btn-sm py-1" style="font-size: 0.8rem;"
+          (click)="temizle()"
+          [disabled]="gonderiliyor()">
+          <i class="bi bi-eraser me-1"></i>Temizle
+        </button>
+        <button 
+          class="btn btn-primary btn-sm py-1" style="font-size: 0.8rem;"
+          (click)="kaydet()"
+          [disabled]="gonderiliyor() || urunler().length === 0">
+          <span *ngIf="!gonderiliyor()">
+            <i class="bi bi-save me-1"></i>Kaydet ve Gönder
+          </span>
+          <span *ngIf="gonderiliyor()">
+            <span class="spinner-border spinner-border-sm me-1"></span>
+            Kaydediliyor...
+          </span>
+        </button>
       </div>
     </div>
   </div>

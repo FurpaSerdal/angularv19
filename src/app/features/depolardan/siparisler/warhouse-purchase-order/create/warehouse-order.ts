@@ -7,7 +7,9 @@ import { PurchaseOrdersService } from '../../../../../services/orders/purchase-o
 import { MatDialogRef } from '@angular/material/dialog';
 import { DepoCari, StokAraCT } from '../../../../../models/ortakModeller';
 import { listProducts } from '../../../../../models/listProduct';
-import { KalemDto, VerilenDepoSiparisleriEkleDto } from '../../../../../models/ekleModels';
+import {  VerilenDepoSiparisleriEkleDto } from '../../../../../models/ekle-dtolari.model';
+import { KalemDto } from '../../../../../models/ayrinti-dtolari.model';
+
 
 @Component({
   selector: 'app-warehouse-order',
@@ -64,7 +66,7 @@ export class WarehouseOrderComponent implements OnInit {
   );
 
   seciliDepo = computed(() =>
-    this.postorder().muhatapSube?.depoNo
+    this.postorder().muhatapDepoNo
   );
 
   // 👉 API DTO tek yerden üretiliyor
@@ -74,15 +76,17 @@ export class WarehouseOrderComponent implements OnInit {
 
   private createEmptyForm(): VerilenDepoSiparisleriEkleDto {
     return {
-      muhatapFirma: null,
-      muhatapSube: null,
+      muhatapDepoNo: 0,
+      siparisAlanAdSoyad: '',
       kalemler: []
+   
     };
   }
 
   // ===================== DEPO =====================
 
   depoAra(searchTerm: string) {
+    this.saveError.set(null);
     this.warehouseService.searchWarehouse(searchTerm).subscribe({
       next: res => this.bulunanDepolar.set(res),
       error: err => console.error(err)
@@ -90,22 +94,14 @@ export class WarehouseOrderComponent implements OnInit {
   }
 
   onDepoChange(depo: DepoCari) {
+    console.log('Seçilen depo:', depo);
     this.postorder.update(p => ({
       ...p,
-      muhatapSube: {
-        depoNo: depo.depoNo,
-        cariKod: depo.cariKod,
-        adres: depo.adres,
-        il: depo.il,
-        ilce: depo.ilce,
-        temsilciAdSoyad: depo.temsilciAdSoyad,
-        isim: depo.isim,
-        unvan: depo.unvan,
-        vergiDairesi: depo.vergiDairesi,
-        vknTckn: depo.vknTckn,
-        yetkiliAdSoyad: depo.yetkiliAdSoyad
-      }
+      muhatapDepoNo: depo.depoNo
     }));
+
+    console.log('Güncellenmiş postorder:', this.postorder());
+    this.depoAramaGirdisi.set(`${depo.depoNo} - ${depo.isim}`);
 
     this.bulunanDepolar.set([]);
   }
@@ -113,6 +109,11 @@ export class WarehouseOrderComponent implements OnInit {
   // ===================== ÜRÜN =====================
 
   onSearchChange(term: string) {
+    this.saveError.set(null);
+     if (this.seciliDepo() === null || this.seciliDepo() === undefined) {
+      this.saveError.set('Önce depo seçmelisiniz.');
+      return;
+    }
     this.arananUrun.set(term);
     this.urunAra();
   }
@@ -189,20 +190,23 @@ export class WarehouseOrderComponent implements OnInit {
   kaydet() {
     this.saveError.set(null);
     this.saveSuccess.set(false);
+    this.isSaving.set(true);
 
     const dto = this.mappedPostOrder();
 
-    if (!dto.muhatapSube?.depoNo) {
+    if (!dto.muhatapDepoNo) {
       this.saveError.set('Depo seçmelisiniz.');
+      this.isSaving.set(false);
+
       return;
     }
 
     if (dto.kalemler.length === 0) {
       this.saveError.set('En az bir ürün eklemelisiniz.');
+      this.isSaving.set(false);
       return;
     }
 
-    this.isSaving.set(true);
 
     this.purchaseOrdersService
       .createBranchOrder(this.gorevid(), dto)
@@ -236,8 +240,8 @@ export class WarehouseOrderComponent implements OnInit {
   private mapToPostOrder(): VerilenDepoSiparisleriEkleDto {
     return {
       ...this.postorder(),
-      muhatapFirma: null,
-      muhatapSube: this.postorder().muhatapSube,
+
+      siparisAlanAdSoyad: this.postorder().siparisAlanAdSoyad,
       kalemler: this.listProducts().map(k => ({
         stokKodu: k.stokKodu,
         siparisMiktari: k.miktar

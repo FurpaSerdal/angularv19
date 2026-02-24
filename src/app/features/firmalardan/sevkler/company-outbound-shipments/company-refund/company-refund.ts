@@ -7,10 +7,11 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dial
 import { ToastrService } from 'ngx-toastr';
 import { CompanyService } from '../../../../../services/company.service';
 import {  StokAraCT } from '../../../../../models/ortakModeller';
-import { KalemDto, SevkIrsaliyeleriEkleDto } from '../../../../../models/ekleModels';
 import { ShipmentNotesService } from '../../../../../services/shipments/shipment-notes.service';
 import { MeService } from '../../../../../services/meservice.service';
 import { listProducts } from '../../../../../models/listProduct';
+import { SevkIrsaliyeleriEkleDto } from '../../../../../models/ekle-dtolari.model';
+import { KalemDto } from '../../../../../models/ayrinti-dtolari.model';
 
 @Component({
   selector: 'app-company-refund',
@@ -60,18 +61,15 @@ export class CompanyRefund {
       this.seciliGorev.set(this.meservice.selectedGorev()?.id ?? 0);
     });
   }
-
   private initializeForm(): SevkIrsaliyeleriEkleDto {
     return {
+      sevkedenAdSoyad: '',
       iadedir: true,
-      muhatapFirma: { cariKod: '', unvan: '' },
-      muhatapSube: null,
-      nakliyeDeposu: { depoNo: this.kendiDepom(), plaka: '', soforAdSoyad: '' },
-      sevkTarihi: new Date(),
+      cariKod: '',
       kalemler: []
+
     };
   }
-
   ngOnInit(): void {
     const depom = localStorage.getItem('depoNo');
     const seciliGorevId = localStorage.getItem('seçiliGörevid');
@@ -105,10 +103,8 @@ export class CompanyRefund {
 
   firmaSec(firma: any) {
     this.seciliFirma.set(firma);
-    this.postorder.muhatapFirma = {
-      cariKod: firma.cariKod,
-      unvan: firma.cariUnvan || firma.unvan
-    };
+    this.postorder.cariKod = firma.cariKod;
+
     this.girilenCariKod.set(firma.cariKod);
     this.bulunancariler.set([]);
     this.toastr.success(`${firma.cariUnvan || firma.unvan} firması seçildi`, 'Başarılı');
@@ -128,7 +124,7 @@ export class CompanyRefund {
     }
 
     const dto = {
-      CariKod: this.postorder.muhatapFirma?.cariKod ?? '',
+      CariKod: this.postorder.cariKod,
       Bul: aranacakKelime.toLocaleLowerCase()
     };
 
@@ -232,11 +228,9 @@ export class CompanyRefund {
     }));
     return {
       ...this.postorder,
-    
       iadedir : true,
-      nakliyeDeposu : { depoNo: 109, plaka: '' , soforAdSoyad: this.formdata().duzenleyen },
-      sevkTarihi : new Date(),
-      muhatapFirma : { cariKod: this.seciliFirma()?.cariKod || '', unvan: this.seciliFirma()?.cariUnvan || '',yetkiliAdSoyad:this.formdata().muhatapTemsilci,vknTckn: this.formdata().vknTckn },
+      cariKod: this.postorder.cariKod,
+      sevkedenAdSoyad: this.formdata().duzenleyen,
       kalemler: kalemler
 
     };

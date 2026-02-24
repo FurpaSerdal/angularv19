@@ -9,8 +9,10 @@ import { ToastrService } from 'ngx-toastr';
 import { MeService } from '../../../../../services/meservice.service';
 import { CompanyGoodsReceipt } from '../company-goods-receipt/company-goods-receipt';
 import { MatDialogRef } from '@angular/material/dialog';
-import { KalemDto, VerilenSiparislerEkleDto } from '../../../../../models/ekleModels';
 import { listProducts } from '../../../../../models/listProduct';
+import Swal from 'sweetalert2';
+import { VerilenSiparislerEkleDto } from '../../../../../models/ekle-dtolari.model';
+import { KalemDto } from '../../../../../models/ayrinti-dtolari.model';
 
 
 @Component({
@@ -57,11 +59,9 @@ export class CompanyOrder {
 
   private initializeForm(): VerilenSiparislerEkleDto {
     return {
-      kalemler: [],
-      muhatapFirma: {cariKod: '',unvan:''},
-      muhatapSube: null,
-   
-  
+      cariKod: '',
+      siparisAlanAdSoyad: '',
+      kalemler: [] 
     };
   }
 
@@ -96,11 +96,7 @@ export class CompanyOrder {
   firmaSec(firma: CariHesapAraCT): void {
 
     this.seciliFirma = firma;
-    console.log('Seçilen Firma:', this.seciliFirma);
-    this.postorder.muhatapFirma = {
-      cariKod: firma.cariKod,unvan: firma.cariUnvan
-    };
-    console.log('Güncellenen Sipariş Formu:', this.postorder);
+    this.postorder.cariKod = firma.cariKod;
     this.searchInput = `${firma.cariKod} - ${firma.cariUnvan}`;
     this.bulunanFirmalar = [];
   }
@@ -109,7 +105,7 @@ export class CompanyOrder {
   urunAra(): void {
     const query = this.arananUrun.trim();
 
-    if (!query || !this.postorder.muhatapFirma) {
+    if (!query || !this.postorder.cariKod) {
       this.bulunanUrunler = [];
       return;
     }
@@ -120,7 +116,7 @@ export class CompanyOrder {
     }
 
     const dto: StokBulDto = {
-      CariKod: this.postorder.muhatapFirma?.cariKod || '',
+      CariKod: this.postorder.cariKod || '',
       Bul: query
     };
 
@@ -182,10 +178,23 @@ export class CompanyOrder {
   }
 
   // === KALEM OPERATIONS ===
-  kalemSil(index: number): void {
-    this.listProducts.set(this.listProducts().filter((_, i) => i !== index));
-  }
-
+kalemSil(index: number): void {
+  Swal.fire({
+    title: 'Kalemi silmek istediğinize emin misiniz?',
+    text: 'Bu işlem geri alınamaz!',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Evet, sil!',
+    cancelButtonText: 'Hayır, iptal',
+    reverseButtons: true
+  }).then((result) => {
+    if (result.isConfirmed) {
+      this.listProducts.set(
+        this.listProducts().filter((_, i) => i !== index)
+      );
+    }
+  });
+}
   kalemMiktarArttir(index: number): void {
     const kalem = this.listProducts()[index];
     if (kalem) {

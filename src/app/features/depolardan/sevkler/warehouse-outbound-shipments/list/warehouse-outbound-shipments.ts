@@ -18,8 +18,8 @@ import { ShipmentNotesService } from '../../../../../services/shipments/shipment
 import { WarehouseSend } from '../create/warehouse-send';
 import { WarehouseOutboundShipmentsDetailComponent } from '../detail/detail';
 import { ConvertToEWaybillComponent } from '../convert-to-ewaybill-component/convert-to-ewaybill-component';
-import { EvrakListResponse } from '../../../../../models/evrakListModel';
-import { DetayResponse } from '../../../../../models/detay';
+import { DepolaraSevkIrsaliyeleriListeDto } from '../../../../../models/liste-dtolari.model';
+import { DepolaraSevkIrsaliyeleriAyrintiDto } from '../../../../../models/ayrinti-dtolari.model';
 
 
 
@@ -45,11 +45,11 @@ pageSize = signal(10);
 
   // Yeni değişkenler
   currentView: 'table' | 'card' = 'table';
-  selectedRow: any = null;
+  selectedRow: DepolaraSevkIrsaliyeleriListeDto | null = null;
   
   // Tablo kolonları güncellendi
   displayedColumns = ['evrakNo', 'tarih', 'transfer', 'durum', 'islemler'];
-  DataSource: MatTableDataSource<any> = new MatTableDataSource<any>([]);
+  DataSource: MatTableDataSource<DepolaraSevkIrsaliyeleriListeDto> = new MatTableDataSource<DepolaraSevkIrsaliyeleriListeDto>([]);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -132,12 +132,15 @@ constructor(
 
   ngAfterViewInit() {
     this.DataSource.sort = this.sort;
+    if (!this.paginator) {
+      return;
+    }
+
     this.DataSource.paginator = this.paginator;
-    // ngAfterViewInit() içine ekle:
-this.paginator.page.subscribe((event) => {
-  this.pageIndex.set(event.pageIndex);
-  this.pageSize.set(event.pageSize);
-});
+    this.paginator.page.subscribe((event) => {
+      this.pageIndex.set(event.pageIndex);
+      this.pageSize.set(event.pageSize);
+    });
   }
 
   loadData(): void {
@@ -145,8 +148,8 @@ this.paginator.page.subscribe((event) => {
 
     this.yukleniyor.set(true);
     this.shipmentNotesService.getBranchShipments(this.gorevid(), "bugun").subscribe({
-      next: (data: EvrakListResponse) => {
-        this.DataSource.data = data.evraklar;
+      next: (data: DepolaraSevkIrsaliyeleriListeDto[]) => {
+        this.DataSource.data = data;
         this.yukleniyor.set(false);
       },
       error: () => {
@@ -163,12 +166,10 @@ const baslangic = this.datePipe.transform(this.dateRange.get('start')?.value, 'y
     if (baslangic && bitis) {
       const zamanlama: string = `aralik-${baslangic}-${bitis}`;
     this.DataSource.data = [];
-
-   
       this.yukleniyor.set(true);
       this.shipmentNotesService.getBranchShipments(this.gorevid(), zamanlama).subscribe({
-        next: (data: EvrakListResponse) => {
-          this.DataSource.data = data.evraklar;
+        next: (data: DepolaraSevkIrsaliyeleriListeDto[]) => {
+          this.DataSource.data = data;
           this.yukleniyor.set(false);
         },
         error: () => {
@@ -178,10 +179,10 @@ const baslangic = this.datePipe.transform(this.dateRange.get('start')?.value, 'y
       });
     }
   }
-  irsaliyeCevir(evrak: any): void {
+  irsaliyeCevir(evrak: DepolaraSevkIrsaliyeleriListeDto): void {
     this.yukleniyor.set(true);
-    this.shipmentNotesService.detailsBranchShipment(this.gorevid(), evrak.seri, evrak.sira).subscribe({
-      next: (data: any) => {
+    this.shipmentNotesService.detailsBranchShipment(this.gorevid(), evrak.seri ?? '', evrak.sira ?? 0).subscribe({
+      next: (data: DepolaraSevkIrsaliyeleriAyrintiDto) => {
         this.yukleniyor.set(false);
         const isMobile = this.breakpointObserver.isMatched(Breakpoints.Handset);  
         this.dialog.open(ConvertToEWaybillComponent, {
@@ -190,7 +191,7 @@ const baslangic = this.datePipe.transform(this.dateRange.get('start')?.value, 'y
           maxWidth: '100vw',
           disableClose: true,
           panelClass: isMobile ? 'full-screen-dialog' : '',
-          data: data
+          data: {data : data, subeNo: this.user()?.subeNo ?? 0}
         });
       },
       error: () => {
@@ -204,7 +205,7 @@ const baslangic = this.datePipe.transform(this.dateRange.get('start')?.value, 'y
   taskDetay(seri: string, sira: number): void {
     this.yukleniyor.set(true);
     this.shipmentNotesService.detailsBranchShipment(this.gorevid(), seri, sira).subscribe({
-      next: (data: DetayResponse) => {
+      next: (data: DepolaraSevkIrsaliyeleriAyrintiDto) => {
         this.yukleniyor.set(false);
         this.dialog.open(WarehouseOutboundShipmentsDetailComponent, {
           width: "50%",
@@ -234,40 +235,34 @@ const baslangic = this.datePipe.transform(this.dateRange.get('start')?.value, 'y
     });
   }
 
-  // EVRAK ÇEVİR
-  return(evrak: any) {
-    this.yukleniyor.set(true);
-    this.shipmentNotesService.detailsBranchShipment(this.gorevid(), evrak.seri, evrak.sira).subscribe({
-      next: (data: DetayResponse) => {
-        this.yukleniyor.set(false);
-        this.dialog.open(WarehouseSend, {
-          width: '50vw',
-          height: '70vh',
-          data: data
-        });
-      },
-      error: () => {
-        this.yukleniyor.set(false);
-        this.toastr.error('Task detayı alınırken hata oluştu', 'Hata');
-      }
-    });
-  }
+  // // EVRAK ÇEVİR
+  // return(evrak: DepolaraSevkIrsaliyeleriListeDto) {
+  //   this.yukleniyor.set(true);
+  //   this.shipmentNotesService.detailsBranchShipment(this.gorevid(), evrak.seri ?? '', evrak.sira ?? 0).subscribe({
+  //     next: (data: DepolaraSevkIrsaliyeleriAyrintiDto) => {
+  //       this.yukleniyor.set(false);
+  //       this.dialog.open(WarehouseSend, {
+  //         width: '50vw',
+  //         height: '70vh',
+  //         data: data
+  //       });
+  //     },
+  //     error: () => {
+  //       this.yukleniyor.set(false);
+  //       this.toastr.error('Task detayı alınırken hata oluştu', 'Hata');
+  //     }
+  //   });
+  // }
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
-    this.DataSource.filterPredicate = (data: any, filter: string) => {
+    this.DataSource.filterPredicate = (data: DepolaraSevkIrsaliyeleriListeDto, filter: string) => {
       return Object.keys(data).some(key => {
-        const value = data[key as keyof any];
+        const value = data[key as keyof DepolaraSevkIrsaliyeleriListeDto];
         if (typeof value === 'string') {
           return value.toLowerCase().includes(filter);
         } else if (typeof value === 'number') {
           return value.toString().includes(filter);
-        } else if (value && typeof value === 'object') {
-          // Depo objelerini de filtrele
-          if (key === 'depo' || key === 'muhatapDepo') {
-            return value.no.toString().includes(filter) || 
-                   value.isim.toLowerCase().includes(filter);
-          }
         }
         return false;
       });
@@ -282,57 +277,61 @@ const baslangic = this.datePipe.transform(this.dateRange.get('start')?.value, 'y
     this.currentView = view;
   }
 
-isSFDS(evrak: any): boolean {
-  return evrak.evrakNoSeri?.startsWith('SFDS') ?? false;
+isSFDS(evrak: DepolaraSevkIrsaliyeleriListeDto): boolean {
+  return evrak.seri?.startsWith('SFDS') ?? false;
 }
   // Satır seçme
-  selectRow(row: any): void {
+  selectRow(row: DepolaraSevkIrsaliyeleriListeDto): void {
     this.selectedRow = this.selectedRow === row ? null : row;
   }
 
   // Durum class'larını belirleyen fonksiyon
-  getStatusClass(evrak: any): string {
-     if (evrak.siparisSevkOlundu == true) {
-        return 'status-success';
+  // Durum class'larını belirleyen fonksiyon
+  getStatusClass(evrak: DepolaraSevkIrsaliyeleriListeDto): string {
+      if (evrak.durumu === '1') {
+        return "bg-warning bg-opacity-10 text-warning";
+      } else if (evrak.durumu === '2') {
+        return 'bg-info bg-opacity-10 text-info';
+      } else if (evrak.durumu === '3') {
+        return 'bg-primary bg-opacity-10 text-primary';
       }
-    if (evrak.onaylandi && evrak.sevkTeslimAlindi) {
-      return 'status-success';
-    } else if (evrak.onaylandi && !evrak.sevkTeslimAlindi) {
-      return 'status-warning';
-    } else {
-     
-      return 'status-pending';
-    }
+        else if (evrak.durumu === '4') {
+          return 'bg-success bg-opacity-10 text-success';
+        }
+      return 'bg-secondary bg-opacity-10 text-secondary';
   }
 
   // Durum icon'larını belirleyen fonksiyon
-  getStatusIcon(evrak: any): string {
-      if (evrak.siparisSevkOlundu == true) {
-        return 'bi bi-check-circle';
-      }
+  getStatusIcon(evrak: DepolaraSevkIrsaliyeleriListeDto): string {
 
-    if (evrak.onaylandi && evrak.sevkTeslimAlindi) {
-      return 'bi bi-check-circle';
-    } else if (evrak.onaylandi && !evrak.sevkTeslimAlindi) {
-      return 'bi bi-clock';
-    } else {
-    
-      return 'bi bi-hourglass';
-    }
+      if (evrak.durumu === '1') {
+        return 'bi bi-hourglass';
+      } else if (evrak.durumu === '2') {
+        return 'bi bi-check-lg';
+      } else if (evrak.durumu === '3') {
+        return 'bi bi-truck';
+      }
+        else if (evrak.durumu === '4') {
+          return 'bi bi-check-circle';
+        }
+      return 'bi bi-question-circle';
   }
 
   // Durum metnini belirleyen fonksiyon
-  getStatusText(evrak: any): string {
-         if (evrak.siparisSevkOlundu == true) {
-        return 'Sevk Edildi';
-      }
-    if (evrak.onaylandi && evrak.sevkTeslimAlindi) {
-      return 'Teslim Edildi';
-    } else if (evrak.onaylandi && !evrak.sevkTeslimAlindi) {
-      return 'Onaylandı';
-    } else {
+  getStatusText(evrak: DepolaraSevkIrsaliyeleriListeDto): string {
  
-      return 'Bekliyor';
-    }
+      if (evrak.durumu === '1') {
+        return 'Sipariş Hazır';
+      }
+      else if (evrak.durumu === '2') {
+        return 'Sevk Hazır / İrsaliye Bekleniyor';
+      }
+      else if (evrak.durumu === '3') {
+        return 'Yolda';
+      }
+        else if (evrak.durumu === '4') {
+          return 'Mal Kabulu Yapıldı';
+        }
+      return 'Bilinmeyen Durum';
   }
 }

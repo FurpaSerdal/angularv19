@@ -9,15 +9,15 @@ export class PurchaseOrdersService extends BaseApiService {
   
   // firma verilen siparişler
   getCompanyOrders(taskId: number, schedule: string):Observable<any> {
-    return this.get(`/liste/${taskId}/${schedule}`);
+    return this.get(`liste/${taskId}/${schedule}`);
   }
     //firma sipariş detay
   detailsCompanyOrder(taskId: number, seri: string, sira: number):Observable<any> {
-    return this.get(`/ayrinti/${taskId}/${seri}/${sira}`);
+    return this.get(`ayrinti/${taskId}/${seri}/${sira}`);
   }
     /** Firmaya sipariş ver */
   createCompanyOrder(taskId: number, payload: any): Observable<any> {
-    return this.post(`/ekle/${taskId}`, payload);
+    return this.post(`ekle/${taskId}`, payload);
   }
 
 

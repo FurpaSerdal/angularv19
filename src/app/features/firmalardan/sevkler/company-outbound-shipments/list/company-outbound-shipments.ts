@@ -12,13 +12,13 @@ import { ActivatedRoute } from '@angular/router';
 
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { SharedImports } from '../../../../../core/pipes/shared-imports';
-import { User } from '../../../../../models/user';
 import { ShipmentNotesService } from '../../../../../services/shipments/shipment-notes.service';
 import { MeService } from '../../../../../services/meservice.service';
 import { CompanyOutboundShipmentsDetailComponent } from '../detail/detail';
 import { CompanyRefund } from '../company-refund/company-refund';
-import { EvrakListResponse } from '../../../../../models/evrakListModel';
-import { DetayResponse } from '../../../../../models/detay';
+import { SevkIrsaliyeleriListeDto } from '../../../../../models/liste-dtolari.model';
+import { SevkIrsaliyeleriAyrintiDto } from '../../../../../models/ayrinti-dtolari.model';
+
 
 
 @Component({
@@ -43,11 +43,11 @@ pageSize = signal(10);
   
   // Yeni değişkenler
   currentView: 'table' | 'card' = 'table';
-  selectedRow: any = null;
+  selectedRow: SevkIrsaliyeleriListeDto | null = null;
   
   // Tablo kolonları güncellendi
   displayedColumns = ['evrakNo', 'tarih', 'transfer', 'durum', 'islemler'];
-  DataSource: MatTableDataSource<any> = new MatTableDataSource<any>([]);
+  DataSource: MatTableDataSource<SevkIrsaliyeleriListeDto> = new MatTableDataSource<SevkIrsaliyeleriListeDto>([]);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -131,12 +131,16 @@ paginatedCardData = computed(() => {
 
   ngAfterViewInit() {
     this.DataSource.sort = this.sort;
-    this.DataSource.paginator = this.paginator;
 
+    if (!this.paginator) {
+      return;
+    }
+
+    this.DataSource.paginator = this.paginator;
     this.paginator.page.subscribe((event) => {
-  this.pageIndex.set(event.pageIndex);
-  this.pageSize.set(event.pageSize);
-});
+      this.pageIndex.set(event.pageIndex);
+      this.pageSize.set(event.pageSize);
+    });
   }
 
   loadData(): void {
@@ -144,8 +148,8 @@ paginatedCardData = computed(() => {
 
     this.yukleniyor.set(true);
     this.shipmentNotesService.getCompanyShipments(this.gorevid(),"bugun").subscribe({
-      next: (data: EvrakListResponse) => {
-        this.DataSource.data = data.evraklar;
+      next: (data: SevkIrsaliyeleriListeDto[]) => {
+        this.DataSource.data = data;
         this.yukleniyor.set(false);
       },
       error: () => {
@@ -166,8 +170,8 @@ const baslangic = this.datePipe.transform(this.dateRange.get('start')?.value, 'y
     if (baslangic && bitis) {
       this.yukleniyor.set(true);
       this.shipmentNotesService.getCompanyShipments(this.gorevid(), zamanlama).subscribe({
-        next: (data: EvrakListResponse) => {
-          this.DataSource.data = data.evraklar;
+        next: (data: SevkIrsaliyeleriListeDto[]) => {
+          this.DataSource.data = data;
           this.yukleniyor.set(false);
         },
         error: () => {
@@ -181,7 +185,7 @@ const baslangic = this.datePipe.transform(this.dateRange.get('start')?.value, 'y
   taskDetay(seri: string, sira: number): void {
     this.yukleniyor.set(true);
     this.shipmentNotesService.detailsCompanyShipment(this.gorevid(), seri, sira).subscribe({
-      next: (data: DetayResponse) => {
+      next: (data: SevkIrsaliyeleriAyrintiDto) => {
         this.yukleniyor.set(false);
         this.dialog.open(CompanyOutboundShipmentsDetailComponent, {
           width: "50%",
@@ -211,10 +215,10 @@ const baslangic = this.datePipe.transform(this.dateRange.get('start')?.value, 'y
   }
 
   // EVRAK ÇEVİR
-  return(evrak: any) {
+  return(evrak: SevkIrsaliyeleriListeDto) {
     this.yukleniyor.set(true);
-    this.shipmentNotesService.detailsCompanyShipment(this.gorevid(), evrak.evrakNoSeri, evrak.evrakNoSira).subscribe({
-      next: (data: DetayResponse) => {
+    this.shipmentNotesService.detailsCompanyShipment(this.gorevid(), evrak.seri ?? '', evrak.sira ?? 0).subscribe({
+      next: (data: SevkIrsaliyeleriAyrintiDto) => {
         this.yukleniyor.set(false);
         this.dialog.open(CompanyRefund, {
           width: '50vw',
@@ -231,18 +235,20 @@ const baslangic = this.datePipe.transform(this.dateRange.get('start')?.value, 'y
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
-    this.DataSource.filterPredicate = (data: any, filter: string) => {
+    this.DataSource.filterPredicate = (data: SevkIrsaliyeleriListeDto, filter: string) => {
       return Object.keys(data).some(key => {
-        const value = data[key as keyof any];
+        const value = data[key as keyof SevkIrsaliyeleriListeDto];
         if (typeof value === 'string') {
           return value.toLowerCase().includes(filter);
         } else if (typeof value === 'number') {
           return value.toString().includes(filter);
         } else if (value && typeof value === 'object') {
-          // Depo objelerini de filtrele
-          if (key === 'depo' || key === 'muhatapDepo') {
-            return value.no.toString().includes(filter) || 
-                   value.isim.toLowerCase().includes(filter);
+          // Depo ve Firma objelerini de filtrele
+          if (key === 'depo' || key === 'musteriFirma') {
+            if ('no' in value && 'isim' in value) {
+              return (value as any).no?.toString().includes(filter) || 
+                     (value as any).isim?.toLowerCase().includes(filter);
+            }
           }
         }
         return false;
@@ -258,57 +264,30 @@ const baslangic = this.datePipe.transform(this.dateRange.get('start')?.value, 'y
     this.currentView = view;
   }
 
-isSFDS(evrak: any): boolean {
-  return evrak.evrakNoSeri?.startsWith('SFDS') ?? false;
+isSFDS(evrak: SevkIrsaliyeleriListeDto): boolean {
+  return evrak.seri?.startsWith('SFDS') ?? false;
 }
   // Satır seçme
-  selectRow(row: any): void {
+  selectRow(row: SevkIrsaliyeleriListeDto): void {
     this.selectedRow = this.selectedRow === row ? null : row;
   }
 
   // Durum class'larını belirleyen fonksiyon
-  getStatusClass(evrak: any): string {
-     if (evrak.siparisSevkOlundu == true) {
-        return 'status-success';
-      }
-    if (evrak.onaylandi && evrak.sevkTeslimAlindi) {
-      return 'status-success';
-    } else if (evrak.onaylandi && !evrak.sevkTeslimAlindi) {
-      return 'status-warning';
-    } else {
-     
+  getStatusClass(evrak: SevkIrsaliyeleriListeDto): string {
+ 
       return 'status-pending';
-    }
+
   }
+
 
   // Durum icon'larını belirleyen fonksiyon
-  getStatusIcon(evrak: any): string {
-      if (evrak.siparisSevkOlundu == true) {
-        return 'bi bi-check-circle';
-      }
-
-    if (evrak.onaylandi && evrak.sevkTeslimAlindi) {
-      return 'bi bi-check-circle';
-    } else if (evrak.onaylandi && !evrak.sevkTeslimAlindi) {
-      return 'bi bi-clock';
-    } else {
-    
+  getStatusIcon(evrak: SevkIrsaliyeleriListeDto): string {
       return 'bi bi-hourglass';
-    }
-  }
+ }
+
 
   // Durum metnini belirleyen fonksiyon
-  getStatusText(evrak: any): string {
-         if (evrak.siparisSevkOlundu == true) {
-        return 'Sevk Edildi';
-      }
-    if (evrak.onaylandi && evrak.sevkTeslimAlindi) {
-      return 'Teslim Edildi';
-    } else if (evrak.onaylandi && !evrak.sevkTeslimAlindi) {
-      return 'Onaylandı';
-    } else {
- 
-      return 'Bekliyor';
-    }
-  }
-}
+  getStatusText(evrak: SevkIrsaliyeleriListeDto): string {
+
+    return 'Beklemede';
+  }}

@@ -11,17 +11,14 @@ import { ToastrService } from 'ngx-toastr';
 import { ActivatedRoute } from '@angular/router';
 
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { startWith } from 'rxjs';
 import { SharedImports } from '../../../../../core/pipes/shared-imports';
-import { User } from '../../../../../models/user';
 import { PurchaseOrdersService } from '../../../../../services/orders/purchase-orders.service';
 import { MeService } from '../../../../../services/meservice.service';
 import { CompanyGoodsReceipt } from '../company-goods-receipt/company-goods-receipt';
 import { CompanyOrder } from '../company-order/company-order';
-import { DetayResponse } from '../../../../../models/detay';
-import { EvrakListResponse } from '../../../../../models/evrakListModel';
-import { ReceiveMode } from '../../../../../models/ekleModels';
 import { CompanyPurchaseOrderDetailComponent } from '../detail/detail';
+import { VerilenSiparislerListeDto } from '../../../../../models/liste-dtolari.model';
+import { VerilenSiparislerAyrintiDto } from '../../../../../models/ayrinti-dtolari.model';
 
 
 @Component({
@@ -45,15 +42,14 @@ export class CompanyPurchaseOrder {
 pageIndex = signal(0);
 pageSize = signal(10);
 
-  nextTaskId:number=0;
 
   // Yeni değişkenler
   currentView: 'table' | 'card' = 'table';
-  selectedRow: any = null;
+  selectedRow: VerilenSiparislerListeDto | null = null;
   
   // Tablo kolonları güncellendi
   displayedColumns = ['evrakNo', 'tarih', 'transfer', 'durum', 'onay', 'islemler'];
-  DataSource: MatTableDataSource<any> = new MatTableDataSource<any>([]);
+  DataSource: MatTableDataSource<VerilenSiparislerListeDto> = new MatTableDataSource<VerilenSiparislerListeDto>([]);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -98,6 +94,9 @@ paginatedCardData = computed(() => {
 
   readonly gorevid = computed(() =>
     this.meservice.selectedGorev()?.id ?? 0
+  );
+  readonly nextTaskId = computed(() =>
+    this.meservice.selectedGorev()?.siradakiGorev?.id ?? 0
   );
 
   readonly gorevadi = computed(() =>
@@ -147,9 +146,8 @@ this.paginator.page.subscribe((event) => {
 
     this.yukleniyor.set(true);
     this.purchaseOrdersService.getCompanyOrders(this.gorevid(), "bugun").subscribe({
-      next: (data: EvrakListResponse) => {
-        this.DataSource.data = data.evraklar;
-        this.nextTaskId=data.siradakiGorev.id;
+      next: (data: VerilenSiparislerListeDto[]) => {
+        this.DataSource.data = data;
         this.yukleniyor.set(false);
       },
       error: () => {
@@ -170,9 +168,8 @@ this.paginator.page.subscribe((event) => {
      this.DataSource.data = [];
       this.yukleniyor.set(true);
       this.purchaseOrdersService.getCompanyOrders(this.gorevid(), zamanlama).subscribe({
-        next: (data: EvrakListResponse) => {
-          this.DataSource.data = data.evraklar;
-          this.nextTaskId=data.siradakiGorev.id;
+        next: (data: VerilenSiparislerListeDto[]) => {
+          this.DataSource.data = data;
 
           this.yukleniyor.set(false);
         },
@@ -187,7 +184,7 @@ this.paginator.page.subscribe((event) => {
   taskDetay(seri: string, sira: number): void {
     this.yukleniyor.set(true);
     this.purchaseOrdersService.detailsCompanyOrder(this.gorevid(), seri, sira).subscribe({
-      next: (data: DetayResponse) => {
+      next: (data: VerilenSiparislerAyrintiDto) => {
         this.yukleniyor.set(false);
         this.dialog.open(CompanyPurchaseOrderDetailComponent, {
           width: "50%",
@@ -218,10 +215,10 @@ this.paginator.page.subscribe((event) => {
   }
 
   // EVRAK ÇEVİR
-  return(evrak: any) {
+  return(evrak: VerilenSiparislerListeDto) {
     this.yukleniyor.set(true);
-    this.purchaseOrdersService.detailsCompanyOrder(this.gorevid(), evrak.evrakNoSeri, evrak.evrakNoSira).subscribe({
-      next: (data: DetayResponse) => {
+    this.purchaseOrdersService.detailsCompanyOrder(this.gorevid(), evrak.seri ?? '', evrak.sira ?? 0).subscribe({
+      next: (data: VerilenSiparislerAyrintiDto) => {
         this.yukleniyor.set(false);
         this.dialog.open(CompanyGoodsReceipt, {
           width: '50vw',
@@ -230,7 +227,7 @@ this.paginator.page.subscribe((event) => {
           disableClose: true,
            data: {
                           detay: data,
-                          mode: 'select' as ReceiveMode,
+                          mode: 'select' ,
                           nextTaskId: this.nextTaskId
                           }
         });
@@ -244,18 +241,20 @@ this.paginator.page.subscribe((event) => {
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
-    this.DataSource.filterPredicate = (data: any, filter: string) => {
+    this.DataSource.filterPredicate = (data: VerilenSiparislerListeDto, filter: string) => {
       return Object.keys(data).some(key => {
-        const value = data[key as keyof any];
+        const value = data[key as keyof VerilenSiparislerListeDto];
         if (typeof value === 'string') {
           return value.toLowerCase().includes(filter);
         } else if (typeof value === 'number') {
           return value.toString().includes(filter);
         } else if (value && typeof value === 'object') {
-          // Depo objelerini de filtrele
-          if (key === 'depo' || key === 'muhatapDepo') {
-            return value.no.toString().includes(filter) || 
-                   value.isim.toLowerCase().includes(filter);
+          // Depo ve Firma objelerini de filtrele
+          if (key === 'depo' || key === 'musteriFirma') {
+            if ('no' in value && 'isim' in value) {
+              return (value as any).no?.toString().includes(filter) || 
+                     (value as any).isim?.toLowerCase().includes(filter);
+            }
           }
         }
         return false;
@@ -271,57 +270,57 @@ this.paginator.page.subscribe((event) => {
     this.currentView = view;
   }
 
-isSFDS(evrak: any): boolean {
-  return evrak.evrakNoSeri?.startsWith('SFDS') ?? false;
-}
+
   // Satır seçme
-  selectRow(row: any): void {
+  selectRow(row: VerilenSiparislerListeDto): void {
     this.selectedRow = this.selectedRow === row ? null : row;
   }
 
   // Durum class'larını belirleyen fonksiyon
-  getStatusClass(evrak: any): string {
-     if (evrak.siparisSevkOlundu == true) {
-        return 'status-success';
+  getStatusClass(evrak: VerilenSiparislerListeDto): string {
+      if (evrak.durumu === '1') {
+        return 'sipariş verildi';
+      } else if (evrak.durumu === '2') {
+        return 'sevk edildi';
       }
-    if (evrak.onaylandi && evrak.sevkTeslimAlindi) {
-      return 'status-success';
-    } else if (evrak.onaylandi && !evrak.sevkTeslimAlindi) {
-      return 'status-warning';
-    } else {
-     
-      return 'status-pending';
-    }
+      else if (evrak.durumu === '3') {
+        return 'mal kabul yapıldı';
+      }
+      else {
+        return 'order unknown';
+      }
+  
   }
 
   // Durum icon'larını belirleyen fonksiyon
-  getStatusIcon(evrak: any): string {
-      if (evrak.siparisSevkOlundu == true) {
-        return 'bi bi-check-circle';
+  getStatusIcon(evrak: VerilenSiparislerListeDto): string {
+      if (evrak.durumu === '1') {
+        return 'bi bi-hourglass';
+      } else if (evrak.durumu === '2') {
+        return 'local_shipping';
+      }
+      else if (evrak.durumu === '3') {
+        return 'inventory';
+      }
+      else {
+        return 'help_outline';
       }
 
-    if (evrak.onaylandi && evrak.sevkTeslimAlindi) {
-      return 'bi bi-check-circle';
-    } else if (evrak.onaylandi && !evrak.sevkTeslimAlindi) {
-      return 'bi bi-clock';
-    } else {
-    
-      return 'bi bi-hourglass';
-    }
+  
   }
 
   // Durum metnini belirleyen fonksiyon
-  getStatusText(evrak: any): string {
-         if (evrak.siparisSevkOlundu == true) {
-        return 'Sevk Edildi';
-      }
-    if (evrak.onaylandi && evrak.sevkTeslimAlindi) {
-      return 'Teslim Edildi';
-    } else if (evrak.onaylandi && !evrak.sevkTeslimAlindi) {
-      return 'Onaylandı';
-    } else {
- 
-      return 'Bekliyor';
+  getStatusText(evrak: VerilenSiparislerListeDto): string {
+     if (evrak.durumu === '1') {
+       return 'sipariş verildi';
+     } else if (evrak.durumu === '2') {
+       return 'sevk edildi';
+     }
+     else if (evrak.durumu === '3') {
+       return 'mal kabul yapıldı';
+     }
+     else {
+       return 'Bilinmiyor';
+     }
     }
   }
-}

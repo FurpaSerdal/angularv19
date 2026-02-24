@@ -1,110 +1,101 @@
-<div class="container-fluid py-3">
-    <div class="row">
+<div class="container-fluid py-2 d-flex flex-column" style="height: 100vh; overflow: hidden;"> <!-- py-3 -> py-2, d-flex flex-column, height ve overflow hidden eklendi -->
+  
+  <!-- BAŞLIK (Sabit) -->
+  <div class="row flex-shrink-0 mb-2"> <!-- flex-shrink-0 ile sabitlendi, mb-3 -> mb-2 -->
     <div class="col-12">
-      <div class="card">
-        <div class="card-header">
+      <div class="card shadow-sm">
+        <div class="card-header py-2"> <!-- py-3 -> py-2 -->
           <div class="d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">
+            <h6 class="card-title mb-0 fw-semibold"> <!-- h5 -> h6 -->
               <i class="bi bi-truck me-2"></i>
               Depolardan alınan (satış) Siparişi Oluştur
-            </h5>
-            <button type="button" class="btn-close" aria-label="Kapat" (click)="kapat()"></button>
+            </h6>
+            <button type="button" class="btn-close btn-sm" aria-label="Kapat" (click)="kapat()"></button> <!-- btn-sm eklendi -->
           </div>
         </div>
-        <div class="card-body">
-          <p class="card-text text-muted mb-0">
-    Bu sayfada, depolardan satış siparişi oluşturabilirsiniz. Lütfen depo seçimi yapın ve ürün ekleyin.
+        <div class="card-body py-1"> <!-- py-3 -> py-1 -->
+          <p class="card-text text-muted mb-0" style="font-size: 0.7rem;"> <!-- Daha küçük yazı -->
+            Bu sayfada, depolardan satış siparişi oluşturabilirsiniz. Lütfen depo seçimi yapın ve ürün ekleyin.
           </p>
         </div>
       </div>
     </div>
   </div>
-  <!-- ===== FORM + ÖZET ===== -->
-  <div class="row g-3">
+
+  <!-- ===== FORM + ÖZET (Sabit) ===== -->
+  <div class="row g-2 flex-shrink-0"> <!-- g-3 -> g-2, flex-shrink-0 ile sabitlendi -->
     <!-- SOL: FORM -->
     <div class="col-lg-8">
-     <!-- Depo Seçimi -->
-                        <div class="col-md-12">
-                            <label class="form-label fw-semibold text-primary mb-2">
-                                <i class="bi bi-shop me-2"></i>Depo Bul
-                            </label>
-                            <div class="input-group shadow-sm">
-                                <span class="input-group-text bg-white border-end-0">
-                                    <i class="bi bi-search text-primary"></i>
-                                </span>
-                                <input type="text"
+      <!-- Depo Seçimi (Kompakt) -->
+      <div class="col-md-12 mb-2"> <!-- mb-3 -> mb-2 -->
+        <label class="form-label fw-semibold text-primary mb-1" style="font-size: 0.7rem;"> <!-- mb-2 -> mb-1, yazı küçültüldü -->
+          <i class="bi bi-shop me-2"></i>Depo Bul
+        </label>
+        <div class="input-group input-group-sm"> <!-- shadow-sm kaldırıldı, input-group-sm eklendi -->
+          <span class="input-group-text bg-white border-end-0">
+            <i class="bi bi-search text-primary"></i>
+          </span>
+          <input type="text"
                  class="form-control border-start-0"
                  [(ngModel)]="depoAramaGirdisi"
                  (keyup.enter)="depoAra(depoAramaGirdisi())"
-                 placeholder="Depo adı veya kodu ile arayın">
-                                <button class="btn btn-primary" (click)="depoAra(depoAramaGirdisi())">
-                                    <i class="bi bi-search me-1"></i>Ara
-                                </button>
+                 placeholder="Depo adı veya kodu ile arayın"
+                 style="font-size: 0.8rem;">
+          <button class="btn btn-primary" (click)="depoAra(depoAramaGirdisi())">
+            <i class="bi bi-search me-1"></i>Ara
+          </button>
+        </div>
 
-
-                            </div>
-                            <!-- Depo Sonuçları -->
-                            <div *ngIf="bulunanDepolar().length > 0" class="mt-3">
-                                <div class="list-group shadow-sm">
-                                    <button *ngFor="let depo of bulunanDepolar()"
-                                        class="list-group-item list-group-item-action border-start-0 border-end-0 py-2"
-                                        (click)="onDepoChange(depo)">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <strong class="text-primary">{{ depo.isim }}</strong>
-                                                <div class="small text-muted mt-1">
-                                                    <i class="bi bi-geo-alt me-1"></i>{{ depo.depoNo }}
-                                                </div>
-                                            </div>
-                                            <span class="badge bg-info">
-                                                {{ depo.depoNo }}
-                                            </span>
-                                        </div>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                 
-
-            <!-- <div class="mb-3">
-        <label for=""> siparis veren</label>
-        <input type="text" class="form-control form-control-sm" [ngModel]="postorder().muhatapDepo.isim"
-          (ngModelChange)="postorder().muhatapDepo.isim = $event" name="siparisVeren">
-
+        <!-- Depo Sonuçları -->
+        <div *ngIf="bulunanDepolar().length > 0" class="mt-2"> <!-- mt-3 -> mt-2 -->
+          <div class="list-group shadow-sm" style="max-height: 150px; overflow-y: auto;"> <!-- Yükseklik sınırı ve scroll -->
+            <button *ngFor="let depo of bulunanDepolar()"
+                class="list-group-item list-group-item-action border-start-0 border-end-0 py-1 px-2" 
+                (click)="onDepoChange(depo)"
+                style="font-size: 0.75rem;">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <strong class="text-primary">{{ depo.isim }}</strong>
+                  <div class="small text-muted mt-0" style="font-size: 0.6rem;"> <!-- mt-1 -> mt-0 -->
+                    <i class="bi bi-geo-alt me-1"></i>{{ depo.depoNo }}
+                  </div>
+                </div>
+                <span class="badge bg-info" style="font-size: 0.6rem;">{{ depo.depoNo }}</span>
+              </div>
+            </button>
+          </div>
+        </div>
       </div>
-      <div class="mb-3">
-        <label for=""> siparis alan</label>
-        <input type="text" class="form-control form-control-sm" [ngModel]="postorder().muhatapDepo.isim"
-          (ngModelChange)="postorder().muhatapDepo.isim = $event" name="siparisAlan">
-      </div> -->
 
-      <!-- ÜRÜN ARAMA -->
-      <div class="card shadow-sm h-100">
-        <div class="card-header bg-light py-2">
-          <small class="fw-semibold">
+      <!-- ÜRÜN ARAMA (Kompakt) -->
+      <div class="card shadow-sm">
+        <div class="card-header bg-light py-1"> <!-- py-2 -> py-1 -->
+          <small class="fw-semibold" style="font-size: 0.7rem;">
             <i class="bi bi-box-seam me-2"></i>
             Ürün Arama
           </small>
         </div>
-        <div class="card-body">
+        <div class="card-body py-2"> <!-- py-3 -> py-2 -->
           <input type="text"
                  class="form-control form-control-sm"
                  placeholder="Ürün adı veya kodu..."
-               [value]="arananUrun()"
-               (input)="onSearchChange($any($event.target).value)"
-                 name="urunSearch">
+                 [value]="arananUrun()"
+                 (input)="onSearchChange($any($event.target).value)"
+                 name="urunSearch"
+                 style="font-size: 0.8rem;">
 
           <!-- SONUÇLAR -->
-          <div class="mt-2" *ngIf="bulunanUrunler().length > 0">
-            <div class="list-group list-group-flush small">
+          <div class="mt-2" *ngIf="bulunanUrunler().length > 0"> <!-- mt-2 -> mt-2 -->
+            <div class="list-group list-group-flush small" style="max-height: 150px; overflow-y: auto;"> <!-- Yükseklik sınırı ve scroll -->
               <button type="button"
-                      class="list-group-item list-group-item-action"
+                      class="list-group-item list-group-item-action py-1 px-2" 
+                      style="font-size: 0.75rem;"
                       *ngFor="let urun of bulunanUrunler()"
                       (click)="urunSec(urun)">
                 <div class="fw-semibold">
                   {{ urun.stokKod }} - {{ urun.stokIsim }}
                 </div>
-                <small class="text-muted">
+                <small class="text-muted" style="font-size: 0.6rem;">
                   Barkod: {{ urun.barKodu }} •
                   Fiyat: {{ urun.fiyati | number:'1.2-2' }} ₺
                 </small>
@@ -113,112 +104,113 @@
           </div>
 
           <div *ngIf="arananUrun().length >= 2 && bulunanUrunler().length === 0"
-               class="text-muted small mt-2">
+               class="text-muted small mt-1" style="font-size: 0.7rem;"> <!-- mt-2 -> mt-1 -->
             Ürün bulunamadı.
           </div>
         </div>
       </div>
     </div>
 
-    <!-- SAĞ: SEÇİLİ DEPO VE ÖZET -->
+    <!-- SAĞ: SEÇİLİ DEPO VE ÖZET (Kompakt) -->
     <div class="col-lg-4">
       <!-- SEÇİLİ DEPO BİLGİSİ -->
-      <div class="card shadow-sm mb-3" *ngIf="postorder().muhatapSube?.depoNo">
-        <div class="card-header bg-light py-2">
-          <small class="fw-semibold">
+      <div class="card shadow-sm mb-2" *ngIf="postorder().muhatapDepoNo"> <!-- mb-3 -> mb-2 -->
+        <div class="card-header bg-light py-1"> <!-- py-2 -> py-1 -->
+          <small class="fw-semibold" style="font-size: 0.7rem;">
             <i class="bi bi-warehouse me-2"></i>
             Seçili Depo
           </small>
         </div>
-        <div class="card-body small">
-          <div class="d-flex justify-content-between mb-2">
-            <span>Depo Adı:</span>
-        <span class="fw-semibold">{{ postorder().muhatapSube?.depoNo  }}</span> 
-          </div>
+        <div class="card-body py-1 small" style="font-size: 0.75rem;"> <!-- py-3 -> py-1 -->
           <div class="d-flex justify-content-between">
-            <span>Depo No:</span>
-            <span class="fw-semibold">{{ postorder().muhatapSube?.depoNo }}</span>
+            <span style="font-size: 0.7rem;">Depo No:</span>
+            <span class="fw-semibold">{{ postorder().muhatapDepoNo }}</span>
           </div>
         </div>
       </div>
 
       <!-- ÖZET -->
       <div class="card shadow-sm">
-        <div class="card-header bg-light py-2">
-          <small class="fw-semibold">
+        <div class="card-header bg-light py-1"> <!-- py-2 -> py-1 -->
+          <small class="fw-semibold" style="font-size: 0.7rem;">
             <i class="bi bi-clipboard-data me-2"></i>
             Sipariş Özeti
           </small>
         </div>
-        <div class="card-body small">
-          <div class="d-flex justify-content-between mb-2">
+        <div class="card-body py-1 small" style="font-size: 0.75rem;"> <!-- py-3 -> py-1 -->
+          <div class="d-flex justify-content-between mb-1" style="font-size: 0.7rem;"> <!-- mb-2 -> mb-1 -->
             <span>Toplam Kalem</span>
-            <span class="fw-semibold">
-              {{ toplamKalemSayisi() }}
-            </span>
+            <span class="fw-semibold">{{ toplamKalemSayisi() }}</span>
           </div>
-          <div class="d-flex justify-content-between mb-2">
+          <div class="d-flex justify-content-between" style="font-size: 0.7rem;"> <!-- mb-2 -> mb-0 (son eleman) -->
             <span>Toplam Miktar</span>
-            <span class="fw-semibold">
-              {{ toplamMiktar() }} adet
-            </span>
+            <span class="fw-semibold">{{ toplamMiktar() }} adet</span>
           </div>
-         
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ===== KALEMLER TABLOSU ===== -->
-  <div class="row mb-3" *ngIf="listProducts().length > 0">
-    <div class="col-12">
-      <div class="card shadow-sm">
-        <div class="card-body p-0 table-responsive">
+  <!-- ===== KALEMLER TABLOSU (SADECE BURADA SCROLL - Esnek yükseklik) ===== -->
+  <div class="row mt-2 flex-fill" *ngIf="listProducts().length > 0" style="min-height: 0; overflow: hidden;"> <!-- flex-fill ve overflow hidden -->
+    <div class="col-12 h-100"> <!-- h-100 ile yüksekliği tam al -->
+      <div class="card shadow-sm d-flex flex-column h-100"> <!-- flex-column ve h-100 -->
+        <div class="card-header bg-light py-1 flex-shrink-0"> <!-- flex-shrink-0 ile sabit başlık -->
+          <small class="fw-semibold" style="font-size: 0.7rem;">
+            <i class="bi bi-list-check me-2"></i>
+            Eklenen Ürünler ({{ listProducts().length }} kalem)
+          </small>
+        </div>
+        
+        <!-- Scroll sadece bu div'de, tüm kalan alanı kapla -->
+        <div class="card-body p-0 flex-fill overflow-auto"> <!-- flex-fill ve overflow-auto -->
           <table class="table table-sm table-striped align-middle mb-0">
-            <thead class="table-light">
-              <tr>
+            <thead class="table-light sticky-top" style="top: 0; background: white; z-index: 10;">
+              <tr style="font-size: 0.7rem;">
                 <th>Stok Adı</th>
                 <th>Stok Kodu</th>
                 <th>Barkod</th>
                 <th>Birim</th>
                 <th class="text-end">Fiyat</th>
-                <th class="text-center" width="140">Miktar</th>
-           
-                <th width="60"></th>
+                <th class="text-center" width="130">Miktar</th> <!-- width 140->130 -->
+                <th width="50"></th> <!-- width 60->50 -->
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let kalem of listProducts(); let i = index; trackBy: trackByKalem">
-                <td>{{ kalem.stokAdi }}</td>
-                <td>{{ kalem.stokKodu }}</td>
-                 <td>{{ kalem.barkod }}</td>
-                <td>{{ kalem.birimAd }}</td>
-                <td class="text-end">
-                  {{ kalem.fiyat  | number:'1.2-2' }}
-                </td>
+              <tr *ngFor="let kalem of listProducts(); let i = index; trackBy: trackByKalem" style="font-size: 0.75rem;">
                 <td>
-                  <div class="input-group input-group-sm">
-                    <button class="btn btn-outline-secondary" 
+                  <div class="fw-semibold">{{ kalem.stokAdi }}</div>
+                  <small class="text-muted" style="font-size: 0.6rem;">{{ kalem.barkod }}</small>
+                </td>
+                <td style="font-size: 0.7rem;">{{ kalem.stokKodu }}</td>
+                <td style="font-size: 0.7rem;">{{ kalem.barkod }}</td>
+                <td>
+                  <span class="badge bg-info" style="font-size: 0.6rem;">{{ kalem.birimAd }}</span>
+                </td>
+                <td class="text-end" style="font-size: 0.7rem;">{{ kalem.fiyat | number:'1.2-2' }}</td>
+                <td>
+                  <div class="input-group input-group-sm" style="max-width: 110px; margin: 0 auto;"> <!-- 140px -> 110px -->
+                    <button class="btn btn-outline-secondary py-0" 
                             type="button"
                             (click)="miktarAzalt(i)">
                       <i class="bi bi-dash"></i>
                     </button>
                     <input type="number"
-                           class="form-control form-control-sm text-center"
-                            [value]="kalem.miktar"
-                            min="1"
-                            (input)="miktarGir(i, $any($event.target).value)"
-                           name="miktar{{i}}">
-                    <button class="btn btn-outline-secondary" 
+                           class="form-control form-control-sm text-center py-0"
+                           [value]="kalem.miktar"
+                           min="1"
+                           (input)="miktarGir(i, $any($event.target).value)"
+                           name="miktar{{i}}"
+                           style="font-size: 0.7rem;">
+                    <button class="btn btn-outline-secondary py-0" 
                             type="button"
                             (click)="miktarArttir(i)">
                       <i class="bi bi-plus"></i>
                     </button>
                   </div>
                 </td>
-               
                 <td class="text-center">
-                  <button class="btn btn-sm btn-outline-danger"
+                  <button class="btn btn-sm btn-outline-danger py-0" style="font-size: 0.7rem;"
                           (click)="kalemSil(i)">
                     <i class="bi bi-trash"></i>
                   </button>
@@ -226,7 +218,7 @@
               </tr>
             </tbody>
             <tfoot class="table-light">
-              <tr>
+              <tr style="font-size: 0.75rem;">
                 <th colspan="6" class="text-end">Genel Toplam</th>
                 <th colspan="2" class="text-end">
                   {{ toplamTutar() | number:'1.2-2' }} ₺
@@ -239,31 +231,30 @@
     </div>
   </div>
 
-  <!-- ===== KAYDET ===== -->
-  <div class="row">
+  <!-- ===== KAYDET (Sabit) ===== -->
+  <div class="row mt-2 flex-shrink-0"> <!-- flex-shrink-0 ile sabitlendi -->
     <div class="col-md-8">
-  
       <!-- MESAJLAR -->
-      <div *ngIf="saveError()" class="alert alert-danger py-2">
+      <div *ngIf="saveError()" class="alert alert-danger py-1 px-2 mb-1" style="font-size: 0.7rem;"> <!-- py-2 -> py-1, px-3 -> px-2 -->
         {{ saveError() }}
       </div>
-      <div *ngIf="saveSuccess()" class="alert alert-success py-2">
+      <div *ngIf="saveSuccess()" class="alert alert-success py-1 px-2 mb-1" style="font-size: 0.7rem;"> <!-- py-2 -> py-1, px-3 -> px-2 -->
         Sipariş başarıyla kaydedildi.
       </div>
     </div>
 
     <!-- BUTONLAR -->
     <div class="col-md-4 text-md-end">
-      <div class="d-grid gap-2">
-        <button class="btn btn-primary"
+      <div class="d-grid gap-1"> <!-- gap-2 -> gap-1 -->
+        <button class="btn btn-primary btn-sm py-1" style="font-size: 0.8rem;"
                 (click)="kaydet()"
-                [disabled]="isSaving() ||  listProducts().length === 0">
+                [disabled]="isSaving() || listProducts().length === 0">
           <span *ngIf="isSaving()" class="spinner-border spinner-border-sm me-2"></span>
           <i *ngIf="!isSaving()" class="bi bi-check-lg me-2"></i>
           Siparişi Kaydet
         </button>
         
-        <button class="btn btn-outline-secondary btn-sm"
+        <button class="btn btn-outline-secondary btn-sm py-1" style="font-size: 0.8rem;"
                 (click)="tumunuTemizle()"
                 [disabled]="listProducts().length === 0">
           <i class="bi bi-trash me-1"></i>Tümünü Temizle

@@ -49,7 +49,7 @@ login(): void {
         console.log('Giriş başarılı:', response);
 
         this.authService.saveTokens(response.accessToken, response.refreshToken);
-        this.meService.fetchMe(); // Kullanıcı bilgilerini çek
+    //    this.meService.fetchMe(); // Kullanıcı bilgilerini çek
 
         // Başarı animasyonu için kısa bekleme
         setTimeout(() => {
@@ -77,6 +77,8 @@ login(): void {
 
   } else {
     this.errorMessage = 'Lütfen tüm alanları doldurun.';
+    this.isLoading = false;
+
   }
 }
 

@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, Input, Output, EventEmitter, OnInit
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MeService } from '../../services/meservice.service';
+import { AuthService } from '../../services/auth.service';
 @Component({
   selector: 'app-navbar',
   standalone: true,
@@ -15,8 +16,7 @@ export class NavbarComponent implements OnInit {
   @Output() sidebarToggle = new EventEmitter<void>();
 
   constructor(
-    public userService: MeService, // MeService inject
-    private router: Router
+    private authService: AuthService, public userService: MeService
   ) {}
 
   ngOnInit() {
@@ -32,11 +32,7 @@ export class NavbarComponent implements OnInit {
   }
 
   logout(): void {
-    console.log('Logging out...');
-    // UserService'teki clearUser metodunu kullan
-    this.userService.clearUser();
-    localStorage.clear();
-    sessionStorage.clear();
-    this.router.navigate(['/login']);
+    this.authService.clearTokens();
+
   }
 }

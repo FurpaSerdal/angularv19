@@ -8,8 +8,10 @@ import { SalesOrdersService } from '../../../../../services/orders/sales-orders.
 import { MeService } from '../../../../../services/meservice.service';
 import { MatDialogRef } from '@angular/material/dialog';
 import {  DepoCari, StokAraCT } from '../../../../../models/ortakModeller';
-import { AlinanDepoSiparisleriEkleDto, KalemDto } from '../../../../../models/ekleModels';
+
 import { listProducts } from '../../../../../models/listProduct';
+import { AlinanDepoSiparisleriEkleDto } from '../../../../../models/ekle-dtolari.model';
+import { KalemDto } from '../../../../../models/ayrinti-dtolari.model';
 
 
 
@@ -67,14 +69,15 @@ export class WarehouseOrderComponent implements OnInit {
     }, 0)
   );
 
-  seciliDepo = computed(() => this.postorder(). muhatapSube?.depoNo);
+  seciliDepo = computed(() => this.postorder().muhatapDepoNo);
 
   // ===================== INIT =====================
   private createEmptyForm(): AlinanDepoSiparisleriEkleDto {
     return {
-       muhatapSube: null,
-        muhatapFirma: null,
-       kalemler: []
+      muhatapDepoNo: 0,
+      siparisVerenAdSoyad: '',
+      kalemler: [],
+      
      
     };
   }
@@ -100,7 +103,8 @@ export class WarehouseOrderComponent implements OnInit {
     onDepoChange(depo:DepoCari) {
     this.postorder.update(p => ({
       ...p,
-      muhatapSube: { depoNo: depo.depoNo, cariKod: depo.cariKod ,adres:depo.adres,il:depo.il,ilce:depo.ilce,temsilciAdSoyad:depo.temsilciAdSoyad,isim:depo.isim,unvan:depo.unvan,vergiDairesi:depo.vergiDairesi,vknTckn:depo.vknTckn,yetkiliAdSoyad:depo.yetkiliAdSoyad}
+      muhatapDepoNo: depo.depoNo,
+
     }));
     this.bulunanDepolar.set([]);
   }
@@ -218,8 +222,6 @@ export class WarehouseOrderComponent implements OnInit {
   private mapToPostOrder(): AlinanDepoSiparisleriEkleDto {
     return {
       ...this.postorder(),
-      muhatapSube: this.postorder().muhatapSube,
-      muhatapFirma: null,
       kalemler: this.listProducts().map(k => ({
         stokKodu: k.stokKodu,
         siparisMiktari: k.miktar,
@@ -233,7 +235,7 @@ export class WarehouseOrderComponent implements OnInit {
     this.saveSuccess.set(false);
 
     // Validasyon
-    if (!this.postorder().muhatapSube || this.postorder().muhatapSube?.depoNo === 0) {
+    if (!this.postorder().muhatapDepoNo || this.postorder().muhatapDepoNo === 0) {
       this.saveError.set('Depo seçmelisiniz.');
       return;
     }

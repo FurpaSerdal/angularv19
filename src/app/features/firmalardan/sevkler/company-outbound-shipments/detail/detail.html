@@ -1,119 +1,99 @@
-<div class="container-fluid p-4">
+<div class="container-fluid p-3">
   <!-- Header -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="mb-0 text-primary">Evrak Detayları</h2>
-    <button class="btn btn-outline-secondary" (click)="kapat()">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0 text-primary">
+      <i class="bi bi-file-text me-2"></i>Evrak Detayları
+    </h4>
+    <button class="btn btn-sm btn-outline-secondary rounded-circle" (click)="kapat()">
       <i class="bi bi-x-lg"></i>
     </button>
   </div>
 
   <!-- Genel Bilgiler Kartı -->
-  <div class="card mb-4">
-    <div class="card-header bg-light">
-      <h5 class="card-title mb-0">Genel Bilgiler</h5>
+  <div class="card shadow-sm mb-3">
+    <div class="card-header bg-white py-2 px-3">
+      <h6 class="mb-0">
+        <i class="bi bi-info-circle me-2"></i>Genel Bilgiler
+      </h6>
     </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col-md-4 col-sm-6 mb-3">
-          <label class="form-label text-muted small mb-1">Evrak No:</label>
-          <div class="fw-bold">{{veri.evrak.evrakNoSeri}}-{{veri.evrak.evrakNoSira}}</div>
+    <div class="card-body py-2 px-3">
+      <div class="row g-2">
+        <div class="col-md-3 col-6">
+          <small class="text-muted d-block">Evrak No</small>
+          <span class="fw-semibold">{{data.seri}}-{{data.sira}}</span>
         </div>
-        <div class="col-md-4 col-sm-6 mb-3">
-          <label class="form-label text-muted small mb-1">Evrak Tarihi:</label>
-          <div class="fw-bold">{{veri.evrak.evrakTarihi | date:'dd.MM.yyyy'}}</div>
+        <div class="col-md-3 col-6">
+          <small class="text-muted d-block">Evrak Tarihi</small>
+          <span class="fw-semibold">{{data.tarih | date:'dd.MM.yyyy'}}</span>
         </div>
-        <div class="col-md-4 col-sm-6 mb-3">
-          <label class="form-label text-muted small mb-1">Teslim Tarihi:</label>
-          <div class="fw-bold">{{veri.evrak.teslimTarihi | date:'dd.MM.yyyy'}}</div>
+        <div class="col-md-3 col-6">
+          <small class="text-muted d-block">Teslim Tarihi</small>
+          <span class="fw-semibold">{{data.tarih | date:'dd.MM.yyyy'}}</span>
         </div>
-        <div class="col-md-4 col-sm-6 mb-3">
-          <label class="form-label text-muted small mb-1">Depo:</label>
-          <div class="fw-bold">{{veri.evrak.depo.isim}} (No: {{veri.evrak.depo.no}})</div>
+        <div class="col-md-3 col-6">
+          <small class="text-muted d-block">Muhatap Firma</small>
+          <span class="fw-semibold">{{data.muhatap}}</span>
         </div>
-        <div class="col-md-4 col-sm-6 mb-3">
-          <label class="form-label text-muted small mb-1">Muhatap Firma:</label>
-          <div class="fw-bold">{{veri.evrak.muhatapFirma.isim}} ({{veri.evrak.muhatapFirma.no}})</div>
-        </div>
-        <div class="col-md-4 col-sm-6 mb-3">
-          <label class="form-label text-muted small mb-1">Belge No:</label>
-          <div class="fw-bold">{{veri.evrak.belgeNo || '-'}}</div>
-        </div>
-        <div class="col-md-4 col-sm-6 mb-3">
-          <label class="form-label text-muted small mb-1">Durum:</label>
-          <div>
-            <span class="badge bg-success" *ngIf="veri.evrak.onaylandi">Onaylandı</span>
-            <span class="badge bg-warning" *ngIf="!veri.evrak.onaylandi">Onay Bekliyor</span>
-          </div>
-        </div>
-        <div class="col-md-4 col-sm-6 mb-3" *ngIf="veri.evrak.onaylayan">
-          <label class="form-label text-muted small mb-1">Onaylayan:</label>
-          <div class="fw-bold">{{veri.evrak.onaylayan}}</div>
-        </div>
-        <div class="col-md-4 col-sm-6 mb-3">
-          <label class="form-label text-muted small mb-1">Kare Kod:</label>
-          <div>
-            <code class="small">{{veri.evrak.kareKod}}</code>
-          </div>
+        <div class="col-md-3 col-6">
+          <small class="text-muted d-block">Belge No</small>
+          <span class="fw-semibold">{{data.belgeNo || '-'}}</span>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Kalemler Tablosu -->
-  <div class="card mb-4">
-    <div class="card-header bg-light d-flex justify-content-between align-items-center">
-      <h5 class="card-title mb-0">Evrak Kalemleri</h5>
-      <span class="badge bg-primary">{{veri.kalemleri.length || 0}} kalem</span>
+  <div class="card shadow-sm">
+    <div class="card-header bg-white py-2 px-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <h6 class="mb-0">
+          <i class="bi bi-list-ul me-2"></i>Evrak Kalemleri
+        </h6>
+        <span class="badge bg-primary rounded-pill">{{data.kalemler.length || 0}}</span>
+      </div>
     </div>
-    <div class="card-body">
+    
+    <div class="card-body p-0">
       <div class="table-responsive">
-        <table class="table table-hover" *ngIf="veri.kalemleri.length">
+        <table class="table table-sm table-hover mb-0" *ngIf="data.kalemler.length">
           <thead class="table-light">
             <tr>
-              <th scope="col">Stok Kodu</th>
-              <th scope="col">Ürün Adı</th>
-              <th scope="col">Sipariş Miktarı</th>
-              <th scope="col">Sevk Miktarı</th>
-              <th scope="col">Mal Kabul Miktarı</th>
-              <th scope="col">Durum</th>
+              <th class="ps-3">Stok Kodu</th>
+              <th>Ürün Adı</th>
+              <th class="text-end">Sipariş</th>
+              <th class="text-end">Sevk</th>
+              <th class="text-end pe-3">Mal Kabul</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let item of veri.kalemleri; let i = index">
-              <td>
-                <span class="badge bg-secondary">{{item.stokKodu}}</span>
-              </td>
-               <td>{{item.stokIsim}}</td>
-              <td>
-                <strong>{{item.siparisMiktari || 0}}</strong>
+            <tr *ngFor="let item of data.kalemler; let i = index">
+              <td class="ps-3">
+                <span class="badge bg-secondary bg-opacity-10 text-dark">{{item.stokKodu}}</span>
               </td>
               <td>
-                <strong>{{item.sevkMiktari || 0}}</strong>
-              </td>
-              <td>
-                <strong>{{item.malKabulMiktari || 0}}</strong>
-              </td>
-              <td>
-                <span class="badge" [ngClass]="item.durum === 'Tamamlandı' ? 'bg-success' : 'bg-warning'">
-                  {{item.durum || 'Bekliyor'}}
+                <span class="text-truncate d-inline-block" style="max-width: 250px;" [title]="item.stokIsmi">
+                  {{item.stokIsmi}}
                 </span>
               </td>
+              <td class="text-end fw-semibold">{{item.siparisMiktari || 0}}</td>
+              <td class="text-end fw-semibold">{{item.sevkMiktari || 0}}</td>
+              <td class="text-end pe-3 fw-semibold">{{item.malKabulMiktari || 0}}</td>
             </tr>
           </tbody>
         </table>
         
-        <div *ngIf="!veri.kalemleri.length" class="text-center py-5">
-          <i class="bi bi-inbox display-4 text-muted"></i>
-          <p class="text-muted mt-3">Evrakta kalem bulunmamaktadır.</p>
+        <div *ngIf="!data.kalemler.length" class="text-center py-4 text-muted">
+          <i class="bi bi-inbox d-block fs-4 mb-2"></i>
+          <small>Kalem bulunmamaktadır</small>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Butonlar -->
-  <div class="d-flex justify-content-end pt-3 border-top">
-    <button class="btn btn-primary" (click)="kapat()">
-      <i class="bi bi-check-circle me-2"></i>
+  <!-- Buton -->
+  <div class="d-flex justify-content-end mt-3">
+    <button class="btn btn-sm btn-primary px-4" (click)="kapat()">
+      <i class="bi bi-check-circle me-1"></i>
       Tamam
     </button>
   </div>

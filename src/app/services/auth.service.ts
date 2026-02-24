@@ -3,6 +3,9 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../environment';
 import { LoginRequest, LoginResponse } from '../models/user';
 import { Observable, tap } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
+import { MeService } from './meservice.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -11,7 +14,7 @@ export class AuthService {
   private readonly REFRESH_TOKEN = 'refreshToken';
   private apiUrl = environment.apiurl;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient ,private dialog: MatDialog, private router: Router,private meService: MeService) {}
 
   // ===== LOGIN =====
   login(data: LoginRequest): Observable<LoginResponse> {
@@ -39,16 +42,18 @@ export class AuthService {
   }
 
   clearTokens(): void {
-    localStorage.removeItem(this.ACCESS_TOKEN);
-    localStorage.removeItem(this.REFRESH_TOKEN);
+    this.meService.clearUserSignal(); // MeService'ten kullanıcı bilgisini temizle
+    this.dialog.closeAll(); // Tüm açık dialogları kapat
+    localStorage.clear();
+    sessionStorage.clear();
+      this.router.navigate(['/login']);
+
   }
 
   // ===== AUTH =====
-  isAuthenticated(): boolean {
-    const token = this.getAccessToken();
-    return !!token && !this.isTokenExpired(token);
-  }
-
+isAuthenticated(): boolean {
+  return !!this.getAccessToken();
+}
   // ===== REFRESH =====
   refreshToken(): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(

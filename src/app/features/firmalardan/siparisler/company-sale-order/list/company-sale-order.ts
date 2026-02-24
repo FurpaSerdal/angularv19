@@ -16,9 +16,9 @@ import { MeService } from '../../../../../services/meservice.service';
 import { PurchaseOrdersService } from '../../../../../services/orders/purchase-orders.service';
 import { SharedImports } from '../../../../../core/pipes/shared-imports';
 import { CompanyOrder } from '../create/company-order/company-order';
-import { EvrakListResponse } from '../../../../../models/evrakListModel';
 import { CompanySaleOrderDetailComponent } from '../detail/detail';
-import { DetayResponse } from '../../../../../models/detay';
+import { AlinanSiparislerListeDto } from '../../../../../models/liste-dtolari.model';
+import { AlinanSiparislerAyrintiDto } from '../../../../../models/ayrinti-dtolari.model';
 
 @Component({
   selector: 'app-company-sale-order',
@@ -42,11 +42,11 @@ pageSize = signal(10);
   
   // Yeni değişkenler
   currentView: 'table' | 'card' = 'table';
-  selectedRow: any = null;
+  selectedRow: AlinanSiparislerListeDto | null = null;
   
   // Tablo kolonları güncellendi
   displayedColumns = ['evrakNo', 'tarih', 'transfer', 'durum', 'islemler'];
-  DataSource: MatTableDataSource<any> = new MatTableDataSource<any>([]);
+  DataSource: MatTableDataSource<AlinanSiparislerListeDto> = new MatTableDataSource<AlinanSiparislerListeDto>([]);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -143,8 +143,8 @@ this.paginator.page.subscribe((event) => {
 
     this.yukleniyor.set(true);
     this.salseOrdersService.getCompanyOrders(this.gorevid(), "bugun").subscribe({
-      next: (data: EvrakListResponse) => {
-        this.DataSource.data = data.evraklar;
+            next: (data: AlinanSiparislerListeDto[]) => {
+        this.DataSource.data = data;
         this.yukleniyor.set(false);
       },
       error: () => {
@@ -161,8 +161,8 @@ this.paginator.page.subscribe((event) => {
     if (baslangic && bitis) {
       this.yukleniyor.set(true);
       this.salseOrdersService.getCompanyOrders(this.gorevid(), "").subscribe({
-        next: (data: EvrakListResponse) => {
-          this.DataSource.data = data.evraklar;
+        next: (data: AlinanSiparislerListeDto[]) => {
+          this.DataSource.data = data;
           this.yukleniyor.set(false);
         },
         error: () => {
@@ -176,7 +176,7 @@ this.paginator.page.subscribe((event) => {
   taskDetay(seri: string, sira: number): void {
     this.yukleniyor.set(true);
     this.salseOrdersService.detailsCompanyOrder(this.gorevid(), seri, sira).subscribe({
-      next: (data: DetayResponse) => {
+      next: (data: AlinanSiparislerAyrintiDto) => {
         this.yukleniyor.set(false);
         this.dialog.open(CompanySaleOrderDetailComponent, {
           width: "50%",
@@ -205,10 +205,10 @@ this.paginator.page.subscribe((event) => {
   }
 
   // EVRAK ÇEVİR
-  return(evrak: any) {
+  return(evrak: AlinanSiparislerListeDto) {
     this.yukleniyor.set(true);
-    this.salseOrdersService.detailsCompanyOrder(this.gorevid(), evrak.evrakNoSeri, evrak.evrakNoSira).subscribe({
-      next: (data: DetayResponse) => {
+    this.salseOrdersService.detailsCompanyOrder(this.gorevid(), evrak.seri ?? '', evrak.sira ?? 0).subscribe({
+      next: (data: AlinanSiparislerAyrintiDto) => {
         this.yukleniyor.set(false);
         this.dialog.open(CompanyOrder, {
           width: '50vw',
@@ -226,18 +226,20 @@ this.paginator.page.subscribe((event) => {
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
-    this.DataSource.filterPredicate = (data: any, filter: string) => {
+    this.DataSource.filterPredicate = (data: AlinanSiparislerListeDto, filter: string) => {
       return Object.keys(data).some(key => {
-        const value = data[key as keyof any];
+        const value = data[key as keyof AlinanSiparislerListeDto];
         if (typeof value === 'string') {
           return value.toLowerCase().includes(filter);
         } else if (typeof value === 'number') {
           return value.toString().includes(filter);
         } else if (value && typeof value === 'object') {
-          // Depo objelerini de filtrele
-          if (key === 'depo' || key === 'muhatapDepo') {
-            return value.no.toString().includes(filter) || 
-                   value.isim.toLowerCase().includes(filter);
+          // Depo ve Firma objelerini de filtrele
+          if (key === 'depo' || key === 'musteriFirma') {
+            if ('no' in value && 'isim' in value) {
+              return (value as any).no?.toString().includes(filter) || 
+                     (value as any).isim?.toLowerCase().includes(filter);
+            }
           }
         }
         return false;
@@ -253,57 +255,32 @@ this.paginator.page.subscribe((event) => {
     this.currentView = view;
   }
 
-isSFDS(evrak: any): boolean {
-  return evrak.evrakNoSeri?.startsWith('SFDS') ?? false;
+isSFDS(evrak: AlinanSiparislerListeDto): boolean {
+  return evrak.seri?.startsWith('SFDS') ?? false;
 }
   // Satır seçme
-  selectRow(row: any): void {
+  selectRow(row: AlinanSiparislerListeDto): void {
     this.selectedRow = this.selectedRow === row ? null : row;
   }
 
   // Durum class'larını belirleyen fonksiyon
-  getStatusClass(evrak: any): string {
-     if (evrak.siparisSevkOlundu == true) {
-        return 'status-success';
-      }
-    if (evrak.onaylandi && evrak.sevkTeslimAlindi) {
-      return 'status-success';
-    } else if (evrak.onaylandi && !evrak.sevkTeslimAlindi) {
-      return 'status-warning';
-    } else {
-     
+  getStatusClass(evrak: AlinanSiparislerListeDto): string {
+   
       return 'status-pending';
-    }
+    
   }
 
   // Durum icon'larını belirleyen fonksiyon
-  getStatusIcon(evrak: any): string {
-      if (evrak.siparisSevkOlundu == true) {
-        return 'bi bi-check-circle';
-      }
+  getStatusIcon(evrak: AlinanSiparislerListeDto): string {
 
-    if (evrak.onaylandi && evrak.sevkTeslimAlindi) {
-      return 'bi bi-check-circle';
-    } else if (evrak.onaylandi && !evrak.sevkTeslimAlindi) {
-      return 'bi bi-clock';
-    } else {
-    
       return 'bi bi-hourglass';
-    }
+    
   }
 
   // Durum metnini belirleyen fonksiyon
-  getStatusText(evrak: any): string {
-         if (evrak.siparisSevkOlundu == true) {
-        return 'Sevk Edildi';
-      }
-    if (evrak.onaylandi && evrak.sevkTeslimAlindi) {
-      return 'Teslim Edildi';
-    } else if (evrak.onaylandi && !evrak.sevkTeslimAlindi) {
-      return 'Onaylandı';
-    } else {
+  getStatusText(evrak: AlinanSiparislerListeDto): string {
  
       return 'Bekliyor';
-    }
+    
   }
 }

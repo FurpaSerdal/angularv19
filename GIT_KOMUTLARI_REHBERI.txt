@@ -1,0 +1,536 @@
+================================================================================
+                    GIT KOMUTLARI REHBERİ - DETAYLI AÇIKLAMALAR
+================================================================================
+
+Bu dosya, projede sık kullanılan Git komutlarını ve açıklamalarını içerir.
+
+
+1. TEMEL GIT KOMUTLARI
+================================================================================
+
+git status
+----------
+Ne işe yarar: Çalışma dizinindeki durumu gösterir
+- Hangi dosyalar değişti
+- Hangi dosyalar stage'e eklendi
+- Hangi branch'tesiniz
+- Remote ile senkronizasyon durumu
+
+Kullanım: git status
+
+
+git add
+-------
+Ne işe yarar: Değişiklikleri commit için hazırlar (stage'e ekler)
+
+git add .                    # Sadece mevcut klasördeki tüm değişiklikleri ekler
+git add -A                   # BÜTÜN proje içindeki tüm değişiklikleri ekler (önerilen)
+git add dosya.ts             # Sadece belirli bir dosyayı ekler
+git add src/app/*.ts         # Belirli klasördeki tüm .ts dosyalarını ekler
+
+En güvenli: git add -A (tüm silinen, değiştirilen ve yeni dosyaları ekler)
+
+
+git commit
+----------
+Ne işe yarar: Stage'deki değişiklikleri kalıcı olarak kaydeder
+
+git commit -m "Açıklayıcı mesaj buraya"
+git commit -m "feat: Yeni özellik eklendi"
+git commit -m "fix: Hata düzeltildi"
+git commit -m "refactor: Kod iyileştirmesi"
+
+İyi commit mesajı örnekleri:
+- "feat: Kullanıcı girişi eklendi"
+- "fix: Null pointer hatası düzeltildi"
+- "refactor: Servis yapısı iyileştirildi"
+- "style: Kod formatlaması düzenlendi"
+- "docs: README güncellendi"
+
+
+git push
+--------
+Ne işe yarar: Local commit'leri remote'a (GitHub/GitLab) gönderir
+
+git push origin branch-adi              # Belirli branch'i push et
+git push origin backend14               # backend14 branch'ini push et
+git push origin api-v15                 # api-v15 branch'ini push et
+git push -u origin yeni-branch          # İlk kez push ederken (-u upstream ayarlar)
+git push --force                        # DIKKAT: Zorla push et (tehlikeli!)
+
+Not: İlk push'ta "git push -u origin branch-adi" kullanın, sonraki push'larda sadece "git push"
+
+
+git pull
+--------
+Ne işe yarar: Remote'taki değişiklikleri local'e çeker ve merge eder
+
+git pull origin guncel                  # guncel branch'inden çek
+git pull origin main                    # main branch'inden çek
+git pull                                # Mevcut branch'in remote karşılığını çek
+
+Ne zaman kullanılır:
+- Ekip arkadaşlarınızın değişikliklerini almak için
+- Farklı bilgisayardan çalıştıktan sonra
+- Merge yapmadan önce branch'i güncellemek için
+
+
+2. BRANCH (DAL) YÖNETİMİ
+================================================================================
+
+Branch Oluşturma
+----------------
+git branch yeni-branch-adi              # Yeni branch oluştur (ama geçme)
+git checkout -b yeni-branch-adi         # Yeni branch oluştur VE ona geç (önerilen)
+
+Örnekler:
+git checkout -b feature/user-login      # Yeni özellik için
+git checkout -b fix/bug-123             # Hata düzeltme için
+git checkout -b api-v15                 # API versiyonu için
+
+
+Branch Değiştirme
+-----------------
+git checkout branch-adi                 # Başka branch'e geç
+git checkout guncel                     # guncel branch'ine geç
+git checkout main                       # main branch'ine geç
+git switch branch-adi                   # Alternatif (modern yöntem)
+
+Not: Branch değiştirmeden önce değişikliklerinizi commit edin veya stash yapın!
+
+
+Branch Listeleme
+----------------
+git branch                              # Local branch'leri göster
+git branch -a                           # Tüm branch'leri göster (local + remote)
+git branch -r                           # Sadece remote branch'leri göster
+git branch --show-current               # Şu anki branch'i göster
+
+Örnek çıktı:
+* api-v15                               # (*) işareti aktif branch'i gösterir
+  backend14
+  guncel
+  main
+
+
+Branch Silme
+------------
+git branch -d branch-adi                # Branch'i sil (güvenli, merge edilmemişse uyarır)
+git branch -D branch-adi                # Branch'i zorla sil (dikkatli kullanın!)
+git push origin --delete branch-adi     # Remote'taki branch'i sil
+
+Örnek:
+git branch -d old-feature
+git push origin --delete old-feature
+
+
+3. MERGE İŞLEMLERİ (BRANCH BİRLEŞTİRME)
+================================================================================
+
+Temel Merge
+-----------
+SENARYO: backend14 branch'indeki değişiklikleri guncel branch'ine almak
+
+Adım 1: Hedef branch'e geç (değişiklikleri alacak branch)
+git checkout guncel
+
+Adım 2: Remote'tan son güncellemeleri al
+git pull origin guncel
+
+Adım 3: Merge yap
+git merge backend14
+
+Adım 4: Remote'a gönder
+git push origin guncel
+
+
+Merge Tipleri
+-------------
+Fast-Forward Merge: Conflict olmaz, direkt ileri alır
+Gerçek Merge: Merge commit oluşturur
+Conflict: Manuel düzenleme gerektirir
+
+
+Merge Conflict Çözümü
+----------------------
+1. Conflict olduğunda git şöyle gösterir:
+   CONFLICT (content): Merge conflict in src/app/app.ts
+
+2. Dosyayı açın, conflict işaretlerini göreceksiniz:
+   <<<<<<< HEAD
+   const version = 'v14';      // Mevcut branch'teki kod
+   =======
+   const version = 'v15';      // Merge etmeye çalıştığınız kod
+   >>>>>>> backend14
+
+3. Conflict'i çözün (doğru kodu seçin):
+   const version = 'v15';      // Hangisini istiyorsanız
+
+4. Dosyayı kaydedin
+
+5. Çözümü commit edin:
+   git add .
+   git commit -m "Merge conflict çözüldü"
+   git push
+
+
+4. DOSYA İŞLEMLERİ
+================================================================================
+
+Dosya Durumunu Kontrol Etme
+---------------------------
+git status                              # Tüm değişiklikleri göster
+git diff                                # Değişikliklerin detayını göster
+git diff dosya.ts                       # Belirli dosyanın değişikliklerini göster
+git diff branch1..branch2               # İki branch arasındaki farkları göster
+
+
+Değişiklikleri Geri Alma
+-------------------------
+git restore dosya.ts                    # Dosyadaki değişiklikleri geri al (stage'e eklenmemiş)
+git restore --staged dosya.ts           # Stage'den çıkar (değişiklik kalır)
+git checkout -- dosya.ts                # Eski yöntem (restore yerine)
+
+git reset HEAD dosya.ts                 # Stage'den çıkar
+git reset --hard HEAD                   # DIKKAT: Tüm değişiklikleri sil (geri alınamaz!)
+git reset --hard HEAD~1                 # Son commit'i geri al
+
+
+Dosya Taşıma ve Silme
+---------------------
+git mv eski-dosya.ts yeni-dosya.ts      # Dosyayı taşı/yeniden adlandır
+git rm dosya.ts                         # Dosyayı sil (git'ten de kaldır)
+git rm --cached dosya.ts                # Sadece git'ten çıkar (dosya kalır)
+
+
+5. GEÇMİŞ VE LOG
+================================================================================
+
+Commit Geçmişi
+--------------
+git log                                 # Tüm commit'leri göster (uzun)
+git log --oneline                       # Kısa göster (önerilen)
+git log --oneline -10                   # Son 10 commit
+git log --oneline --graph --all         # Grafik olarak tüm branch'ler
+
+git log --author="İsim"                 # Belirli kişinin commit'leri
+git log --since="2 weeks ago"           # Son 2 haftanın commit'leri
+git log --grep="fix"                    # "fix" içeren commit'ler
+
+
+Belirli Commit'i İnceleme
+--------------------------
+git show abc1234                        # Commit detayını göster
+git show HEAD                           # Son commit'i göster
+git show HEAD~1                         # Son commit'ten bir önceki
+
+
+6. UZAK REPO (REMOTE) YÖNETİMİ
+================================================================================
+
+Remote Bilgisi
+--------------
+git remote -v                           # Remote repo adreslerini göster
+git remote show origin                  # Origin hakkında detaylı bilgi
+
+Örnek çıktı:
+origin  https://github.com/kullanici/proje.git (fetch)
+origin  https://github.com/kullanici/proje.git (push)
+
+
+Remote Güncelleme
+-----------------
+git fetch                               # Remote'taki yeni branch'leri ve değişiklikleri öğren
+git fetch --all                         # Tüm remote'ları güncelle
+git fetch --prune                       # Silinmiş remote branch'leri temizle
+
+
+7. STASH (GEÇİCİ KAYIT)
+================================================================================
+
+Ne işe yarar: Commitlemeden değişiklikleri geçici olarak kaydet
+
+Stash Yapma
+-----------
+git stash                               # Tüm değişiklikleri geçici kaydet
+git stash save "Açıklama"               # Açıklama ile kaydet
+git stash -u                            # Untracked dosyaları da kaydet
+
+
+Stash Listeleme
+---------------
+git stash list                          # Tüm stash'leri göster
+
+Örnek çıktı:
+stash@{0}: WIP on api-v15: abc1234 Son commit
+stash@{1}: WIP on guncel: def5678 Önceki kayıt
+
+
+Stash Geri Yükleme
+------------------
+git stash pop                           # En son stash'i geri yükle ve sil
+git stash apply                         # En son stash'i geri yükle (silme)
+git stash apply stash@{1}               # Belirli stash'i geri yükle
+git stash drop stash@{0}                # Belirli stash'i sil
+git stash clear                         # Tüm stash'leri sil
+
+
+Kullanım Senaryosu:
+-------------------
+1. Bir feature üzerinde çalışıyorsunuz
+2. Acil bug fix yapmanız gerek
+3. git stash                            # Değişiklikleri kaydet
+4. git checkout main                    # Ana branch'e geç
+5. Bug'ı düzeltin ve commit edin
+6. git checkout feature-branch          # Geri dön
+7. git stash pop                        # Çalışmanıza devam edin
+
+
+8. ALINAN BRANCH'I MERGE ETME - ADIM ADIM
+================================================================================
+
+Senaryo: backend14 branch'indeki değişiklikleri guncel branch'ine almak
+
+ADIM 1: Mevcut durumu kontrol et
+---------------------------------
+git status                              # Değişiklik var mı kontrol et
+
+Eğer değişiklikler varsa:
+git add -A
+git commit -m "Değişiklikler kaydedildi"
+git push origin backend14
+
+
+ADIM 2: Hedef branch'e geç
+---------------------------
+git checkout guncel                     # guncel branch'ine geç
+
+
+ADIM 3: Remote'tan son güncellemeleri al
+----------------------------------------
+git pull origin guncel                  # Son değişiklikleri çek
+
+
+ADIM 4: Merge yap
+-----------------
+git merge backend14                     # backend14'ü guncel'e merge et
+
+
+ADIM 5: Eğer conflict yoksa, push et
+-------------------------------------
+git push origin guncel                  # Merge'ü remote'a gönder
+
+
+ADIM 6: Eğer conflict varsa
+----------------------------
+# Conflict olan dosyaları düzenle
+# Conflict işaretlerini (<<<, ===, >>>) kaldır
+# Doğru kodu seç
+
+git add .                               # Çözülen dosyaları ekle
+git commit -m "Merge conflict çözüldü"
+git push origin guncel
+
+
+9. YENİ BRANCH OLUŞTURMA VE GEÇME
+================================================================================
+
+Tek Komutla (Önerilen)
+----------------------
+git checkout -b api-v15                 # Oluştur ve geç
+
+Bu komut şunları yapar:
+1. Mevcut branch'ten yeni branch oluşturur
+2. Otomatik olarak yeni branch'e geçer
+
+
+İki Aşamalı
+-----------
+git branch api-v15                      # Sadece oluştur
+git checkout api-v15                    # Sonra geç
+
+
+Belirli Commit'ten Branch Oluşturma
+------------------------------------
+git checkout -b yeni-branch abc1234     # abc1234 commit'inden branch oluştur
+
+
+Remote Branch'ten Branch Oluşturma
+-----------------------------------
+git checkout -b local-branch origin/remote-branch
+
+
+10. GÜNLÜK ÇALIŞMA AKIŞI (WORKFLOW)
+================================================================================
+
+Sabah İşe Başlarken
+-------------------
+1. git pull origin guncel               # Son güncellemeleri al
+2. git checkout -b yeni-ozellik         # Yeni feature için branch aç
+3. Kodlamanıza başlayın
+
+
+Gün İçinde - Sık Sık
+--------------------
+1. git status                           # Ne değişti kontrol et
+2. git add -A                           # Değişiklikleri ekle
+3. git commit -m "Açıklama"             # Kaydet
+4. git push origin yeni-ozellik         # Remote'a gönder
+
+
+Gün Sonu veya Feature Tamamlandığında
+--------------------------------------
+1. git checkout guncel                  # Ana branch'e geç
+2. git pull origin guncel               # Güncel hali al
+3. git checkout yeni-ozellik            # Feature branch'ine dön
+4. git merge guncel                     # Ana branch'i feature'a merge et (conflict kontrolü)
+5. git checkout guncel                  # Ana branch'e dön
+6. git merge yeni-ozellik               # Feature'ı ana branch'e merge et
+7. git push origin guncel               # Gönder
+
+
+11. HATA ÇÖZÜMLEME
+================================================================================
+
+"Your branch is ahead of origin by X commits"
+----------------------------------------------
+Anlamı: Local'de X adet commit var, remote'ta yok
+Çözüm: git push origin branch-adi
+
+
+"Your branch is behind origin by X commits"
+--------------------------------------------
+Anlamı: Remote'ta X adet yeni commit var
+Çözüm: git pull origin branch-adi
+
+
+"Untracked files present"
+-------------------------
+Anlamı: Yeni dosyalar var, git takip etmiyor
+Çözüm: git add -A (tümünü ekle)
+
+
+"Changes not staged for commit"
+--------------------------------
+Anlamı: Değişiklikler var ama stage'e eklenmemiş
+Çözüm: git add -A
+
+
+"Please commit your changes or stash them"
+------------------------------------------
+Anlamı: Branch değiştirmeden önce değişiklikleri kaydet
+Çözüm 1: git commit -m "Mesaj"
+Çözüm 2: git stash (geçici kaydet)
+
+
+"fatal: refusing to merge unrelated histories"
+-----------------------------------------------
+Anlamı: İki branch'in geçmişi ilgisiz
+Çözüm: git merge branch-adi --allow-unrelated-histories
+
+
+"Permission denied (publickey)"
+--------------------------------
+Anlamı: SSH anahtarı yok veya yanlış
+Çözüm: SSH anahtarı oluştur veya HTTPS kullan
+
+
+12. İYİ PRATİKLER
+================================================================================
+
+✅ YAPIN:
+--------
+- Sık sık commit edin (küçük mantıklı parçalara bölün)
+- Açıklayıcı commit mesajları yazın
+- Feature için yeni branch açın
+- Merge'den önce test edin
+- git status ile kontrol edin
+- Merge'den önce güncel branch'i pull edin
+
+
+❌ YAPMAYIN:
+-----------
+- git push --force kullanmayın (zorunlu değilse)
+- Büyük değişiklikleri tek commit'te yapmayın
+- Master/main branch'te direkt çalışmayın
+- Commit mesajlarına "test", "asd" yazmayın
+- Merge conflict'leri çözmeden push etmeyin
+
+
+13. KISA YOL (CHEAT SHEET)
+================================================================================
+
+En Sık Kullanılan Komutlar:
+---------------------------
+git status                              # Durum kontrolü
+git add -A                              # Tümünü ekle
+git commit -m "Mesaj"                   # Kaydet
+git push                                # Gönder
+git pull                                # Çek
+git checkout -b yeni-branch             # Yeni branch oluştur ve geç
+git merge branch-adi                    # Merge yap
+git log --oneline -10                   # Son 10 commit
+
+
+Acil Durum Komutları:
+--------------------
+git stash                               # Şimdilik kaydet
+git stash pop                           # Geri al
+git reset --hard HEAD                   # Tüm değişiklikleri geri al (DİKKAT!)
+git clean -fd                           # Untracked dosyaları sil
+
+
+14. ÖRNEKLİK TAM SENARYO
+================================================================================
+
+Yeni Özellik Geliştirme - Baştan Sona:
+--------------------------------------
+
+# 1. Ana branch'i güncelle
+git checkout guncel
+git pull origin guncel
+
+# 2. Feature branch'i oluştur
+git checkout -b feature/kullanici-listesi
+
+# 3. Kod yaz, test et
+
+# 4. Değişiklikleri kaydet
+git add -A
+git commit -m "feat: Kullanıcı listesi eklendi"
+
+# 5. Remote'a gönder
+git push -u origin feature/kullanici-listesi
+
+# 6. Daha fazla değişiklik
+# Kod yaz...
+git add -A
+git commit -m "feat: Filtreleme özelliği eklendi"
+git push
+
+# 7. Feature tamamlandı, ana branch'e merge et
+git checkout guncel
+git pull origin guncel
+git merge feature/kullanici-listesi
+
+# 8. Test et, sorun yoksa push et
+git push origin guncel
+
+# 9. Feature branch'i sil (opsiyonel)
+git branch -d feature/kullanici-listesi
+git push origin --delete feature/kullanici-listesi
+
+
+================================================================================
+                                   SON NOTLAR
+================================================================================
+
+- Bu rehberi yazdırıp yanınızda tutabilirsiniz
+- Komutları denemekten korkmayın (yedek alın önce!)
+- git --help komutu ile detaylı yardım alabilirsiniz
+- Belirli komut için: git commit --help
+- Pratik yapmak en iyi öğrenme yöntemidir
+
+İyi kodlamalar! 🚀
+
+================================================================================

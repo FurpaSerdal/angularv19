@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { SendOutboxShippingDespatch } from '../../../../../models/e-IrsaliyeGonderModel';
 import { WarehouseService } from '../../../../../services/warehouse.service';
+import { DepolaraSevkIrsaliyeleriAyrintiDto } from '../../../../../models/ayrinti-dtolari.model';
 
 @Component({
   selector: 'app-convert-to-ewaybill-component',
@@ -36,13 +37,13 @@ export class ConvertToEWaybillComponent implements OnInit {
   }
 
   private loadShipmentData(): void {
-    const receivedData = this.data;
+    const receivedData:DepolaraSevkIrsaliyeleriAyrintiDto = this.data.data;
     
-    if (receivedData?.evrak) {
-      const kalemler: any[] = (receivedData.kalemleri || []).map((k: any) => ({
+    if (receivedData && receivedData.kalemler) {
+      const kalemler: any[] = (receivedData.kalemler || []).map((k: any) => ({
         stok: {
           stokKodu: k.stokKodu || '',
-          stokIsmi: k.stokIsim || '',
+          stokIsmi: k.stokIsmi || '',
           birim: k.birimAd || '',
           barkodu: k.barkod || '',
         },
@@ -52,17 +53,17 @@ export class ConvertToEWaybillComponent implements OnInit {
       }));
 
       this.shipmentData = {
-        seri: receivedData.evrak.evrakNoSeri || '',
-        sira: receivedData.evrak.evrakNoSira || 0,
-        belgeNo: receivedData.evrak.belgeNo || '',
-        hedefDepoNo: receivedData.evrak.muhatapDepo?.no || receivedData.evrak.muhatapFirma?.no || 0,
-        kaynakDepoNo: receivedData.evrak.depo?.no || 0,
+        seri: receivedData.seri || '',
+        sira: receivedData.sira || 0,
+        belgeNo: receivedData.belgeNo || '',
+        hedefDepoNo: receivedData.muhatapDepoNo || 0,
+        kaynakDepoNo: this.data.subeNo || 0,
         aracPlaka: '',
         kalemler,
         soforAdSoyad: '',
         soforTckn: '',
-        sevkEdenAdSoyad: receivedData.teslimEden || '',
-        siparisEdenAdSoyad: receivedData.onaylayan || receivedData.teslimAlan || '',
+        sevkEdenAdSoyad: '',
+        siparisEdenAdSoyad:  '',
       };
       
       this.checkFormValidity();
