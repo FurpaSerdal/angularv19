@@ -21,34 +21,16 @@ export class PdfComponent {
     public dialogRef: MatDialogRef<PdfComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { url: string },
     private sanitizer: DomSanitizer,
-      private cdr: ChangeDetectorRef
-
+    private cdr: ChangeDetectorRef
   ) {
     this.loadPdf(data.url);
   }
 
-async loadPdf(url: string) {
-  const token = sessionStorage.getItem('authToken');
-  if (!token) return;
-
-  try {
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-
-    const blob = await response.blob();
-    const objectURL = URL.createObjectURL(blob);
-    this.pdfBlobUrl = objectURL;
-    this.safePdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(objectURL);
-
-    // 👇 Angular'a değişiklik olduğunu bildir
-    this.cdr.detectChanges();
-
-  } catch (error) {
-    console.error('PDF yüklenirken hata:', error);
+  loadPdf(url: string): void {
+    // Blob URL'ni doğrudan kullan
+    this.pdfBlobUrl = url;
+    this.safePdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
-}
   printPdf() {
   const iframe: HTMLIFrameElement | null = document.querySelector('iframe');
   if (iframe && iframe.contentWindow) {

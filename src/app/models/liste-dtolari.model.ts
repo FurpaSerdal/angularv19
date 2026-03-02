@@ -123,6 +123,7 @@ export interface SevkIrsaliyeleriListeDto {
   seri: string;
   sira: number;
   muhatap: string;
+  ettn: string;
   tarih: Date;
   durumu: string;
   belgeNo: string;

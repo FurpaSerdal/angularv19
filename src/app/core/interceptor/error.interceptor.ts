@@ -38,9 +38,11 @@ export const ErrorInterceptor: HttpInterceptorFn = (req, next) => {
           toastr.error('Sunucuya ulaşılamıyor.');
           break;
 
-        case 400:
-          toastr.error('Geçersiz istek.');
+        case 401:
+          toastr.error('E-posta veya şifre hatalı.');
           break;
+
+        case 400:
 
         case 403:
           toastr.error('Bu işlem için yetkiniz yok.');

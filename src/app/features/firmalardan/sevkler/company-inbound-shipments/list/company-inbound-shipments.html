@@ -1,62 +1,57 @@
 <!-- ortak-menu.html -->
 <div class="container-fluid">
-  <!-- Header -->
-  <div class="header-section mb-4">
-    <div class="d-flex flex-column gap-3">
-
-      <!-- Üst Satır: Başlıklar -->
-      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-
-        <!-- Sol: Ana Ekran -->
-        <h1 class="text-primary mb-0 fw-bold">
-          {{ anaekran() }}
-        </h1>
-
-        <!-- Sağ: Yan Ekran -->
-        <h3 class="text-danger mb-0 fw-bold">
-          {{ yanekran() }}
-        </h3>
-
-      </div>
-
-      <!-- Alt Satır -->
-      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-
-        <p class="text-muted mb-0">
-          Toplam
-          <span class="badge bg-primary ms-1">
-            {{ DataSource.data.length }}
-          </span>
-          evrak bulunuyor
-        </p>
-
-        <div class="d-flex flex-wrap gap-2">
-
-        <button class="btn btn-info btn-lg shadow-sm d-flex align-items-center gap-2" (click)="yeniEvrak()">
-          <i class="bi bi-plus-circle"></i>
-          Yeni Evrak
-        </button>
-          <!-- <button class="btn btn-secondary btn-lg shadow-sm d-flex align-items-center gap-2" (click)="farkMalkabul()">
-          <i class="bi bi-plus-circle"></i>
-          Fark Mal Kabul
-        </button> -->
+   <!-- Header ve Filtreler Bütünleşik Kart -->
+  <div class="card shadow-sm border-0 ">
+    <div class="card-body p-3 p-lg-4">
+      <!-- Üst Bilgi ve Yeni Evrak Butonu -->
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 ">
+        <!-- Sol taraf: Toplam bilgisi -->
+        <div class="d-flex align-items-center">
+          <div class="bg-light p-2 rounded me-3">
+            <i class="bi bi-files fs-4 text-primary"></i>
+          </div>
+          <div>
+            <span class="text-muted small text-uppercase">Toplam Evrak</span>
+            <div class="d-flex align-items-baseline">
+              <span class="h4 fw-bold text-primary mb-0 me-2">{{ DataSource.data.length }}</span>
+              <span class="text-muted small">adet</span>
+            </div>
+          </div>
         </div>
 
+        <!-- Sağ taraf: Yeni evrak butonu -->
+        <button class="btn btn-primary px-4 d-flex align-items-center gap-2" (click)="yeniEvrak()">
+          <i class="bi bi-plus-circle"></i>
+          <span class="d-none d-sm-inline">Yeni Evrak Oluştur</span>
+        </button>
       </div>
 
-    </div>
+      <!-- Filtreler Grid -->
+      <div class="row g-2 g-lg-3 align-items-end">
+        <!-- Arama -->
+        <div class="col-12 col-md-5 col-lg-6">
+          <label class="form-label small fw-semibold text-muted mb-1">
+            <i class="bi bi-search me-1"></i>Evrak Ara
+          </label>
+          <div class="input-group">
+            <input type="text" 
+                   class="form-control" 
+                   placeholder="Evrak no, konu, gönderen..."
+                   (keyup)="applyFilter($event)" 
+                   [disabled]="yukleniyor()">
+            <button class="btn btn-outline-secondary" type="button" (click)="loadData()" [disabled]="yukleniyor()">
+              <i class="bi bi-arrow-clockwise"></i>
+            </button>
+          </div>
+        </div>
 
-
-  </div>
-
-  <!-- Filtreler -->
-  <div class="filters-section card shadow-sm mb-4">
-    <div class="card-body">
-      <div class="row g-3 align-items-center">
         <!-- Tarih Filtresi -->
-        <div class="col-12 col-md-6">
-          <mat-form-field appearance="outline" class="w-100">
-            <mat-label>Tarih Aralığı Seçiniz</mat-label>
+        <div class="col-12 col-md-5 col-lg-4">
+          <label class="form-label small fw-semibold text-muted mb-1">
+            <i class="bi bi-calendar-range me-1"></i>Tarih Aralığı
+          </label>
+          <mat-form-field appearance="outline" class="w-100 date-range-field">
+            <mat-label>Başlangıç - Bitiş</mat-label>
             <mat-date-range-input [formGroup]="dateRange" [rangePicker]="picker">
               <input matStartDate formControlName="start" placeholder="Başlangıç" (dateChange)="onDateChanged()">
               <input matEndDate formControlName="end" placeholder="Bitiş" (dateChange)="onDateChanged()">
@@ -66,16 +61,25 @@
           </mat-form-field>
         </div>
 
-        <!-- Arama -->
-        <div class="col-12 col-md-6">
-          <div class="input-group">
-            <span class="input-group-text bg-light border-end-0">
-              <i class="bi bi-search"></i>
-            </span>
-            <input type="text" class="form-control border-start-0" placeholder="Evrak ara..."
-              (keyup)="applyFilter($event)" [disabled]="yukleniyor()">
-            <button class="btn btn-outline-secondary" type="button" (click)="loadData()" [disabled]="yukleniyor()">
-              <i class="bi bi-arrow-clockwise"></i>
+        <!-- Görünüm Seçici -->
+        <div class="col-12 col-md-2 col-lg-2">
+          <label class="form-label small fw-semibold text-muted mb-1">
+            <i class="bi bi-grid me-1"></i>Görünüm
+          </label>
+          <div class="btn-group w-100" role="group">
+            <button type="button" 
+                    class="btn btn-outline-primary" 
+                    [class.active]="currentView === 'table'"
+                    (click)="setView('table')"
+                    title="Tablo Görünümü">
+              <i class="bi bi-table"></i>
+            </button>
+            <button type="button" 
+                    class="btn btn-outline-primary" 
+                    [class.active]="currentView === 'card'"
+                    (click)="setView('card')"
+                    title="Kart Görünümü">
+              <i class="bi bi-grid-3x3-gap"></i>
             </button>
           </div>
         </div>
@@ -84,19 +88,13 @@
   </div>
 
 
+ <!-- Yükleme Göstergesi -->
+  <div *ngIf="yukleniyor()" class="d-flex flex-column justify-content-center align-items-center"
+    style="min-height: 200px;">
 
-  <!-- Görünüm Seçimi -->
-  <div class="view-toggle mb-3">
-    <div class="btn-group" role="group">
-      <button type="button" class="btn btn-outline-primary" [class.active]="currentView === 'table'"
-        (click)="setView('table')">
-        <i class="bi bi-table me-2"></i>Tablo Görünümü
-      </button>
-      <button type="button" class="btn btn-outline-primary" [class.active]="currentView === 'card'"
-        (click)="setView('card')">
-        <i class="bi bi-grid-3x3-gap me-2"></i>Kart Görünümü
-      </button>
-    </div>
+
+    <mat-spinner color="primary" diameter="60"></mat-spinner>
+
   </div>
 
   <!-- Tablo Görünümü -->
@@ -271,14 +269,6 @@
   </div>
 
 
-  <!-- Yükleme Göstergesi -->
-  <div *ngIf="yukleniyor()" class="d-flex flex-column justify-content-center align-items-center"
-    style="min-height: 200px;">
-
-
-    <mat-spinner color="primary" diameter="60"></mat-spinner>
-
-  </div>
   <!-- Boş Durum -->
   <div *ngIf="!yukleniyor() && DataSource.data.length === 0" class="empty-state text-center py-5">
     <div class="empty-icon mb-3">

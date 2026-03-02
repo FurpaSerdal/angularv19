@@ -95,7 +95,7 @@
   font-size: 1.5rem;
 }
 
-company-name {
+.company-name {
   font-size: 2.5rem;
   font-weight: 800;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
@@ -171,6 +171,11 @@ company-name {
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
+.form-input:focus-visible {
+  outline: 2px solid rgba(102, 126, 234, 0.5);
+  outline-offset: 2px;
+}
+
 .form-input.error {
   border-color: #dc3545;
 }
@@ -196,6 +201,11 @@ company-name {
 
 .password-toggle:hover {
   color: #667eea;
+}
+
+.password-toggle:focus-visible {
+  outline: 2px solid rgba(102, 126, 234, 0.6);
+  outline-offset: 2px;
 }
 
 /* Error Messages */
@@ -244,6 +254,11 @@ company-name {
   box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
 }
 
+.login-btn:focus-visible {
+  outline: 2px solid rgba(102, 126, 234, 0.6);
+  outline-offset: 2px;
+}
+
 .login-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
@@ -261,7 +276,7 @@ company-name {
 }
 
 .btn-content.hidden {
-  opacity: 0;
+  display: none;
 }
 
 .loading-spinner {
@@ -311,6 +326,12 @@ company-name {
 
 .forgot-password:hover {
   color: #764ba2;
+}
+
+.forgot-password:focus-visible {
+  outline: 2px solid rgba(102, 126, 234, 0.6);
+  outline-offset: 2px;
+  border-radius: 6px;
 }
 
 .support-info {
@@ -435,5 +456,15 @@ company-name {
   
   .form-input:focus {
     border-color: #667eea;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shape,
+  .login-btn,
+  .spinner,
+  .company-name {
+    animation: none !important;
+    transition: none !important;
   }
 }

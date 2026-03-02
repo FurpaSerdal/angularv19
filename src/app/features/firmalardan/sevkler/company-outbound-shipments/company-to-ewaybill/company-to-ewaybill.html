@@ -43,20 +43,8 @@
 
         <!-- ROW 1: Belge Bilgileri -->
         <div class="row g-3 mb-4">
-          <div class="col-md-4">
-            <label class="form-label fw-semibold">
-              <i class="bi bi-hash text-muted me-1"></i>
-              Sıra No
-            </label>
-            <input
-              type="number"
-              class="form-control"
-              [(ngModel)]="shipmentData.sira"
-              name="documentOrderNo"
-              readonly
-              [class.bg-light]="true">
-          </div>
 
+            
           <div class="col-md-4">
             <label class="form-label fw-semibold">
               <i class="bi bi-sort-alpha-down text-muted me-1"></i>
@@ -70,6 +58,30 @@
               readonly
               [class.bg-light]="true">
           </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">
+              <i class="bi bi-hash text-muted me-1"></i>
+              Sıra No
+            </label>
+            <input
+              type="number"
+              class="form-control"
+              [(ngModel)]="shipmentData.sira"
+              name="documentOrderNo"
+              readonly
+              [class.bg-light]="true">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">
+              <i class="bi bi-people text-muted me-1"></i>
+              Cari Kod
+            </label>
+            <div>
+                <span class="badge bg-secondary ">{{ shipmentData.cariKod }}</span>
+            </div>
+          
+        </div>
+
 
    
         </div>

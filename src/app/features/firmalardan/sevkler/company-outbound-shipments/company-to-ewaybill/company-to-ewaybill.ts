@@ -1,21 +1,23 @@
+
+
 import { Component, OnInit, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { DepoEIrsaliyesiGonderDto, EIrsaliyeGonderKalemDto } from '../../../../../models/e-IrsaliyeGonderModel';
 import { WarehouseService } from '../../../../../services/warehouse.service';
-import { DepolaraSevkIrsaliyeleriAyrintiDto, KalemDto } from '../../../../../models/ayrinti-dtolari.model';
+import { KalemDto, SevkIrsaliyeleriAyrintiDto } from '../../../../../models/ayrinti-dtolari.model';
+import { EIrsaliyeGonderDto, EIrsaliyeGonderKalemDto } from '../../../../../models/e-IrsaliyeGonderModel';
 
 @Component({
-  selector: 'app-convert-to-ewaybill-component',
-  standalone: true,
+  selector: 'app-company-to-ewaybill',
+    standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './convert-to-ewaybill-component.html',
-  styleUrl: './convert-to-ewaybill-component.css',
+  templateUrl: './company-to-ewaybill.html',
+  styleUrl: './company-to-ewaybill.css',
 })
-export class ConvertToEWaybillComponent implements OnInit {
+export class CompanyToEwaybill implements OnInit {
   
-  shipmentData!: DepoEIrsaliyesiGonderDto;
+  shipmentData!: EIrsaliyeGonderDto;
   isLoading = false;
   successMessage = '';
   errorMessage = '';
@@ -25,7 +27,7 @@ export class ConvertToEWaybillComponent implements OnInit {
   isFormValid = false;
 
   constructor(
-    public dialogRef: MatDialogRef<ConvertToEWaybillComponent>,
+    public dialogRef: MatDialogRef<CompanyToEwaybill>,
     private warehouseService: WarehouseService,
     @Inject(MAT_DIALOG_DATA) public data?: any,
   ) {
@@ -37,7 +39,7 @@ export class ConvertToEWaybillComponent implements OnInit {
   }
 
   private loadShipmentData(): void {
-    const receivedData:DepolaraSevkIrsaliyeleriAyrintiDto = this.data.data;
+    const receivedData:SevkIrsaliyeleriAyrintiDto = this.data;
     
     if (receivedData && receivedData.kalemler) {
       const kalemler: EIrsaliyeGonderKalemDto[] = (receivedData.kalemler || []).map((k: KalemDto) => (
@@ -57,34 +59,34 @@ export class ConvertToEWaybillComponent implements OnInit {
       this.shipmentData = {
         seri: receivedData.seri || '',
         sira: receivedData.sira || 0,
-        belgeNo: receivedData.belgeNo || '',
-        hedefDepoNo: receivedData.muhatapDepoNo || 0,
-        kaynakDepoNo: this.data.subeNo || 0,
+        cariKod: receivedData.cariKod || '',
+        belgeNo: '',
         aracPlaka: '',
-        kalemler,
         soforAdSoyad: '',
         soforTckn: '',
         sevkEdenAdSoyad: '',
         siparisEdenAdSoyad:  '',
+        kalemler,
+
       };
       
       this.checkFormValidity();
     }
   }
 
-  private initializeForm(): DepoEIrsaliyesiGonderDto {
+  private initializeForm(): EIrsaliyeGonderDto {
     return {
       seri: '',
       sira: 0,
       belgeNo: '',
-      hedefDepoNo: 0,
-      kaynakDepoNo: 0,
+      cariKod: '',
       aracPlaka: '',
       kalemler: [],
       soforAdSoyad: '',
       soforTckn: '',
       sevkEdenAdSoyad: '',
       siparisEdenAdSoyad: '',
+
     };
   }
 
@@ -118,7 +120,7 @@ export class ConvertToEWaybillComponent implements OnInit {
       return;
     }
 
-    const payload: DepoEIrsaliyesiGonderDto = {
+    const payload: EIrsaliyeGonderDto = {
       ...this.shipmentData,
       soforAdSoyad: this.shipmentData.soforAdSoyad.trim(),
       soforTckn: this.shipmentData.soforTckn.trim(),

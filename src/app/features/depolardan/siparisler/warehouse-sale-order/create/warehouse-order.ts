@@ -12,13 +12,14 @@ import {  DepoCari, StokAraCT } from '../../../../../models/ortakModeller';
 import { listProducts } from '../../../../../models/listProduct';
 import { AlinanDepoSiparisleriEkleDto } from '../../../../../models/ekle-dtolari.model';
 import { KalemDto } from '../../../../../models/ayrinti-dtolari.model';
+import { ToastrService } from 'ngx-toastr';
 
 
 
 @Component({
   selector: 'app-warehouse-sale-order',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule ],
   templateUrl: './warehouse-order.html',
   styleUrls: ['./warehouse-order.css'],
 })
@@ -41,6 +42,7 @@ export class WarehouseOrderComponent implements OnInit {
     private warehouseService: WarehouseService,
     private salesOrdersService: SalesOrdersService,
     private meservice: MeService,
+    private toastr: ToastrService,
     private dialogRef: MatDialogRef<WarehouseOrderComponent>,
   ) { }
 
@@ -117,6 +119,7 @@ export class WarehouseOrderComponent implements OnInit {
   }
 
 
+
   urunAra() {
     const query = this.arananUrun().trim();
 
@@ -126,24 +129,18 @@ export class WarehouseOrderComponent implements OnInit {
     }
 
     this.warehouseService.searchStock(query).subscribe({
-      next: value => {
+      next: res => {
+        const filter = res.filter(u => !u.stokIsim?.startsWith('DLS.'));
         const isMobile = window.innerWidth <= 768;
-        if (isMobile) {
-
-          this.urunSec(this.bulunanUrunler()[0]);
-        }
-        else {
-
-          this.bulunanUrunler.set(value);
-        }
-      }, error: () => this.bulunanUrunler.set([])
+        isMobile ? this.urunSec(filter[0]) : this.bulunanUrunler.set(filter);
+      },
+      error: (err) => { this.toastr.error('Ürün aranırken hata oluştu ' + err.message);
+        this.bulunanUrunler.set([]);
+      }
     });
   }
-
   urunSec(urun: StokAraCT) {
-    console.log('Seçilen Ürün:', urun);
-    const exists = this.listProducts()
-      .some(k => k.stokKodu === urun.stokKod);
+    const exists = this.listProducts().some(k => k.stokKodu === urun.stokKod);
     if (exists) {
       this.listProducts.set(this.listProducts().map(k => {
         if (k.stokKodu === urun.stokKod) {
@@ -165,7 +162,6 @@ export class WarehouseOrderComponent implements OnInit {
         miktar: urun.birimKatsayisi ?? 1,
         fiyat: urun.fiyati
       }]);
-      console.log('Güncellenmiş Ürün Listesi:', this.listProducts());
     }
 
 
@@ -183,11 +179,11 @@ export class WarehouseOrderComponent implements OnInit {
   }
 
   miktarArttir(index: number) {
-    this.setMiktar(index, (this.listProducts()[index].miktar || 0) + 1);
+    this.setMiktar(index, (this.listProducts()[index].miktar || 0) + (this.listProducts()[index].birimKatSayi ?? 1));
   }
 
   miktarAzalt(index: number) {
-    this.setMiktar(index, Math.max(1, (this.listProducts()[index].miktar || 1) - 1));
+    this.setMiktar(index, Math.max(1, (this.listProducts()[index].miktar || 1) - (this.listProducts()[index].birimKatSayi ?? 1)));
   }
 
   miktarGir(index: number, value: string | number) {

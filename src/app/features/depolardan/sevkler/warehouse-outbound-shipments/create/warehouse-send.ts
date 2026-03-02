@@ -100,18 +100,24 @@ export class WarehouseSend {
   }
 
   // ================= ÜRÜN =================
-  urunAra(term: string) {
-    if (!term.trim()) return;
+urunAra(term: string) {
+  if (!term.trim()) return;
 
-    this.warehouseService
-      .searchStock(term.toLowerCase())
-      .subscribe({
-        next: res => this.bulunanUrunler.set(res),
-        error: () =>
-          this.toastr.error('Ürün aranırken hata oluştu'),
-      });
-  }
+  this.warehouseService
+    .searchStock(term.toLowerCase())
+    .subscribe({
+      next: res => {
+        const filtreli = res.filter(u => 
+          !u.stokIsim?.startsWith('DLS.')
+        );
 
+        this.bulunanUrunler.set(filtreli);
+      },
+      error: (err) => {
+        this.toastr.error('Ürün aranırken hata oluştu ' + err.message);
+      },
+    });
+}
   urunSec(urun: StokAraCT) {
     this.secilenUrun.set(urun);
     this.urunEkle();
@@ -130,7 +136,7 @@ export class WarehouseSend {
       fiyat: urun.fiyati,
       birimAd: urun.birimAd,
       birimKatSayi: urun.birimKatsayisi,
-      miktar: 1,
+      miktar: urun.birimKatsayisi ?? 1,
     };
 
     const index = this.listProducts().findIndex(
@@ -143,7 +149,7 @@ export class WarehouseSend {
           i === index
             ? {
                 ...k,
-                miktar: (k.miktar ?? 0) + 1,
+                miktar: (k.miktar ?? 0) + (k.birimKatSayi ?? 1),
               }
             : k
         )
@@ -159,7 +165,7 @@ export class WarehouseSend {
   miktarArttir(index: number) {
     this.setMiktar(
       index,
-      (this.listProducts()[index].miktar || 0) + 1
+      (this.listProducts()[index].miktar || 0) + (this.listProducts()[index].birimKatSayi ?? 1)
     );
   }
 
@@ -168,7 +174,7 @@ export class WarehouseSend {
       index,
       Math.max(
         1,
-        (this.listProducts()[index].miktar || 1) - 1
+        (this.listProducts()[index].miktar || 1) - (this.listProducts()[index].birimKatSayi ?? 1)
       )
     );
   }

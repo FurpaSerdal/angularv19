@@ -20,7 +20,7 @@
     </div>
 
     <!-- Login Form -->
-    <form (ngSubmit)="login()" class="login-form" #loginForm="ngForm">
+    <form (ngSubmit)="login()" class="login-form" #loginForm="ngForm" novalidate>
       
       <!-- Email Input -->
       <div class="form-group">
@@ -29,19 +29,25 @@
           E-posta Adresi
         </label>
         <div class="input-container">
-          <input 
-            type="email" 
+          <input
+            type="email"
             id="email"
             name="email"
             [(ngModel)]="email"
             (focus)="clearError()"
             placeholder="ornek@firma.com"
             [class.error]="isFormSubmitted && !email"
+            [attr.aria-invalid]="isFormSubmitted && !email"
+            [attr.aria-describedby]="isFormSubmitted && !email ? 'email-error' : null"
+            autocomplete="username"
+            inputmode="email"
+            autocapitalize="none"
+            spellcheck="false"
             class="form-input"
             required>
           <i class="bi bi-check-circle-fill input-success" *ngIf="email && !errorMessage"></i>
         </div>
-        <div class="error-message" *ngIf="isFormSubmitted && !email">
+        <div id="email-error" class="error-message" *ngIf="isFormSubmitted && !email">
           <i class="bi bi-exclamation-circle"></i>
           E-posta adresi gereklidir
         </div>
@@ -54,32 +60,36 @@
           Şifre
         </label>
         <div class="input-container">
-          <input 
-            [type]="showPassword ? 'text' : 'password'" 
+          <input
+            [type]="showPassword ? 'text' : 'password'"
             id="password"
             name="password"
             [(ngModel)]="password"
             (focus)="clearError()"
-            placeholder="••••••••"
+            placeholder="********"
             [class.error]="isFormSubmitted && !password"
+            [attr.aria-invalid]="isFormSubmitted && !password"
+            [attr.aria-describedby]="isFormSubmitted && !password ? 'password-error' : null"
+            autocomplete="current-password"
             class="form-input"
             required>
           <button 
             type="button" 
             class="password-toggle"
             (click)="togglePasswordVisibility()"
-            tabindex="-1">
+            [attr.aria-pressed]="showPassword"
+            aria-label="Sifreyi goster/gizle">
             <i class="bi" [class.bi-eye]="!showPassword" [class.bi-eye-slash]="showPassword"></i>
           </button>
         </div>
-        <div class="error-message" *ngIf="isFormSubmitted && !password">
+        <div id="password-error" class="error-message" *ngIf="isFormSubmitted && !password">
           <i class="bi bi-exclamation-circle"></i>
           Şifre gereklidir
         </div>
       </div>
 
       <!-- Error Message -->
-      <div class="alert alert-danger" *ngIf="errorMessage">
+      <div class="alert alert-danger" *ngIf="errorMessage" role="alert" aria-live="assertive">
         <i class="bi bi-shield-exclamation"></i>
         {{ errorMessage }}
       </div>

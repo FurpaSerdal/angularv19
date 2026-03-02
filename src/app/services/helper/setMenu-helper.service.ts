@@ -200,9 +200,7 @@ newmenu: User[] = [
 getNewMenu(): User[] {
   return this.newmenu;
 }
-updateMenu(): void {
- // this.meservice.userSignal.set(this.newmenu[0]);
-}
+
 updateMenu2(data: User): User {
 
   // Orijinali bozmamak istersen:

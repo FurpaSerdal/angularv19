@@ -69,5 +69,11 @@ export class CompanyService {
     );
   }
 
+   // ırsalıye pdf görme
+  getEWaybillPdf(İttn:string): Observable<Blob> {
+
+    return this.http.get(`${this.apiUrl}/EIrsaliye/ayrinti/giden/pdf/${İttn}`, { responseType: 'blob' });
+
+  }
   
 }

@@ -128,8 +128,9 @@ export class WarehouseOrderComponent implements OnInit {
 
     this.warehouseService.searchStock(query).subscribe({
       next: res => {
+        const filter = res.filter(u => u.sipDursun===0);
         const isMobile = window.innerWidth <= 768;
-        isMobile ? this.urunSec(res[0]) : this.bulunanUrunler.set(res);
+        isMobile ? this.urunSec(filter[0]) : this.bulunanUrunler.set(filter);
       },
       error: () => this.bulunanUrunler.set([])
     });
@@ -167,10 +168,11 @@ export class WarehouseOrderComponent implements OnInit {
     this.saveError.set(null);
   }
 
-  miktarArttir(index: number) { this.setMiktar(index, (this.listProducts()[index].miktar || 0) + 1); }
-  miktarAzalt(index: number) { this.setMiktar(index, Math.max(1, (this.listProducts()[index].miktar || 1) - 1)); } 
+  miktarArttir(index: number) { this.setMiktar(index, (this.listProducts()[index].miktar || 0) + (this.listProducts()[index].birimKatSayi ?? 1)); }
+  miktarAzalt(index: number) { this.setMiktar(index, Math.max(1, (this.listProducts()[index].miktar || 1) - (this.listProducts()[index].birimKatSayi ?? 1))); } 
  miktarGir(index: number, value: string | number) { const numericValue = Number(value); const next = Number.isFinite(numericValue) ? Math.max(1, numericValue) : 1; this.setMiktar(index, next); } 
- private setMiktar(index: number, miktar: number) { this.listProducts.update(p => { const validatedKalemler = [...p]; if (!validatedKalemler[index]) return p; validatedKalemler[index] = { ...validatedKalemler[index], miktar: Math.max(1, miktar) }; return validatedKalemler; }); }
+ private setMiktar(index: number, miktar: number) { this.listProducts.update(p => { const validatedKalemler = [...p]; if (!validatedKalemler[index])
+   return p; validatedKalemler[index] = { ...validatedKalemler[index], miktar: Math.max(1, miktar) }; return validatedKalemler; }); }
 
 
   trackByKalem = (_: number, kalem: KalemDto) => kalem.stokKodu;
@@ -230,7 +232,7 @@ export class WarehouseOrderComponent implements OnInit {
       this.listProducts.set([]);
       this.arananUrun.set('');
       this.bulunanUrunler.set([]);
-    }, 3000);
+    }, 1000);
   }
 
   kapat() {

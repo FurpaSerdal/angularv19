@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { environment } from "../../environment";
 import { DepoCari, StokAraCT } from "../models/ortakModeller";
-import { SendOutboxShippingDespatch } from "../models/e-IrsaliyeGonderModel";
+import { DepoEIrsaliyesiGonderDto } from "../models/e-IrsaliyeGonderModel";
 
 
 @Injectable({
@@ -37,12 +37,17 @@ export class WarehouseService {
     );
   }
 
-  SendOutboxShippingDespatch(shipmentData: SendOutboxShippingDespatch): Observable<any> {
+  SendOutboxShippingDespatch(shipmentData: any): Observable<any> {
     return this.http.post<any>(
       `${this.apiUrl}/EIrsaliye/gonder/depo-irsaliyesi`,
       shipmentData
     );
   }
 
+  // ırsalıye pdf görme
+  getEWaybillPdf(İttn:string): Observable<Blob> {
 
+    return this.http.get(`${this.apiUrl}/EIrsaliye/ayrinti/giden/pdf/${İttn}`, { responseType: 'blob' });
+
+  }
   }

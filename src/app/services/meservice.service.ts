@@ -49,11 +49,9 @@ export class MeService {
 
   this.http.get<User>(`${this.apiUrl}/kullanici/Benim`).subscribe({
     next: (data) => {
-   this.setUser(data);
-    //  const updatedUser = this.setMenuHelper.updateMenu2(data); // Menüleri güncelle
-    //  this.setUser(updatedUser);
-    //  console.log('Güncellenmiş kullanıcı bilgisi:', updatedUser); // Güncellenmiş kullanıcıyı konsola yazdır
-    //  console.log('Kullanıcı bilgisi başarıyla alındı:', data.eskiApiLogin); // Eski API login bilgisini konsola yazdırarak kontrol edin
+    this.setUser(data);
+     //const updatedUser = this.setMenuHelper.getNewMenu(); // Menüleri güncelle
+    // this.setUser(updatedUser[0]); // Güncellenmiş kullanıcıyı set et
 
       this.isLoading.set(false);
 

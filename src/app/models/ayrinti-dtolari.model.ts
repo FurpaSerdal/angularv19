@@ -20,6 +20,7 @@ export interface KalemDto {
   stokKodu?: string;
   stokIsmi?: string;
   barkodu?: string;
+  birim?: string;
 
   birimKatsayisi?: number;
   duzeltmedir?: boolean;
@@ -136,6 +137,8 @@ export interface SevkIrsaliyeleriAyrintiDto {
   seri: string;
   sira: number;
   muhatap: string;
+  cariKod: string;
+  ettn: string;
   tarih: Date;
   durumu: string;
   belgeNo: string;

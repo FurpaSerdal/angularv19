@@ -23,6 +23,7 @@ import { KunyeEtiketBasimiComponent } from './features/kasaislemleri/kunye-etike
 import { MagazagiderfisiComponent } from './features/kasaislemleri/magazagiderfisi/magazagiderfisi.component';
 import { EtiketbasimComponent } from './features/kasaislemleri/etiketbasim/etiketbasim.component';
 import { AddSummaryComponent } from './features/kasaislemleri/icmal-dokum/add-summary/add-summary.component';
+import { AuthGuard } from './core/guards/auth.guard';
 
 
 
@@ -35,6 +36,7 @@ export const routes: Routes = [
   {
     path: 'admin',
     component: AdminComponent,
+    canActivate: [AuthGuard], // AuthGuard ekleyebilirsiniz
     children: [
       { path: '', component: HomePage },
       

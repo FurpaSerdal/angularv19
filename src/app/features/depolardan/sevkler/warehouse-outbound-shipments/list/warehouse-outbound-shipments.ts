@@ -20,6 +20,8 @@ import { WarehouseOutboundShipmentsDetailComponent } from '../detail/detail';
 import { ConvertToEWaybillComponent } from '../convert-to-ewaybill-component/convert-to-ewaybill-component';
 import { DepolaraSevkIrsaliyeleriListeDto } from '../../../../../models/liste-dtolari.model';
 import { DepolaraSevkIrsaliyeleriAyrintiDto } from '../../../../../models/ayrinti-dtolari.model';
+import { WarehouseService } from '../../../../../services/warehouse.service';
+import { PdfComponent } from '../../../../../modal/pdf/pdf.component';
 
 
 
@@ -48,7 +50,7 @@ pageSize = signal(10);
   selectedRow: DepolaraSevkIrsaliyeleriListeDto | null = null;
   
   // Tablo kolonları güncellendi
-  displayedColumns = ['evrakNo', 'tarih', 'transfer', 'durum', 'islemler'];
+  displayedColumns = ['evrakNo', 'tarih', 'belgeNo', 'kaynak', 'hedef', 'durum', 'islemler'];
   DataSource: MatTableDataSource<DepolaraSevkIrsaliyeleriListeDto> = new MatTableDataSource<DepolaraSevkIrsaliyeleriListeDto>([]);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -72,6 +74,7 @@ private lastKey = '';
 constructor(
   private meservice: MeService, 
   private shipmentNotesService: ShipmentNotesService,
+  private warehouseService: WarehouseService,
   private dialog: MatDialog,
   private datePipe: DatePipe,
   private toastr: ToastrService,
@@ -268,6 +271,25 @@ const baslangic = this.datePipe.transform(this.dateRange.get('start')?.value, 'y
       });
     };
     this.DataSource.filter = filterValue;
+  }
+
+  // PDF indirme
+  downloadPdf(İttn: string): void {
+    this.yukleniyor.set(true);
+    this.warehouseService.getEWaybillPdf(İttn).subscribe({
+      next: (pdfData: Blob) => {
+         this.yukleniyor.set(false);
+         const url = window.URL.createObjectURL(pdfData);
+         this.dialog.open(PdfComponent, {
+           width: '80vw',
+           height: '80vh',
+           data: { url }
+         });
+      },
+      error: (error) => {
+        this.toastr.error('PDF indirme sırasında hata oluştu', 'Hata');
+      }
+    });
   }
 
   // YENİ FONKSİYONLAR

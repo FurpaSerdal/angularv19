@@ -18,6 +18,9 @@ import { CompanyOutboundShipmentsDetailComponent } from '../detail/detail';
 import { CompanyRefund } from '../company-refund/company-refund';
 import { SevkIrsaliyeleriListeDto } from '../../../../../models/liste-dtolari.model';
 import { SevkIrsaliyeleriAyrintiDto } from '../../../../../models/ayrinti-dtolari.model';
+import { CompanyToEwaybill } from '../company-to-ewaybill/company-to-ewaybill';
+import { CompanyService } from '../../../../../services/company.service';
+import { PdfComponent } from '../../../../../modal/pdf/pdf.component';
 
 
 
@@ -46,7 +49,7 @@ pageSize = signal(10);
   selectedRow: SevkIrsaliyeleriListeDto | null = null;
   
   // Tablo kolonları güncellendi
-  displayedColumns = ['evrakNo', 'tarih', 'transfer', 'durum', 'islemler'];
+  displayedColumns = ['evrakNo', 'belgeNo', 'tarih', 'kaynak', 'hedef', 'durum', 'islemler'];
   DataSource: MatTableDataSource<SevkIrsaliyeleriListeDto> = new MatTableDataSource<SevkIrsaliyeleriListeDto>([]);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -60,10 +63,10 @@ private lastKey = '';
 constructor(
   private shipmentNotesService: ShipmentNotesService,
   private meservice: MeService,
+  private componyService: CompanyService,
   private dialog: MatDialog,
   private datePipe: DatePipe,
   private toastr: ToastrService,
-  private route: ActivatedRoute,
   private breakpointObserver: BreakpointObserver
 ) {
   
@@ -126,10 +129,27 @@ paginatedCardData = computed(() => {
 
 
   ngOnInit() {
-    console.log('Company Outbound Shipments Initialized');
   }
 
   ngAfterViewInit() {
+    this.DataSource.sortingDataAccessor = (item, property) => {
+      switch (property) {
+        case 'evrakNo':
+          return `${item.seri ?? ''}/${item.sira ?? ''}`.toLowerCase();
+        case 'kaynak':
+          return `${this.user()?.subeNo ?? ''} ${this.user()?.sube ?? ''}`.toLowerCase();
+        case 'hedef':
+          return `${item.muhatap ?? ''} `.toLowerCase();
+        case 'tarih':
+          return item.tarih ? new Date(item.tarih).getTime() : 0;
+        case 'durum':
+          return `${item.durumu ?? ''}`.toLowerCase();
+        case 'belgeNo':
+          return `${item.belgeNo ?? ''}`.toLowerCase();
+        default:
+          return (item as unknown as Record<string, unknown>)[property] as string | number;
+      }
+    };
     this.DataSource.sort = this.sort;
 
     if (!this.paginator) {
@@ -220,7 +240,7 @@ const baslangic = this.datePipe.transform(this.dateRange.get('start')?.value, 'y
     this.shipmentNotesService.detailsCompanyShipment(this.gorevid(), evrak.seri ?? '', evrak.sira ?? 0).subscribe({
       next: (data: SevkIrsaliyeleriAyrintiDto) => {
         this.yukleniyor.set(false);
-        this.dialog.open(CompanyRefund, {
+        this.dialog.open(CompanyToEwaybill, {
           width: '50vw',
           height: '70vh',
           data: data
@@ -232,7 +252,26 @@ const baslangic = this.datePipe.transform(this.dateRange.get('start')?.value, 'y
       }
     });
   }
+  showPdf(ittn: string): void {
+    this.yukleniyor.set(true);
+    this.componyService.getEWaybillPdf(ittn).subscribe({
+      next: (pdfData: Blob) => {
+        this.yukleniyor.set(false);
+        const url = window.URL.createObjectURL(pdfData);
+        this.dialog.open(PdfComponent, {
+          width: '80vw',
+          height: '80vh',
+          data: { url }
+        });
+      },
+      error: () => {
+        this.yukleniyor.set(false);
+        this.toastr.error('PDF yüklenirken hata oluştu', 'Hata');
+      }
+    });
+  }
 
+  
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
     this.DataSource.filterPredicate = (data: SevkIrsaliyeleriListeDto, filter: string) => {
@@ -264,10 +303,7 @@ const baslangic = this.datePipe.transform(this.dateRange.get('start')?.value, 'y
     this.currentView = view;
   }
 
-isSFDS(evrak: SevkIrsaliyeleriListeDto): boolean {
-  return evrak.seri?.startsWith('SFDS') ?? false;
-}
-  // Satır seçme
+ // Satır seçme
   selectRow(row: SevkIrsaliyeleriListeDto): void {
     this.selectedRow = this.selectedRow === row ? null : row;
   }

@@ -110,8 +110,7 @@ export class WarehouseGoodsReceipt {
           this.barkodGirdisi.set('');
         },
         error: err => {
-          this.toastr.error('Barkod ile sevk bulunamadı', 'Hata');
-          console.error('BarkodOku hatası:', err);
+          this.toastr.error('Barkod ile sevk bulunamadı + hata:' + err.message, 'Hata');
         }
       });
   }
@@ -130,8 +129,7 @@ export class WarehouseGoodsReceipt {
           this.gonderiliyor.set(false);
         },
         error: err => {
-          this.toastr.error('Seri No ve Sıra No ile sevk bulunamadı', 'Hata');
-          console.error('SeriNoİleAra hatası:', err);
+          this.toastr.error('Seri No ve Sıra No ile sevk bulunamadı + hata:' + err.message);
           this.gonderiliyor.set(false);
         }
       });
@@ -153,14 +151,17 @@ export class WarehouseGoodsReceipt {
     this.warehouseservice.searchStock(aranacakKelime)
       .subscribe({
         next: res => {
+          const filtreli = res.filter(u => !u.stokIsim?.startsWith('DLS.'));
           const isMobile = window.innerWidth <= 768;
           if (isMobile) {
-            this.urunSec(res[0]);
+            this.urunSec(filtreli[0]);
           } else {
-            this.bulunanUrunler.set(res);
+            this.bulunanUrunler.set(filtreli);
           }
         },
-        error: err => console.error('StokAra hatası:', err)
+        error: err => {          this.toastr.error('Ürün aranırken hata oluştu ' + err.message);
+          this.bulunanUrunler.set([]);
+        }
       });
   }
 
@@ -374,7 +375,6 @@ kaydet() {
           'Hata'
         );
 
-        console.error(err);
         this.gonderiliyor.set(false);
       }
     });
@@ -435,10 +435,8 @@ kaydet() {
             },
             error: err => {
               this.toastr.error(
-                'Noksan mal iade siparişi oluşturulurken hata oluştu',
-                'Hata'
+                'Noksan mal iade siparişi oluşturulurken hata oluştu hata : ' + err.message
               );
-              console.error(err);
               onComplete();
             }
           });

@@ -48,7 +48,7 @@ export const TokenInterceptor: HttpInterceptorFn = (req, next) => {
       if (!refreshToken$) {
         refreshToken$ = auth.refreshToken().pipe(
           map(res => {
-            auth.saveTokens(res.accessToken, res.refreshToken);
+            auth.saveTokens(res.accessToken, res.refreshToken, res.expiresIn);
             return res.accessToken;
           }),
           shareReplay(1),

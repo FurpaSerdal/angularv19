@@ -54,7 +54,14 @@ export class IdleService implements OnDestroy {
     private auth: AuthService
   ) {
     // console.log('[IdleService] Servis başlatıldı');
-    this.initialize();
+    if (this.auth.isAuthenticated()) {
+        this.initialize();
+    }
+    else {
+      // console.log('[IdleService] Kullanıcı auth değil, idle servisi başlatılmadı');
+    }
+  
+
   }
 
   /**

@@ -6,6 +6,7 @@
     "start": "ng serve",
     "dev": "ng serve --host 192.168.254.214 --port 4200 --open",
     "build": "ng build",
+    "build:prod": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },

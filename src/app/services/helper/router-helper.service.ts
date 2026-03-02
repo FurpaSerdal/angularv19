@@ -39,12 +39,12 @@ export class RouterHelperService {
     12: ['task', 'invoices', 'purchase'],
 
     // Kasa
-    101: ['task', 'cash-operations', 'file-upload'],
-    103: ['task', 'cash-operations', 'label-print'],
-    105: ['task', 'cash-operations', 'summary-report'],
-    106: ['task', 'cash-operations', 'summary-add'],
-    108: ['task', 'cash-operations', 'kunye-label-print'],
-    110: ['task', 'cash-operations', 'store-expense-receipt'],
+    45 : ['task', 'cash-operations', 'file-upload'],
+    43 : ['task', 'cash-operations', 'label-print'],
+    50: ['task', 'cash-operations', 'summary-report'],
+    51 : ['task', 'cash-operations', 'summary-add'],
+    44: ['task', 'cash-operations', 'kunye-label-print'],
+    46 : ['task', 'cash-operations', 'store-expense-receipt'],
   };
 
   navigateByGorev(gorev: Gorev): void {

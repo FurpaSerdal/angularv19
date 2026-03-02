@@ -54,7 +54,7 @@ export class WarhousePurchaseOrder {
   currentView: 'table' | 'card' = 'table';
   selectedRow: VerilenDepoSiparisleriListeDto | null = null;
 
-  displayedColumns = ['evrakNo', 'tarih', 'transfer', 'durum', 'islemler'];
+  displayedColumns = ['evrakNo', 'tarih', 'kaynak', 'hedef', 'durum', 'islemler'];
   DataSource = new MatTableDataSource<VerilenDepoSiparisleriListeDto>([]);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -136,6 +136,7 @@ export class WarhousePurchaseOrder {
   // -------------------- LIFECYCLE --------------------
   ngAfterViewInit() {
     this.DataSource.sort = this.sort;
+    console.log('MatSort initialized:', this.sort); 
     this.DataSource.paginator = this.paginator;
 
     this.paginator.page.subscribe((event) => {

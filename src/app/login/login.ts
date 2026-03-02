@@ -1,12 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { timeout, TimeoutError } from 'rxjs';
 
 import { AuthService } from '../services/auth.service';
-import { MeService } from '../services/meservice.service';
-import { SetMenuHelperService } from '../services/helper/setMenu-helper.service';
-import { environment } from '../../environment';
 
 @Component({
   selector: 'app-login',
@@ -26,10 +24,9 @@ export class LoginComponent {
   showPassword: boolean = false;
 
   constructor(
-    private authService: AuthService, 
-    private meService: MeService, 
-    private helperService: SetMenuHelperService,
-    private router: Router
+    private authService: AuthService,
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -37,50 +34,55 @@ export class LoginComponent {
       this.router.navigate(['/admin']);
     }
   }
-login(): void {
-  this.isFormSubmitted = true;
-  this.errorMessage = '';
+  login(): void {
+    if (this.isLoading) {
+      return;
+    }
 
-  if (this.email && this.password) {
-    this.isLoading = true;
+    this.isFormSubmitted = true;
+    this.errorMessage = '';
 
-    this.authService.login({ email: this.email, password: this.password }).subscribe({
-      next: (response: any) => {
-        console.log('Giriş başarılı:', response);
+    const email = this.email.trim();
 
-        this.authService.saveTokens(response.accessToken, response.refreshToken);
-    //    this.meService.fetchMe(); // Kullanıcı bilgilerini çek
+    if (email && this.password) {
+      this.isLoading = true;
 
-        // Başarı animasyonu için kısa bekleme
-        setTimeout(() => {
-          this.isLoading = false;
-          this.router.navigate(['/admin']).then(() => {
-           // window.location.reload();
-          });
-        }, 1000);
-      },
-      error: (err) => {
-        console.error('Giriş başarısız:', err);
-        this.isLoading = false;
+      this.authService.login({ email, password: this.password })
+        .pipe(timeout(10000))
+        .subscribe({
+          next: () => {
+            this.isLoading = false;
+            
+            // Basari animasyonu icin kisa bekleme
+            setTimeout(() => {
+              this.router.navigate(['/admin']).then(() => {
+                // window.location.reload();
+              });
+            }, 1000);
+          },
+          error: (err) => {
+            console.error('Giris basarisiz:', err);
+            this.isLoading = false;
+            this.cdr.detectChanges();
 
-        if (err.status === 0) {
-          this.errorMessage = 'Sunucuya bağlanılamıyor. Lütfen internet bağlantınızı kontrol edin.';
-        } else if (err.status === 500) {
-          this.errorMessage = 'Sunucu hatası. Lütfen tekrar deneyin.';
-        } else if (err.status === 401) {
-          this.errorMessage = 'E-posta veya şifre hatalı. Lütfen bilgilerinizi kontrol edin.';
-        } else {
-          this.errorMessage = err.error?.message || 'Bir hata oluştu. Lütfen tekrar deneyin.';
-        }
-      }
-    });
-
-  } else {
-    this.errorMessage = 'Lütfen tüm alanları doldurun.';
-    this.isLoading = false;
-
+            if (err instanceof TimeoutError) {
+              this.errorMessage = 'İstek zaman aşımına uğradı. Lütfen tekrar deneyin.';
+            } else if (err.status === 0) {
+              this.errorMessage = 'Sunucuya baglanilamiyor. Lutfen internet baglantinizi kontrol edin.';
+            } else if (err.status === 500) {
+              this.errorMessage = 'Sunucu hatasi. Lutfen tekrar deneyin.';
+            } else if (err.status === 401) {
+              this.errorMessage = 'E-posta veya sifre hatali. Lutfen bilgilerinizi kontrol edin.';
+            } else {
+              this.errorMessage = err.error?.message || 'Bir hata olustu. Lutfen tekrar deneyin.';
+            }
+          }
+        });
+    } else {
+      this.errorMessage = 'Lutfen tum alanlari doldurun.';
+      this.isLoading = false;
+    }
   }
-}
 
 
   togglePasswordVisibility(): void {
