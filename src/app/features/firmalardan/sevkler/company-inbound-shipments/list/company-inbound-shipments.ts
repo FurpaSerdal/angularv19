@@ -1,24 +1,23 @@
 
 
-import { Component, computed, effect, signal, ViewChild } from '@angular/core';
+import { Component,computed,effect,signal,ViewChild } from '@angular/core';
 
-import { FormControl, FormGroup } from '@angular/forms';
-import { MatTableDataSource } from '@angular/material/table';
+import { DatePipe } from '@angular/common';
+import { FormControl,FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { MatDialog } from '@angular/material/dialog';
-import { DatePipe } from '@angular/common';
+import { MatTableDataSource } from '@angular/material/table';
 import { ToastrService } from 'ngx-toastr';
-import { ActivatedRoute } from '@angular/router';
 
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { BreakpointObserver,Breakpoints } from '@angular/cdk/layout';
 import { SharedImports } from '../../../../../core/pipes/shared-imports';
+import { SevkIrsaliyeleriAyrintiDto } from '../../../../../models/ayrinti-dtolari.model';
+import { MalKabulIrsaliyeleriListeDto } from '../../../../../models/liste-dtolari.model';
 import { MeService } from '../../../../../services/meservice.service';
 import { GoodsReceiptNotesService } from '../../../../../services/receipts/goods-receipt-notes.service';
 import { CompanyGoodsReceipt } from '../../../siparisler/company-purchase-order/company-goods-receipt/company-goods-receipt';
 import { CompanyInboundShipmentsDetailComponent } from '../detail/detail';
-import { SevkIrsaliyeleriAyrintiDto } from '../../../../../models/ayrinti-dtolari.model';
-import { MalKabulIrsaliyeleriListeDto } from '../../../../../models/liste-dtolari.model';
 
 
 @Component({
@@ -55,15 +54,12 @@ export class CompanyInboundShipments {
   // --- SADECE EFFECT MİMARİSİ (3 EFFECT) ---
 // Bu bölümü OrtakMenu constructor içine birebir koyabilirsin
 
-private lastKey = '';
-
 constructor(
   private goodreceiptnotesService: GoodsReceiptNotesService,
   private meservice: MeService,
   private dialog: MatDialog,
   private datePipe: DatePipe,
   private toastr: ToastrService,
-  private route: ActivatedRoute,
   private breakpointObserver: BreakpointObserver
 ) {
 
@@ -251,19 +247,19 @@ paginatedCardData = computed(() => {
   }
 
   // Durum class'larını belirleyen fonksiyon
-  getStatusClass(evrak: MalKabulIrsaliyeleriListeDto): string {
+  getStatusClass(_evrak: MalKabulIrsaliyeleriListeDto): string {
 
     return 'status-pending';
   }
 
   // Durum icon'larını belirleyen fonksiyon
-  getStatusIcon(evrak: MalKabulIrsaliyeleriListeDto): string {
+  getStatusIcon(_evrak: MalKabulIrsaliyeleriListeDto): string {
 
     return 'bi bi-hourglass';
   }
 
   // Durum metnini belirleyen fonksiyon
-  getStatusText(evrak: MalKabulIrsaliyeleriListeDto): string {
+  getStatusText(_evrak: MalKabulIrsaliyeleriListeDto): string {
 
     return 'Bekliyor';
   }

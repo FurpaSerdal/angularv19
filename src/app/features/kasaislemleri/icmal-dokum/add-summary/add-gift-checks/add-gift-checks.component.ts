@@ -1,13 +1,12 @@
-import { Component, OnInit, Inject } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import Swal from 'sweetalert2';
 import { CommonModule } from '@angular/common';
+import { Component,Inject,OnInit } from '@angular/core';
+import { FormsModule,ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MAT_DIALOG_DATA,MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
+import { MatTableDataSource,MatTableModule } from '@angular/material/table';
+import Swal from 'sweetalert2';
 import { GiftCheckMovements } from '../../../../../models/eskiAngular';
 
 @Component({

@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
-import { EtiketService } from '../../../../services/etiket.service';
 import { Product } from '../../../../models/eskiAngular';
+import { EtiketService } from '../../../../services/etiket.service';
+import { MeService } from '../../../../services/meservice.service';
 
 @Component({
   selector: 'app-add-label',
@@ -16,8 +17,16 @@ searchText: string = '';
 findProducts: Product[] = [];
 constructor(
   private dialogref: MatDialogRef<AddLabel>,
-  private etiketService: EtiketService
+  private etiketService: EtiketService,
+  private meService: MeService
 ) { }
+
+ ngOnInit(): void {
+
+ }
+   taskid = computed(() => this.meService.selectedGorev()?.id || 0);
+  depoNo = computed(() => this.meService.getUserSignal()()?.subeNo || 0);
+
 
 
 onSearchChange(): void {
@@ -32,7 +41,7 @@ onSearchChange(): void {
     this.searchText = this.searchText.trim();
 
 
-    this.etiketService.getByFilterForLabel(this.searchText).subscribe((products) => {
+    this.etiketService.getByFilterForLabel(this.searchText, this.taskid()).subscribe((products) => {
     this.findProducts = products;
   });
 

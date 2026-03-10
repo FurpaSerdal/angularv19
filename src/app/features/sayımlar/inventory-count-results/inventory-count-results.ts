@@ -1,15 +1,15 @@
-import { Component, effect, signal, DestroyRef } from '@angular/core';
-import { FormsModule, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule,DatePipe } from '@angular/common';
+import { Component,DestroyRef,effect,signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormBuilder,FormGroup,FormsModule,ReactiveFormsModule } from '@angular/forms';
 import { SharedImports } from '../../../core/pipes/shared-imports';
 import { StockCountService } from '../../../services/inventory/stock-count.service';
 import { NewInventoryCount } from '../new-inventory-count/new-inventory-count';
 
 import { MatDialog } from '@angular/material/dialog';
-import { MeService } from '../../../services/meservice.service';
-import { User } from '../../../models/user';
 import { SayimSonuclariListeDto } from '../../../models/liste-dtolari.model';
+import { User } from '../../../models/user';
+import { MeService } from '../../../services/meservice.service';
 
 
 

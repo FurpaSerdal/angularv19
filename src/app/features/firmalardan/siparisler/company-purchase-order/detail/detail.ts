@@ -1,6 +1,6 @@
-import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { Component,Inject } from '@angular/core';
+import { MAT_DIALOG_DATA,MatDialogRef } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { VerilenSiparislerAyrintiDto } from '../../../../../models/ayrinti-dtolari.model';
 

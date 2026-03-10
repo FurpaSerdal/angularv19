@@ -1,6 +1,6 @@
 // src/app/pipes/custom-date.pipe.ts
-import { Pipe, PipeTransform } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { Pipe,PipeTransform } from '@angular/core';
 
 @Pipe({
   name: 'customDate',
@@ -10,7 +10,7 @@ import { DatePipe } from '@angular/common';
 export class CustomDatePipe implements PipeTransform {
   constructor(private datePipe: DatePipe) {}
 
-  transform(value: any, format: string = 'yyyy-MM-dd'): number | string {
+  transform(value: any, _format: string = 'yyyy-MM-dd'): number | string {
     if (!value) return 0; // sort için null/undefined => 0
     const date = new Date(value);
     return Number.isFinite(date.getTime()) ? date.getTime() : 0;

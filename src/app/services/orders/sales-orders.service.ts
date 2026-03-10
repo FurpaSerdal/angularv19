@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BaseApiService } from '../shared/base-api.service';
-import { API_PATHS } from '../shared/api-paths';
 import { Observable } from 'rxjs';
+import { BaseApiService } from '../shared/base-api.service';
 
 @Injectable({ providedIn: 'root' })
 export class SalesOrdersService extends BaseApiService {

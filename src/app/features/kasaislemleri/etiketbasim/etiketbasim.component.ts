@@ -1,28 +1,30 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
+import { AfterViewInit, Component,computed,OnDestroy,OnInit,ViewChild } from '@angular/core';
+import { FormBuilder,FormGroup,ReactiveFormsModule,Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
+import { MatPaginator,MatPaginatorModule } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSortModule, MatSort } from '@angular/material/sort';
-import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { ToastrService } from 'ngx-toastr';
-import { FiyatetiketComponent } from './a4-fiyat-etiketi/fiyatetiket.component';
+import { MatSort,MatSortModule } from '@angular/material/sort';
+import { MatTableDataSource,MatTableModule } from '@angular/material/table';
 import { NgxPrintModule } from 'ngx-print';
+import { ToastrService } from 'ngx-toastr';
+import { interval, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { etiket } from '../../../models/etiket';
-import { RafetiketiComponent } from "./raf-etiketi/rafetiketi.component";
-import { A5IkiliFiyatEtiketiComponent } from './a5-ikili-fiyat-etiketi/a5-ikili-fiyat-etiketi.component';
-import { RafEtiketA5Component } from './raf-etiket-a5/raf-etiket-a5.component';
-import { A5IkiliAyinEtiketiComponent } from './a5-ikili-ayin-etiketi/a5-ikili-ayin-etiketi.component';
-import { EtiketService } from '../../../services/etiket.service';
 import { LabelDocuments } from '../../../models/lastDocuments';
-import { MatDialog } from '@angular/material/dialog';
+import { EtiketService } from '../../../services/etiket.service';
+import { FiyatetiketComponent } from './a4-fiyat-etiketi/fiyatetiket.component';
+import { A5IkiliAyinEtiketiComponent } from './a5-ikili-ayin-etiketi/a5-ikili-ayin-etiketi.component';
+import { A5IkiliFiyatEtiketiComponent } from './a5-ikili-fiyat-etiketi/a5-ikili-fiyat-etiketi.component';
 import { AddLabel } from './add-label/add-label';
 import { PrintChangePrice } from './print-change-price/print-change-price';
+import { RafEtiketA5Component } from './raf-etiket-a5/raf-etiket-a5.component';
+import { RafetiketiComponent } from "./raf-etiketi/rafetiketi.component";
+import { MeService } from '../../../services/meservice.service';
+import { Product } from '../../../models/eskiAngular';
 
 @Component({
   selector: 'app-etiketbasim',
@@ -46,17 +48,26 @@ import { PrintChangePrice } from './print-change-price/print-change-price';
     PrintChangePrice
   ],
   templateUrl: './etiketbasim.component.html',
-  styleUrls: ['./etiketbasim.component.css']
+  styleUrls: ['./etiketbasim.component.css'],
+    providers: [DatePipe]
+  
 })
-export class EtiketbasimComponent implements OnInit, OnDestroy {  @ViewChild(MatPaginator) paginator!: MatPaginator;
+export class EtiketbasimComponent implements OnInit, OnDestroy, AfterViewInit { 
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
   private destroy$ = new Subject<void>();
+  private documentLoadCancel$ = new Subject<void>();
   // Formlar
   etiketTipiFormu!: FormGroup;
   tarihSaatFiltreFormu!: FormGroup;
   etiketEvragiFormu!: FormGroup;
   etiketEvragiAramaFormu!: FormGroup;
+ 
+productsHavingPromotions : Product[] = [];
+filteredProductsForCrossedOut: Product[] = [];
+
+  
   
 
   // Tarih ve Etiket Tipleri
@@ -108,8 +119,12 @@ export class EtiketbasimComponent implements OnInit, OnDestroy {  @ViewChild(Mat
     private fb: FormBuilder,
     private etiketservice: EtiketService,
     private toastr: ToastrService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private meService: MeService,
+    private datePipe: DatePipe,
   ) {}
+
+  
 
   ngOnInit(): void {
  this.getlastDocuments();
@@ -125,7 +140,7 @@ export class EtiketbasimComponent implements OnInit, OnDestroy {  @ViewChild(Mat
         [
           Validators.required,
           Validators.pattern(
-            /(3[01]|[12][0-9]|0[1-9]).(1[0-2]|0[1-9]).[0-9]{4} (2[0-3]|[01]?[0-9]\d):([0-5]?[0-9]\d):([0-5]?[0-9]\d)/
+            /^\d{4}-\d{2}-\d{2}T([01]\d|2[0-3]):[0-5]\d$/
           )
         ]
       ]
@@ -145,7 +160,21 @@ export class EtiketbasimComponent implements OnInit, OnDestroy {  @ViewChild(Mat
       .subscribe(value => {
         this.selectedEtiket = this.etiketTip().find((tip: etiket) => tip.etiketTipi === value);
       });
+
+
+   interval(60000)
+  .pipe(takeUntil(this.destroy$))
+  .subscribe(() => {
+    this.today = this.getFormattedDateTime();
+  });
   }
+
+  taskid = computed(() => {
+    return this.meService.selectedGorev()?.id || 0;
+  });
+  depoNo = computed(() => {
+    return this.meService.getUserSignal()()?.subeNo || 0;
+  });
 
   ngAfterViewInit(): void {
     // Paginator ve Sort'u bağla
@@ -154,12 +183,14 @@ export class EtiketbasimComponent implements OnInit, OnDestroy {  @ViewChild(Mat
   }
 
   ngOnDestroy(): void {
+    this.documentLoadCancel$.next();
+    this.documentLoadCancel$.complete();
     this.destroy$.next();
     this.destroy$.complete();
   }
 
   getlastDocuments() {
-    this.etiketservice.getLastDocuments().pipe(takeUntil(this.destroy$)).subscribe((documents) => {
+    this.etiketservice.getLastDocuments(this.taskid(),this.depoNo()).pipe(takeUntil(this.destroy$)).subscribe((documents) => {
       this.LastDocumentsList = documents;
     });
   }
@@ -176,7 +207,9 @@ export class EtiketbasimComponent implements OnInit, OnDestroy {  @ViewChild(Mat
       if (result) {
         // Modal'dan dönen ürün bilgisi ile tabloya yeni satır ekleyin
         const currentData = this.dataSource.data;
+        console.log('Modaldan dönen ürün:', result); // Modal'dan dönen ürünü konsola yazdırarak kontrol edin
         this.dataSource.data = [...currentData, result];
+        console.log('Güncellenmiş veri:', this.dataSource.data);
         this.toastr.success('Ürün başarıyla eklendi');
       }
     });
@@ -198,59 +231,123 @@ export class EtiketbasimComponent implements OnInit, OnDestroy {  @ViewChild(Mat
     this.etiketEvragiFormu.reset();
     this.toastr.info('Liste temizlendi');
   }
+getByPriceChangeDate(): void {
+  const selectedDate = this.tarihSaatFiltreFormu.get('filtre')?.value;
 
-  getByPriceChangeDate(): void {
-    const selectedDate = this.tarihSaatFiltreFormu.get('filtre')?.value;
-    if (!selectedDate) {
-      this.toastr.warning('Lütfen bir tarih seçin');
-      return;
-    }
-    // yyyy-MM-ddThh:mm formatını dd.MM.yyyy HH:mm:ss formatına çevir
-    const [datePart, timePart] = selectedDate.split('T');
-    const [year, month, day] = datePart.split('-');
-    const [hours, minutes] = timePart.split(':');
-    const formattedDate = `${day}.${month}.${year} ${hours}:${minutes}:00`;
-    
-    this.etiketservice.getByDateForLabel(formattedDate).pipe(takeUntil(this.destroy$)).subscribe((product) => {
+  if (!selectedDate) {
+    this.toastr.warning('Lütfen bir tarih seçin');
+    return;
+  }
+
+  // Seçilen tarih
+  const selected = new Date(selectedDate);
+
+  if (Number.isNaN(selected.getTime())) {
+    this.toastr.warning('Geçerli bir tarih seçin');
+    return;
+  }
+
+  // Şu an
+  const now = new Date();
+
+  const formatDate = (date: Date) => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    const h = String(date.getHours()).padStart(2, '0');
+    const min = String(date.getMinutes()).padStart(2, '0');
+    const s = String(date.getSeconds()).padStart(2, '0');
+
+    return `${y}-${m}-${d}-${h}-${min}-${s}`;
+  };
+
+  const startDate = formatDate(selected);
+  const endDate = formatDate(now);
+
+  const zamanlama = `aralik-${startDate}-${endDate}`;
+
+  this.etiketservice
+    .getByDateForLabel(this.taskid(), zamanlama)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe((product) => {
       this.dataSource.data = product;
     });
-    
-    // TODO: API çağrısı yapılacak
-    this.toastr.info(`${formattedDate} tarihinden itibaren veriler getirilecek`);
-    // this.etiket.getByPriceChangeDate(selectedDate).pipe(takeUntil(this.destroy$)).subscribe(...);
+}
+
+  private resetDerivedProductLists(): void {
+    this.productsHavingPromotions = [];
+    this.filteredProductsForCrossedOut = [];
+  }
+
+  private loadLabelDocumentProducts(docNo: number): void {
+    this.documentLoadCancel$.next();
+    this.resetDerivedProductLists();
+
+    this.etiketservice
+      .getDocument(this.taskid(), docNo)
+      .pipe(takeUntil(this.destroy$), takeUntil(this.documentLoadCancel$))
+      .subscribe(products => {
+        if (!products || products.length === 0) {
+          this.toastr.info('Seçilen evrak numarasına ait ürün bulunamadı');
+          this.dataSource.data = [];
+          return;
+        }
+
+        const productList = [...products];
+
+        productList.forEach(p => {
+          if (p.oldPrice > p.price) {
+            this.filteredProductsForCrossedOut.push(p);
+          }
+        });
+
+        productList.forEach(p => {
+          this.etiketservice
+            .searchPromotionProducts(this.taskid(), p.pluNo)
+            .pipe(takeUntil(this.destroy$), takeUntil(this.documentLoadCancel$))
+            .subscribe(promoData => {
+              if (promoData) {
+                p.promotionPrice =
+                  promoData.discountAmount === 0
+                    ? p.price - (p.price * promoData.discountRate) / 100
+                    : p.price - promoData.discountAmount;
+
+                p.expirationDate =
+                  this.datePipe.transform(promoData.expirationDate, 'dd-MM-yyyy') ?? '';
+
+                this.productsHavingPromotions.push(p);
+              }
+            });
+        });
+
+        this.dataSource.data = productList;
+      });
   }
 
   // Evrak Numarasına Göre Filtreleme (Dropdown)
   getLabelDocument(): void {
-    const docNo = this.etiketEvragiFormu.value.labelDocumentNo;
-    if (!docNo) {
+    const docNo = Number(this.etiketEvragiFormu.value.labelDocumentNo);
+
+    if (!docNo || Number.isNaN(docNo)) {
       this.toastr.warning('Lütfen bir evrak numarası seçin');
       return;
     }
-    this.etiketservice.getDocument(docNo).pipe(takeUntil(this.destroy$)).subscribe((products) => {
-      this.dataSource.data = products;
 
-    });    
-    
-    // TODO: API çağrısı yapılacak
     this.toastr.info(`Evrak No ${docNo} getiriliyor...`);
-    // this.etiket.getLabelDocument(docNo).pipe(takeUntil(this.destroy$)).subscribe(...);
+    this.loadLabelDocumentProducts(docNo);
   }
 
   // Evrak Numarası ile Arama (Input)
   searchLabelDocument(): void {
-    const searchNo = this.etiketEvragiAramaFormu.value.labelDocumentNoSearch;
-    if (!searchNo) {
+    const searchNo = Number(this.etiketEvragiAramaFormu.value.labelDocumentNoSearch);
+
+    if (!searchNo || Number.isNaN(searchNo)) {
       this.toastr.warning('Lütfen bir evrak numarası girin');
       return;
     }
-      this.etiketservice.getDocument(searchNo).pipe(takeUntil(this.destroy$)).subscribe((products) => {
-        this.dataSource.data = products;
-      });
-    
-    // TODO: API çağrısı yapılacak
+
+    this.loadLabelDocumentProducts(searchNo);
     this.toastr.info(`Evrak No ${searchNo} aranıyor...`);
-    // this.etiket.searchLabelDocument(searchNo).pipe(takeUntil(this.destroy$)).subscribe(...);
   }
 
   // Yazdırma İşlemi

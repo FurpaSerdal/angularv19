@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
-import { AltMenu, Gorev } from "../../models/user";
 import { Router } from "@angular/router";
+import { AltMenu,Gorev } from "../../models/user";
 
 @Injectable({ providedIn: 'root' })
 export class RouterHelperService {
@@ -32,7 +32,7 @@ export class RouterHelperService {
     15: ['task', 'transfer', 'exits'],
 
     // Faturalar
-    2: ['task', 'invoices', 'sales'],
+    55: ['task', 'invoices', 'sales'],
     34: ['task', 'invoices', 'purchase'],
     8: ['task', 'invoices', 'purchase'],
     10: ['task', 'invoices', 'purchase'],

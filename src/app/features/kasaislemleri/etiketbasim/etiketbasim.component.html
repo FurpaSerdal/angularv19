@@ -36,13 +36,13 @@
       <div class="d-flex align-items-center">
         <form [formGroup]="tarihSaatFiltreFormu" class="w-100">
           <mat-form-field class="w-100">
-            <input matInput formControlName="filtre" type="datetime-local" placeholder="Şu Tarih ve Saatten">
+            <input matInput formControlName="filtre" type="datetime-local" step =1 placeholder="Şu Tarih ve Saatten">
           </mat-form-field>
         </form>
         <div class="ms-3 d-flex flex-column">
           <span class="mb-1">itibaren</span>
           <button mat-flat-button color="primary" 
-                  [disabled]="!tarihSaatFiltreFormu.value.filtre" 
+                   [disabled]="!tarihSaatFiltreFormu.get('filtre')?.value"
                   (click)="getByPriceChangeDate()">
             Getir
           </button>

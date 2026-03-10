@@ -1,14 +1,14 @@
-import { Component, signal, computed, effect, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component,computed,OnInit,signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { WarehouseService } from '../../../../../services/warehouse.service';
+import { MatDialogRef } from '@angular/material/dialog';
+import { KalemDto } from '../../../../../models/ayrinti-dtolari.model';
+import { VerilenDepoSiparisleriEkleDto } from '../../../../../models/ekle-dtolari.model';
+import { listProducts } from '../../../../../models/listProduct';
+import { DepoCari,StokAraCT } from '../../../../../models/ortakModeller';
 import { MeService } from '../../../../../services/meservice.service';
 import { PurchaseOrdersService } from '../../../../../services/orders/purchase-orders.service';
-import { MatDialogRef } from '@angular/material/dialog';
-import { DepoCari, StokAraCT } from '../../../../../models/ortakModeller';
-import { listProducts } from '../../../../../models/listProduct';
-import {  VerilenDepoSiparisleriEkleDto } from '../../../../../models/ekle-dtolari.model';
-import { KalemDto } from '../../../../../models/ayrinti-dtolari.model';
+import { WarehouseService } from '../../../../../services/warehouse.service';
 
 
 @Component({

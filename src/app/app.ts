@@ -1,6 +1,5 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy,Component,signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { IdleService } from './services/helper/idle.service';
 import { AuthService } from './services/auth.service';
 
 @Component({
@@ -13,7 +12,7 @@ import { AuthService } from './services/auth.service';
 export class App {
   protected readonly title = signal('gunceltemplate');
 
-    constructor(private idleService: IdleService , private auth: AuthService) {
+    constructor(private auth: AuthService) {
         this.auth.initializeAuthTimer();
 
     }

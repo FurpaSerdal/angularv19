@@ -1,27 +1,27 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Input,
-  Output,
-  EventEmitter,
-  signal,
-  computed,
-  inject,
-  effect
-} from '@angular/core';
+import { BreakpointObserver,Breakpoints } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import {
+ChangeDetectionStrategy,
+Component,
+computed,
+EventEmitter,
+inject,
+Input,
+Output,
+signal
+} from '@angular/core';
+import { RouterModule } from '@angular/router';
 
-import { AltMenu, Gorev, Menu } from '../../models/user';
-import { MeService } from '../../services/meservice.service';
+import { AltMenu,Gorev,Menu } from '../../models/user';
 import { RouterHelperService } from '../../services/helper/router-helper.service';
+import { MeService } from '../../services/meservice.service';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './sidebar-component.html',
+  styleUrl: './sidebar-component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SidebarComponent {
@@ -131,10 +131,19 @@ export class SidebarComponent {
 
 
 
-  getTaskIcon(task: Menu): string {
-    return  'bi-question-circle';
-  }
+getTaskIcon(task: Menu): string {
+  const iconMap: Record<number, string> = {
+    1: 'bi bi-truck',
+    2: 'bi bi-box-seam',
+    3: 'bi bi-arrow-left-right',
+    4: 'bi bi-clipboard-check',
+    5: 'bi bi-arrow-repeat',
+    6: 'bi bi-cash-stack',
+    7: 'bi bi-pie-chart'
+  };
 
+  return iconMap[task.id] ?? 'bi bi-grid-3x3-gap';
+}
   closeMobileSidebar(): void {
     if (this.isMobile()) {
       this.closeMobile.emit();

@@ -1,18 +1,18 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, Inject, signal } from '@angular/core';
+import { Component,computed,Inject,signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MAT_DIALOG_DATA,MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatTableDataSource,MatTableModule } from '@angular/material/table';
 import { ToastrService } from 'ngx-toastr';
-import { WarehouseService } from '../../../../../services/warehouse.service';
-import { ShipmentNotesService } from '../../../../../services/shipments/shipment-notes.service';
-import { MeService } from '../../../../../services/meservice.service';
 import Swal from 'sweetalert2';
-import {  StokAraCT } from '../../../../../models/ortakModeller';
+import { StokAraCT } from '../../../../../models/ortakModeller';
+import { MeService } from '../../../../../services/meservice.service';
+import { ShipmentNotesService } from '../../../../../services/shipments/shipment-notes.service';
+import { WarehouseService } from '../../../../../services/warehouse.service';
 
-import { DepolaraSevkIrsaliyeleriEkleDto } from '../../../../../models/ekle-dtolari.model';
 import { AlinanDepoSiparisleriAyrintiDto } from '../../../../../models/ayrinti-dtolari.model';
+import { DepolaraSevkIrsaliyeleriEkleDto } from '../../../../../models/ekle-dtolari.model';
 
 export interface Kalem {
   stokKodu: string;
@@ -161,7 +161,7 @@ ngOnInit(): void {
     this.urunAraMetni = '';
   }
 
-  trackByStokKodu(index: number, item: Kalem): string {
+  trackByStokKodu(_index: number, item: Kalem): string {
     return item.stokKodu;
   }
 

@@ -1,12 +1,12 @@
+import { HttpClient,HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+import { environment } from '../../environment';
+import { Product,Promotion,Tag } from '../models/eskiAngular';
 import { etiket } from '../models/etiket';
 import { LabelDocuments } from '../models/lastDocuments';
 import { MeService } from './meservice.service';
-import { Product, Tag } from '../models/eskiAngular';
-import { environment } from '../../environment';
 
 @Injectable({
   providedIn: 'root'
@@ -14,8 +14,7 @@ import { environment } from '../../environment';
 export class EtiketService {
 
   private apiPath = environment.eskipath;
-
-  warehouseNo: number = 0;
+  private apiUrl = environment.apiurl;
 
   etiketTipleri: etiket[] = [
     { etiketIsmi: 'Raf Etiketi', etiketTipi: 'rack_label', ozelCss: '/assets/css/rafEtiketi.css' },
@@ -35,9 +34,7 @@ export class EtiketService {
   constructor(
     private http: HttpClient,
     private meservice: MeService
-  ) {
-    this.warehouseNo = this.meservice.getUserSignal()()?.subeNo || 0;
-  }
+  ) {}
 
   // -------------------------
   // HEADER BUILDER
@@ -62,75 +59,59 @@ export class EtiketService {
   // -------------------------
   // DOCUMENT GET
   // -------------------------
-  getDocument(documentNo: number): Observable<Product[]> {
+  getDocument(taskid: number, documentNo: number): Observable<Product[]> {
     return this.http.get<Product[]>(
-      this.apiPath + 'LabelDocuments/Get/' + documentNo,
-      {
-        headers: this.getHeaders()
-      }
+      this.apiUrl + '/etiket/' + taskid + '/etiketbelgesi/' + documentNo,
+   
     );
   }
 
   // -------------------------
   // LAST DOCUMENTS
   // -------------------------
-  getLastDocuments(warehouseNo?: number): Observable<LabelDocuments[]> {
+  getLastDocuments(taskid: number, warehouseNo: number): Observable<LabelDocuments[]> {
 
-    const depoNo = warehouseNo || this.warehouseNo;
+
 
     return this.http.get<LabelDocuments[]>(
-      this.apiPath + 'LabelDocuments/GetLastDocument/' + depoNo,
-      {
-        headers: this.getHeaders()
-      }
-    );
-  }
+      this.apiUrl + '/Etiket/'+taskid+'/EklenenSonOnBelge/' + warehouseNo,
+
+    );}
 
   // -------------------------
   // RAF ETIKETI – DATE
   // -------------------------
-  getByDateForLabel(dateTimeFilter: string): Observable<Product[]> {
-    return this.http.get<Product[]>(
-      this.apiPath +
-        'products/GetByDateForLabel?dateTimeFilter=' +
-        dateTimeFilter +
-        '&warehouseNo=' +
-        this.warehouseNo,
-      {
-        headers: this.getHeaders()
-      }
-    );
-  }
+getByDateForLabel(taskid: number, dateTimeFilter: string): Observable<Product[]> {
+  return this.http.get<Product[]>(
+    `${this.apiUrl}/etiket/${taskid}/urunetiketleri/${dateTimeFilter}`
+  );
+}
 
   // -------------------------
   // KUNYE TAGS
   // -------------------------
-  getTags(dateToGet: string): Observable<Tag[]> {
+  getTags(dateToGet: string, warehouseNo: number,taskid:number): Observable<Tag[]> {
     return this.http.get<Tag[]>(
-      this.apiPath +
-        'LabelDocuments/Tags?dateToGet=' +
-        dateToGet +
-        '&warehouseNo=' +
-        this.warehouseNo,
-      {
-        headers: this.getHeaders()
-      }
+      this.apiUrl +
+        '/Etiket/'+taskid+'/Kunyeler/'+
+        dateToGet,
+  
     );
   }
 
   // -------------------------
   // FILTER ILE ETIKET
   // -------------------------
-  getByFilterForLabel(filterString: string): Observable<Product[]> {
+  getByFilterForLabel(filterString: string,taskid:number): Observable<Product[]> {
     return this.http.get<Product[]>(
-      this.apiPath +
-        'products/GetByFilterForLabel?filterString=' +
-        filterString +
-        '&warehouseNo=' +
-        this.warehouseNo,
-      {
-        headers: this.getHeaders()
-      }
+      this.apiUrl +
+        '/Stoklar/' + taskid + '/EtiketUrunuAra/' + filterString,
+    );
+  }
+
+   searchPromotionProducts(taskid: number,pluNo:number): Observable<Promotion> {
+    return this.http.get<Promotion>(
+      this.apiUrl + '/Promosyonlar/' + taskid + '/UrunPluNoPromosyonu/' + pluNo,
     );
   }
 }

@@ -1,14 +1,12 @@
-import { Component, Inject, signal } from '@angular/core';
-import { SharedImports } from '../../../../core/pipes/shared-imports';
+import { Component,Inject,signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MAT_DIALOG_DATA,MatDialog } from '@angular/material/dialog';
+import { share } from 'rxjs';
+import { SharedImports } from '../../../../core/pipes/shared-imports';
+import { VirmanEkleDto,VirmanKalemiDto } from '../../../../models/ekle-dtolari.model';
 import { StokAraCT } from '../../../../models/ortakModeller';
 import { VirmansTransaction } from '../../../../services/virmans/virmans-transaction';
 import { WarehouseService } from '../../../../services/warehouse.service';
-import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
-import { share } from 'rxjs';
-import { Toast } from 'ngx-toastr';
-import { VirmanEkleDto, VirmanKalemiDto } from '../../../../models/ekle-dtolari.model';
-import { KalemDto } from '../../../../models/ayrinti-dtolari.model';
 
 @Component({
   selector: 'app-new-virman-exit',

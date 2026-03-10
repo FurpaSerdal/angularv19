@@ -231,3 +231,10 @@ export interface Tag {
     shippingDate:Date;
     manufacturer:string;
 }
+
+export interface Promotion {
+    discountAmount:number;
+    discountRate:number;
+    productPluNo:number;
+    expirationDate:string;
+}

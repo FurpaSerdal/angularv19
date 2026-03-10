@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
+import { catchError,Observable } from 'rxjs';
 import { BaseApiService } from '../shared/base-api.service';
-import { API_PATHS } from '../shared/api-paths';
-import { catchError, Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class StockOutService extends BaseApiService {

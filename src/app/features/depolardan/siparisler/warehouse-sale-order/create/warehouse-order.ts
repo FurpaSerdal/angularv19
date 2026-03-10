@@ -1,18 +1,18 @@
-import { Component, signal, computed, effect, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Component,computed,OnInit,signal } from '@angular/core';
+import { FormsModule,ReactiveFormsModule } from '@angular/forms';
 
 
-import { WarehouseService } from '../../../../../services/warehouse.service';
-import { SalesOrdersService } from '../../../../../services/orders/sales-orders.service';
-import { MeService } from '../../../../../services/meservice.service';
 import { MatDialogRef } from '@angular/material/dialog';
-import {  DepoCari, StokAraCT } from '../../../../../models/ortakModeller';
+import { DepoCari,StokAraCT } from '../../../../../models/ortakModeller';
+import { MeService } from '../../../../../services/meservice.service';
+import { SalesOrdersService } from '../../../../../services/orders/sales-orders.service';
+import { WarehouseService } from '../../../../../services/warehouse.service';
 
-import { listProducts } from '../../../../../models/listProduct';
-import { AlinanDepoSiparisleriEkleDto } from '../../../../../models/ekle-dtolari.model';
-import { KalemDto } from '../../../../../models/ayrinti-dtolari.model';
 import { ToastrService } from 'ngx-toastr';
+import { KalemDto } from '../../../../../models/ayrinti-dtolari.model';
+import { AlinanDepoSiparisleriEkleDto } from '../../../../../models/ekle-dtolari.model';
+import { listProducts } from '../../../../../models/listProduct';
 
 
 

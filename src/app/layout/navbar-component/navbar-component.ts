@@ -1,13 +1,14 @@
-import { ChangeDetectionStrategy, Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { MeService } from '../../services/meservice.service';
+import { ChangeDetectionStrategy,Component,EventEmitter,Input,OnInit,Output } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { MeService } from '../../services/meservice.service';
 @Component({
   selector: 'app-navbar',
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './navbar-component.html',
+  styleUrl: './navbar-component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NavbarComponent implements OnInit {

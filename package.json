@@ -6,9 +6,14 @@
     "start": "ng serve",
     "dev": "ng serve --host 192.168.254.214 --port 4200 --open",
     "build": "ng build",
+    "build:dev": "ng build --configuration development",
     "build:prod": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "check:types": "tsc -p tsconfig.app.json --noEmit",
+    "check:unused": "tsc -p tsconfig.app.json --noEmit --noUnusedLocals --noUnusedParameters",
+    "fix:imports": "node tools/organize-imports.js",
+    "qa:quick": "npm run fix:imports && npm run check:unused"
   },
   "prettier": {
     "printWidth": 100,
@@ -36,6 +41,7 @@
     "animate.css": "^4.1.1",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
+    "font-awesome": "^4.7.0",
     "jsbarcode": "^3.12.3",
     "ngx-print": "^21.1.0",
     "ngx-toastr": "^19.1.0",

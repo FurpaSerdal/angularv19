@@ -1,8 +1,8 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
-import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { ChangeDetectorRef,Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { timeout, TimeoutError } from 'rxjs';
+import { Router } from '@angular/router';
+import { timeout,TimeoutError } from 'rxjs';
 
 import { AuthService } from '../services/auth.service';
 

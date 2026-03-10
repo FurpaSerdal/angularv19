@@ -1,18 +1,17 @@
 // pages/company-order/company-order.ts
 import { CommonModule } from '@angular/common';
-import { Component, computed, signal } from '@angular/core';
+import { Component,computed,signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { CompanyService } from '../../../../../services/company.service';
-import { PurchaseOrdersService } from '../../../../../services/orders/purchase-orders.service';
-import { CariHesapAraCT, StokAraCT, StokBulDto } from '../../../../../models/ortakModeller';
-import { ToastrService } from 'ngx-toastr';
-import { MeService } from '../../../../../services/meservice.service';
-import { CompanyGoodsReceipt } from '../company-goods-receipt/company-goods-receipt';
 import { MatDialogRef } from '@angular/material/dialog';
-import { listProducts } from '../../../../../models/listProduct';
+import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
-import { VerilenSiparislerEkleDto } from '../../../../../models/ekle-dtolari.model';
 import { KalemDto } from '../../../../../models/ayrinti-dtolari.model';
+import { VerilenSiparislerEkleDto } from '../../../../../models/ekle-dtolari.model';
+import { listProducts } from '../../../../../models/listProduct';
+import { CariHesapAraCT,StokAraCT,StokBulDto } from '../../../../../models/ortakModeller';
+import { CompanyService } from '../../../../../services/company.service';
+import { MeService } from '../../../../../services/meservice.service';
+import { PurchaseOrdersService } from '../../../../../services/orders/purchase-orders.service';
 
 
 @Component({

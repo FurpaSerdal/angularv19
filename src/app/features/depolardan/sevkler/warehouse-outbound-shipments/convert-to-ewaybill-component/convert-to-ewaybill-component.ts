@@ -1,10 +1,10 @@
-import { Component, OnInit, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component,Inject,OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { DepoEIrsaliyesiGonderDto, EIrsaliyeGonderKalemDto } from '../../../../../models/e-IrsaliyeGonderModel';
+import { MAT_DIALOG_DATA,MatDialogRef } from '@angular/material/dialog';
+import { DepolaraSevkIrsaliyeleriAyrintiDto,KalemDto } from '../../../../../models/ayrinti-dtolari.model';
+import { DepoEIrsaliyesiGonderDto,EIrsaliyeGonderKalemDto } from '../../../../../models/e-IrsaliyeGonderModel';
 import { WarehouseService } from '../../../../../services/warehouse.service';
-import { DepolaraSevkIrsaliyeleriAyrintiDto, KalemDto } from '../../../../../models/ayrinti-dtolari.model';
 
 @Component({
   selector: 'app-convert-to-ewaybill-component',
@@ -130,7 +130,7 @@ export class ConvertToEWaybillComponent implements OnInit {
     this.errorMessage = '';
 
     this.warehouseService.SendOutboxShippingDespatch(payload).subscribe({
-      next: (response: any) => {
+      next: (_response: any) => {
         this.successMessage = 'Sevkiye başarıyla e-İrsaliye\'ye dönüştürüldü.';
         this.showConfirmDialog = false;
         this.resetForm();

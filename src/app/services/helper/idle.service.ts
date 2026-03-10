@@ -1,7 +1,7 @@
-import { Injectable, NgZone, OnDestroy } from '@angular/core';
+import { Injectable,NgZone,OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { AuthService } from '../auth.service';
 import { SessionDialogComponent } from '../../modal/SessionDialogComponent';
+import { AuthService } from '../auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class IdleService implements OnDestroy {

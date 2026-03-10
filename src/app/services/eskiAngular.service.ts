@@ -1,11 +1,10 @@
-import { HttpClient, HttpHeaders, HttpResponse } from "@angular/common/http";
+import { HttpClient,HttpHeaders,HttpResponse } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { environment } from "../../environment";
 import { Observable } from "rxjs";
 import Swal from "sweetalert2";
-import { BanknoteMovements, BanknoteMovementsCT, BanknoteTrack, BanknoteTrackCT, Cashier, CashRegisterDetails, CashRegistryDetail, GiftCheckMovements, GiftCheckMovementsCT, PaymentTypes, SummariesCT, SummariesDetailsCT, SummariesReportCT, SummaryForAdd } from "../models/eskiAngular";
+import { environment } from "../../environment";
+import { BanknoteMovements,BanknoteMovementsCT,BanknoteTrack,BanknoteTrackCT,Cashier,CashRegisterDetails,CashRegistryDetail,GiftCheckMovements,GiftCheckMovementsCT,PaymentTypes,SummariesCT,SummariesDetailsCT,SummariesReportCT,SummaryForAdd } from "../models/eskiAngular";
 import { MeService } from "./meservice.service";
-import { User } from "../models/user";
 
 @Injectable({
   providedIn: 'root'

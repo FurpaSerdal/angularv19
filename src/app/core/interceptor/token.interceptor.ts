@@ -1,16 +1,15 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { AuthService } from '../../services/auth.service';
-import { Router } from '@angular/router';
 import {
-  catchError,
-  switchMap,
-  throwError,
-  shareReplay,
-  finalize,
-  map
+catchError,
+finalize,
+map,
+Observable,
+shareReplay,
+switchMap,
+throwError
 } from 'rxjs';
-import { Observable } from 'rxjs';
+import { AuthService } from '../../services/auth.service';
 import { MeService } from '../../services/meservice.service';
 
 let refreshToken$: Observable<string> | null = null;

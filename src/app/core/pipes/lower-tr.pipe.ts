@@ -1,5 +1,5 @@
 // src/app/pipes/lower-tr.pipe.ts
-import { Pipe, PipeTransform } from '@angular/core';
+import { Pipe,PipeTransform } from '@angular/core';
 
 @Pipe({
   name: 'lowerTr',

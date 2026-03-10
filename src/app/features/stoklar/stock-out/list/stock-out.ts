@@ -1,19 +1,19 @@
+import { BreakpointObserver,Breakpoints } from "@angular/cdk/layout";
 import { DatePipe } from "@angular/common";
-import { SharedImports } from "../../../../core/pipes/shared-imports";
-import { Component, effect, signal, ViewChild } from "@angular/core";
-import { FormControl, FormGroup } from "@angular/forms";
-import { User } from "../../../../models/user";
-import { MatTableDataSource } from "@angular/material/table";
+import { Component,effect,signal,ViewChild } from "@angular/core";
+import { FormControl,FormGroup } from "@angular/forms";
+import { MatDialog } from "@angular/material/dialog";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
-import { MeService } from "../../../../services/meservice.service";
-import { MatDialog } from "@angular/material/dialog";
+import { MatTableDataSource } from "@angular/material/table";
 import { ToastrService } from "ngx-toastr";
-import { BreakpointObserver, Breakpoints } from "@angular/cdk/layout";
+import { SharedImports } from "../../../../core/pipes/shared-imports";
+import { CikisFisleriListeDto } from "../../../../models/liste-dtolari.model";
+import { User } from "../../../../models/user";
 import { StockOutService } from "../../../../services/inventory/stock-out.service";
+import { MeService } from "../../../../services/meservice.service";
 import { DetailStockOut } from "../detail-stock-out/detail-stock-out";
 import { NewStockOut } from "../new-stock-out/new-stock-out";
-import { CikisFisleriListeDto } from "../../../../models/liste-dtolari.model";
 
 
 @Component({
@@ -47,7 +47,7 @@ export class StockOut {
   selectedRow: any = null;
   
   // Tablo kolonları güncellendi
-  displayedColumns = ['seri', 'sayan', 'tarih'];
+  displayedColumns = ['seri', 'sayan', 'tarih', 'islemler'];
   DataSource: MatTableDataSource<any> = new MatTableDataSource<any>([]);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -169,6 +169,7 @@ constructor(
         this.dialog.open(DetailStockOut, {
           width: "50%",
           height: "70%",
+          disableClose: true,
           data: data
         });
       },

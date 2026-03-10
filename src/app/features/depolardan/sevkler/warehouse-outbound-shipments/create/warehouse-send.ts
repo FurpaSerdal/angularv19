@@ -1,21 +1,21 @@
 import { CommonModule } from '@angular/common';
 import {
-  Component,
-  computed,
-  effect,
-  signal
+Component,
+computed,
+effect,
+signal
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatTableModule } from '@angular/material/table';
 import { ToastrService } from 'ngx-toastr';
 
+import { DepolaraSevkIrsaliyeleriEkleDto } from '../../../../../models/ekle-dtolari.model';
 import { listProducts } from '../../../../../models/listProduct';
-import { DepoCari, StokAraCT } from '../../../../../models/ortakModeller';
+import { DepoCari,StokAraCT } from '../../../../../models/ortakModeller';
 import { MeService } from '../../../../../services/meservice.service';
 import { ShipmentNotesService } from '../../../../../services/shipments/shipment-notes.service';
 import { WarehouseService } from '../../../../../services/warehouse.service';
-import { DepolaraSevkIrsaliyeleriEkleDto } from '../../../../../models/ekle-dtolari.model';
 
 @Component({
   selector: 'app-warehouse-send',

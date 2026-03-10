@@ -1,6 +1,6 @@
-import { Component, OnInit, Input, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BanknoteMovementsCT, GiftCheckMovementsCT, SummariesCT, SummariesDetailsCT } from '../../../../models/eskiAngular';
+import { Component,Input,OnInit } from '@angular/core';
+import { BanknoteMovementsCT,GiftCheckMovementsCT,SummariesCT,SummariesDetailsCT } from '../../../../models/eskiAngular';
 
 @Component({
   selector: 'app-summary-print',

@@ -1,6 +1,6 @@
-import { Component } from "@angular/core";
-import { MatDialogRef, MatDialogContent, MatDialogActions } from "@angular/material/dialog";
 import { CommonModule } from "@angular/common";
+import { Component } from "@angular/core";
+import { MatDialogRef } from "@angular/material/dialog";
 
 @Component({
   selector: 'app-session-dialog',

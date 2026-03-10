@@ -1,23 +1,23 @@
 
 
-import { Component, computed, effect, signal, ViewChild } from '@angular/core';
-;
-import { FormControl, FormGroup } from '@angular/forms';
-import { MatTableDataSource } from '@angular/material/table';
+import { BreakpointObserver,Breakpoints } from '@angular/cdk/layout';
+import { CommonModule,DatePipe,NgForOf,NgIf } from '@angular/common';
+import { Component,computed,effect,signal,ViewChild } from '@angular/core';
+import { FormControl,FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { MatDialog } from '@angular/material/dialog';
-import { DatePipe, CommonModule, NgIf, NgForOf } from '@angular/common';
+import { MatTableDataSource } from '@angular/material/table';
 import { ToastrService } from 'ngx-toastr';
-import { ActivatedRoute } from '@angular/router';;
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { SharedImports } from '../../../../../core/pipes/shared-imports';
+import { DepolardanMalKabulIrsaliyeleriAyrintiDto } from '../../../../../models/ayrinti-dtolari.model';
+import { DepolardanMalKabulIrsaliyeleriListeDto } from '../../../../../models/liste-dtolari.model';
 import { MeService } from '../../../../../services/meservice.service';
 import { GoodsReceiptNotesService } from '../../../../../services/receipts/goods-receipt-notes.service';
-import { WarehouseGoodsReceipt } from '../warehouse-goods-receipt/warehouse-goods-receipt';
 import { WarehouseInboundShipmentsDetailComponent } from '../detail/detail';
-import { DepolardanMalKabulIrsaliyeleriListeDto } from '../../../../../models/liste-dtolari.model';
-import { DepolardanMalKabulIrsaliyeleriAyrintiDto } from '../../../../../models/ayrinti-dtolari.model';
+import { WarehouseGoodsReceipt } from '../warehouse-goods-receipt/warehouse-goods-receipt';
+;
+;
 
 
 
@@ -62,9 +62,7 @@ export class WarehouseInboundShipments {
   });
 
   // --- SADECE EFFECT MİMARİSİ (3 EFFECT) ---
-// Bu bölümü OrtakMenu constructor içine birebir koyabilirsin
-
-private lastKey = '';
+  // Bu bölümü OrtakMenu constructor içine birebir koyabilirsin
 
 constructor(
   private meservice: MeService, 

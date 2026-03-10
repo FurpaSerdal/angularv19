@@ -2,28 +2,28 @@ import { Routes } from '@angular/router';
 import { AdminComponent } from './layout/admin-component';
 import { LoginComponent } from './login/login';
 
-import { CompanyInboundShipments } from './features/firmalardan/sevkler/company-inbound-shipments/list/company-inbound-shipments';
-import { FirmaFaturaComponent } from './features/firmalardan/firma-fatura/firma-fatura.component';
-import { InventoryCountResults } from './features/sayımlar/inventory-count-results/inventory-count-results';
+import { AuthGuard } from './core/guards/auth.guard';
+import { WarehouseInboundShipments } from './features/depolardan/sevkler/warehouse-inbound-shipments/list/warehouse-inbound-shipments';
+import { WarehouseOutboundShipments } from './features/depolardan/sevkler/warehouse-outbound-shipments/list/warehouse-outbound-shipments';
 import { WarehouseSaleOrder } from './features/depolardan/siparisler/warehouse-sale-order/list/warehouse-sale-order';
 import { WarhousePurchaseOrder } from './features/depolardan/siparisler/warhouse-purchase-order/list/warhouse-purchase-order';
-import { WarehouseOutboundShipments } from './features/depolardan/sevkler/warehouse-outbound-shipments/list/warehouse-outbound-shipments';
-import { WarehouseInboundShipments } from './features/depolardan/sevkler/warehouse-inbound-shipments/list/warehouse-inbound-shipments';
+import { IncomingInvoice } from './features/faturalar/gelen/list/incoming-invoice';
+import { outgoingInvoice } from './features/faturalar/giden/list/outgoing-invoice';
+import { FirmaFaturaComponent } from './features/firmalardan/firma-fatura/firma-fatura.component';
+import { CompanyInboundShipments } from './features/firmalardan/sevkler/company-inbound-shipments/list/company-inbound-shipments';
+import { CompanyOutboundShipments } from './features/firmalardan/sevkler/company-outbound-shipments/list/company-outbound-shipments';
 import { CompanyPurchaseOrder } from './features/firmalardan/siparisler/company-purchase-order/list/company-purchase-order';
 import { CompanySaleOrder } from './features/firmalardan/siparisler/company-sale-order/list/company-sale-order';
 import { HomePage } from './features/home-page/home-page';
-import { CompanyOutboundShipments } from './features/firmalardan/sevkler/company-outbound-shipments/list/company-outbound-shipments';
-import { VirmanExit } from './features/virman/virman-cıkısı/list/virman-exit';
-import { StockOut } from './features/stoklar/stock-out/list/stock-out';
-import { outgoingInvoice } from './features/faturalar/giden/list/outgoing-invoice';
-import { IncomingInvoice } from './features/faturalar/gelen/list/incoming-invoice';
 import { DosyaGonderimiComponent } from './features/kasaislemleri/dosya-gonderimi/dosya-gonderimi.component';
+import { EtiketbasimComponent } from './features/kasaislemleri/etiketbasim/etiketbasim.component';
+import { AddSummaryComponent } from './features/kasaislemleri/icmal-dokum/add-summary/add-summary.component';
 import { IcmalDokumComponent } from './features/kasaislemleri/icmal-dokum/icmal-dokum.component';
 import { KunyeEtiketBasimiComponent } from './features/kasaislemleri/kunye-etiket-basimi/kunye-etiket-basimi.component';
 import { MagazagiderfisiComponent } from './features/kasaislemleri/magazagiderfisi/magazagiderfisi.component';
-import { EtiketbasimComponent } from './features/kasaislemleri/etiketbasim/etiketbasim.component';
-import { AddSummaryComponent } from './features/kasaislemleri/icmal-dokum/add-summary/add-summary.component';
-import { AuthGuard } from './core/guards/auth.guard';
+import { InventoryCountResults } from './features/sayımlar/inventory-count-results/inventory-count-results';
+import { StockOut } from './features/stoklar/stock-out/list/stock-out';
+import { VirmanExit } from './features/virman/virman-cıkısı/list/virman-exit';
 
 
 

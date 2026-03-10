@@ -1,12 +1,12 @@
 
 
-import { Component, OnInit, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component,Inject,OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA,MatDialogRef } from '@angular/material/dialog';
+import { KalemDto,SevkIrsaliyeleriAyrintiDto } from '../../../../../models/ayrinti-dtolari.model';
+import { EIrsaliyeGonderDto,EIrsaliyeGonderKalemDto } from '../../../../../models/e-IrsaliyeGonderModel';
 import { WarehouseService } from '../../../../../services/warehouse.service';
-import { KalemDto, SevkIrsaliyeleriAyrintiDto } from '../../../../../models/ayrinti-dtolari.model';
-import { EIrsaliyeGonderDto, EIrsaliyeGonderKalemDto } from '../../../../../models/e-IrsaliyeGonderModel';
 
 @Component({
   selector: 'app-company-to-ewaybill',

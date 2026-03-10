@@ -1,17 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { Component, effect, Inject, signal } from '@angular/core';
+import { Component,effect,signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatDialog,MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatTableDataSource,MatTableModule } from '@angular/material/table';
 import { ToastrService } from 'ngx-toastr';
-import { CompanyService } from '../../../../../services/company.service';
-import {  StokAraCT } from '../../../../../models/ortakModeller';
-import { ShipmentNotesService } from '../../../../../services/shipments/shipment-notes.service';
-import { MeService } from '../../../../../services/meservice.service';
-import { listProducts } from '../../../../../models/listProduct';
-import { SevkIrsaliyeleriEkleDto } from '../../../../../models/ekle-dtolari.model';
 import { KalemDto } from '../../../../../models/ayrinti-dtolari.model';
+import { SevkIrsaliyeleriEkleDto } from '../../../../../models/ekle-dtolari.model';
+import { listProducts } from '../../../../../models/listProduct';
+import { StokAraCT } from '../../../../../models/ortakModeller';
+import { CompanyService } from '../../../../../services/company.service';
+import { MeService } from '../../../../../services/meservice.service';
+import { ShipmentNotesService } from '../../../../../services/shipments/shipment-notes.service';
 
 @Component({
   selector: 'app-company-refund',

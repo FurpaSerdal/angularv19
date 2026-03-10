@@ -1,30 +1,29 @@
 // src/app/pages/firma-fatura/firma-fatura.component.ts
-import { Component, ViewChild, signal, OnInit, AfterViewInit, effect, DestroyRef, inject } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSort, MatSortModule } from '@angular/material/sort';
-import { MatSelectModule } from '@angular/material/select';
-import { BreakpointObserver } from '@angular/cdk/layout';
-import { MatIconModule } from '@angular/material/icon';
 import { SelectionModel } from '@angular/cdk/collections';
+import { CommonModule,DatePipe } from '@angular/common';
+import { AfterViewInit,Component,DestroyRef,effect,inject,OnInit,signal,ViewChild } from '@angular/core';
+import { FormControl,FormGroup,FormsModule,ReactiveFormsModule,Validators } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatDialog,MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatPaginator,MatPaginatorModule } from '@angular/material/paginator';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSort,MatSortModule } from '@angular/material/sort';
+import { MatTableDataSource,MatTableModule } from '@angular/material/table';
 
-import { ToastrService } from 'ngx-toastr';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { ToastrService } from 'ngx-toastr';
+import { PdfComponent } from '../../../modal/pdf/pdf.component';
+import { invoice,TopluCevirRequestDto } from '../../../models/invoice';
 import { GenelİslemService } from '../../../services/geneli̇slem.service';
 import { MeService } from '../../../services/meservice.service';
-import { invoice, TopluCevirRequestDto } from '../../../models/invoice';
-import { PdfComponent } from '../../../modal/pdf/pdf.component';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 
 @Component({
@@ -96,10 +95,9 @@ export class FirmaFaturaComponent implements OnInit, AfterViewInit {
     private dialog: MatDialog,
     private datePipe: DatePipe,
     private toastr: ToastrService,
-    private breakpointObserver: BreakpointObserver,
   ) {
         effect(() => {
-      const user = this.meservice.userSignal();
+      this.meservice.userSignal();
       const gorevIdFromService = this.meservice.selectedGorev();
       this.gorevid.set(gorevIdFromService?.id ?? 0);
       const gorevAdiFromService = this.meservice.selectedGorev();

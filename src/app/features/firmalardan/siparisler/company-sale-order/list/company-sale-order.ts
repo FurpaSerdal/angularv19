@@ -1,24 +1,23 @@
 
-import { Component, computed, effect, signal, ViewChild } from '@angular/core';
+import { Component,computed,effect,signal,ViewChild } from '@angular/core';
 
-import { FormControl, FormGroup } from '@angular/forms';
-import { MatTableDataSource } from '@angular/material/table';
+import { DatePipe } from '@angular/common';
+import { FormControl,FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { MatDialog } from '@angular/material/dialog';
-import { DatePipe } from '@angular/common';
-import { ToastrService } from 'ngx-toastr';
+import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { User } from '../../../../../models/user';
+import { BreakpointObserver,Breakpoints } from '@angular/cdk/layout';
+import { SharedImports } from '../../../../../core/pipes/shared-imports';
+import { AlinanSiparislerAyrintiDto } from '../../../../../models/ayrinti-dtolari.model';
+import { AlinanSiparislerListeDto } from '../../../../../models/liste-dtolari.model';
 import { MeService } from '../../../../../services/meservice.service';
 import { PurchaseOrdersService } from '../../../../../services/orders/purchase-orders.service';
-import { SharedImports } from '../../../../../core/pipes/shared-imports';
 import { CompanyOrder } from '../create/company-order/company-order';
 import { CompanySaleOrderDetailComponent } from '../detail/detail';
-import { AlinanSiparislerListeDto } from '../../../../../models/liste-dtolari.model';
-import { AlinanSiparislerAyrintiDto } from '../../../../../models/ayrinti-dtolari.model';
 
 @Component({
   selector: 'app-company-sale-order',

@@ -1,26 +1,25 @@
 
-import { Component, computed, effect, signal, ViewChild } from '@angular/core';
+import { Component,computed,effect,signal,ViewChild } from '@angular/core';
 
-import { FormControl, FormGroup } from '@angular/forms';
-import { MatTableDataSource } from '@angular/material/table';
+import { DatePipe } from '@angular/common';
+import { FormControl,FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { MatDialog } from '@angular/material/dialog';
-import { DatePipe } from '@angular/common';
+import { MatTableDataSource } from '@angular/material/table';
 import { ToastrService } from 'ngx-toastr';
-import { ActivatedRoute } from '@angular/router';
 
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { BreakpointObserver,Breakpoints } from '@angular/cdk/layout';
 import { SharedImports } from '../../../../../core/pipes/shared-imports';
-import { ShipmentNotesService } from '../../../../../services/shipments/shipment-notes.service';
-import { MeService } from '../../../../../services/meservice.service';
-import { CompanyOutboundShipmentsDetailComponent } from '../detail/detail';
-import { CompanyRefund } from '../company-refund/company-refund';
-import { SevkIrsaliyeleriListeDto } from '../../../../../models/liste-dtolari.model';
-import { SevkIrsaliyeleriAyrintiDto } from '../../../../../models/ayrinti-dtolari.model';
-import { CompanyToEwaybill } from '../company-to-ewaybill/company-to-ewaybill';
-import { CompanyService } from '../../../../../services/company.service';
 import { PdfComponent } from '../../../../../modal/pdf/pdf.component';
+import { SevkIrsaliyeleriAyrintiDto } from '../../../../../models/ayrinti-dtolari.model';
+import { SevkIrsaliyeleriListeDto } from '../../../../../models/liste-dtolari.model';
+import { CompanyService } from '../../../../../services/company.service';
+import { MeService } from '../../../../../services/meservice.service';
+import { ShipmentNotesService } from '../../../../../services/shipments/shipment-notes.service';
+import { CompanyRefund } from '../company-refund/company-refund';
+import { CompanyToEwaybill } from '../company-to-ewaybill/company-to-ewaybill';
+import { CompanyOutboundShipmentsDetailComponent } from '../detail/detail';
 
 
 

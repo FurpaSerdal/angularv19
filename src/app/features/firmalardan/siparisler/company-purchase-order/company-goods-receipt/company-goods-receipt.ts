@@ -1,26 +1,24 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, ElementRef, Inject, signal, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component,computed,ElementRef,Inject,signal,ViewChild } from '@angular/core';
+import { FormsModule,ReactiveFormsModule } from '@angular/forms';
+import { MAT_DIALOG_DATA,MatDialog,MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatTableDataSource,MatTableModule } from '@angular/material/table';
 import { ToastrService } from 'ngx-toastr';
-import { WarehouseService } from '../../../../../services/warehouse.service';
 import { MeService } from '../../../../../services/meservice.service';
 
-import { ShipmentNotesService } from '../../../../../services/shipments/shipment-notes.service';
-import { GoodsReceiptNotesService } from '../../../../../services/receipts/goods-receipt-notes.service';
-import { SalesOrdersService } from '../../../../../services/orders/sales-orders.service';
-import { RefundConfirmDialogComponent } from '../../../../../modal/refund-confirm-dialog/refund-confirm-dialog';
-import { ExcessConfirmDialogComponent } from '../../../../../modal/ExcessConfirmDialogComponent';
-import { ConfirmDialogComponent } from '../../../../../modal/ConfirmDialogComponent';
 import { MatProgressSpinner } from "@angular/material/progress-spinner";
-import { CompanyService } from '../../../../../services/company.service';
 import { finalize } from 'rxjs';
-import { StokAraCT, StokBulDto } from '../../../../../models/ortakModeller';
 import Swal from 'sweetalert2';
-import { KalemDto, VerilenSiparislerAyrintiDto } from '../../../../../models/ayrinti-dtolari.model';
-import { MalKabulIrsaliyeleriEkleDto, SevkIrsaliyeleriEkleDto } from '../../../../../models/ekle-dtolari.model';
+import { ConfirmDialogComponent } from '../../../../../modal/ConfirmDialogComponent';
+import { ExcessConfirmDialogComponent } from '../../../../../modal/ExcessConfirmDialogComponent';
+import { RefundConfirmDialogComponent } from '../../../../../modal/refund-confirm-dialog/refund-confirm-dialog';
+import { KalemDto,VerilenSiparislerAyrintiDto } from '../../../../../models/ayrinti-dtolari.model';
+import { MalKabulIrsaliyeleriEkleDto,SevkIrsaliyeleriEkleDto } from '../../../../../models/ekle-dtolari.model';
+import { StokAraCT,StokBulDto } from '../../../../../models/ortakModeller';
+import { CompanyService } from '../../../../../services/company.service';
+import { GoodsReceiptNotesService } from '../../../../../services/receipts/goods-receipt-notes.service';
+import { ShipmentNotesService } from '../../../../../services/shipments/shipment-notes.service';
 
 
 

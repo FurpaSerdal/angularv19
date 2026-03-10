@@ -1,4 +1,3 @@
-import { E } from "@angular/cdk/keycodes";
 
 export interface User {
   adSoyad: string;

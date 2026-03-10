@@ -1,20 +1,19 @@
-import { 
-  ApplicationConfig, 
-  provideBrowserGlobalErrorListeners, 
-  provideZoneChangeDetection 
-} from '@angular/core';
-import { provideRouter } from '@angular/router';
-import { provideAnimations } from '@angular/platform-browser/animations';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { provideToastr } from 'ngx-toastr';
-import { LOCALE_ID } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
+import { provideHttpClient,withInterceptors } from '@angular/common/http';
 import localeTr from '@angular/common/locales/tr';
+import {
+ApplicationConfig,
+LOCALE_ID,
+provideBrowserGlobalErrorListeners
+} from '@angular/core';
+import { provideAnimations } from '@angular/platform-browser/animations';
+import { provideRouter } from '@angular/router';
+import { provideToastr } from 'ngx-toastr';
 import 'zone.js'; // Angular 19 normal zone’lu yapı için gerekli
 
 import { routes } from './app.routes';
-import { TokenInterceptor } from './core/interceptor/token.interceptor';
 import { ErrorInterceptor } from './core/interceptor/error.interceptor';
+import { TokenInterceptor } from './core/interceptor/token.interceptor';
 
 
 // Türkçe yerel ayar kaydı

@@ -1,15 +1,15 @@
 // pages/company-order/company-order.ts
 import { CommonModule } from '@angular/common';
-import { Component, computed, signal } from '@angular/core';
+import { Component,computed,signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { listProducts } from '../../../../../../models/listProduct';
-import { CariHesapAraCT, StokAraCT, StokBulDto } from '../../../../../../models/ortakModeller';
-import { ToastrService } from 'ngx-toastr';
-import { MeService } from '../../../../../../services/meservice.service';
-import { CompanyService } from '../../../../../../services/company.service';
-import { SalesOrdersService } from '../../../../../../services/orders/sales-orders.service';
 import { MatDialogRef } from '@angular/material/dialog';
+import { ToastrService } from 'ngx-toastr';
 import { AlinanSiparislerEkleDto } from '../../../../../../models/ekle-dtolari.model';
+import { listProducts } from '../../../../../../models/listProduct';
+import { CariHesapAraCT,StokAraCT,StokBulDto } from '../../../../../../models/ortakModeller';
+import { CompanyService } from '../../../../../../services/company.service';
+import { MeService } from '../../../../../../services/meservice.service';
+import { SalesOrdersService } from '../../../../../../services/orders/sales-orders.service';
 
 
 @Component({

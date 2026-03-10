@@ -1,7 +1,7 @@
+import { HttpClient,HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 
-import { Observable, of } from 'rxjs';
+import { Observable,of } from 'rxjs';
 import { environment } from '../../environment';
 export interface dto  {
 carikod:string ,
@@ -17,80 +17,6 @@ export class GenelİslemService {
 
   constructor(private http: HttpClient) { }
 
-
-  listele(görevid: number, zamanlama: string = 'bugun'): Observable<any> {
-    return this.http.get<any>(
-      `${this.apiUrl}/gorevlerim/${görevid}/liste/${zamanlama}`
-    );
-  }
-
-  detay(görevid: number, seri: string, sira: number): Observable<any> {
-    return this.http.get<any>(
-      `${this.apiUrl}/gorevlerim/${görevid}/ayrinti/${seri}/${sira}`
-    );
-  }
-
-
-  StokAra(aramaKelimesi?: string): Observable<any[]> {
-    const url = `${this.apiUrl}/stoklar/ara`;
-
-    let params = new HttpParams();
-    if (aramaKelimesi) {
-      params = params.append('bul', aramaKelimesi);
-    }
-    return this.http.get<any[]>(url, { params });
-  }
-
-CariStokAra(aramaKelimesi?: string, carikod?: string): Observable<any[]> {
-  const dto:dto= {
-    carikod: carikod ?? "",
-    bul: aramaKelimesi ?? ""
-  };
-
-  const url = `${this.apiUrl}/stoklar/cari-stok-ara`;
-
-
-  return this.http.post<any[]>(url, dto);
-}
-
-
-evrakekle(gorevid: number, data: any): Observable<any> {
- 
-  return this.http.post<any>(`${this.apiUrl}/Gorevlerim/${gorevid}/ekle`, data);
-}
-
-
-
- projeler(görevid: number): Observable<any[]> {
-    return this.http.get<any[]>(
-      `${this.apiUrl}/gorevlerim/${görevid}/projeler`
-    );
-  }
-projelerDetay(
-  gorevid: number,
-  projeId: number,
-  ittn?: string,
-  belgeNo?: string,
-  carikod?: string
-): Observable<any> {
-  
-  const data = {
-    projectId:projeId,
-    ittn: ittn,
-    belgeNo: belgeNo,
-    carikod: carikod,
-  };
-
-  return this.http.post<any[]>(
-    `${this.apiUrl}/gorevlerim/${gorevid}/projeler/ayrinti`,
-    data
-  );
-}
-  evrakayrinti(görevid:number,seri:string,sira:number){
-        return this.http.get<any[]>(
-      `${this.apiUrl}/gorevlerim/${görevid}/ayrinti/${seri}/${sira}`
-    );
-  }
 
 
  PDFİndir(belgeid: string,gorevadi:string): Observable<string> {

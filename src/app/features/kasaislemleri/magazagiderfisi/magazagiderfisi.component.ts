@@ -1,4 +1,6 @@
-import { Component, ViewChild } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { Component,ViewChild } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -6,12 +8,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { YeniComponent } from './yeni/yeni.component';
-import { MatButtonModule } from '@angular/material/button';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { DatePipe } from '@angular/common';
+import { MatTableDataSource,MatTableModule } from '@angular/material/table';
+import { YeniComponent } from './yeni/yeni.component';
 
 export interface OutageReceipt {
     documentSerie:string;

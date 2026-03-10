@@ -1,10 +1,9 @@
 
-import { ChangeDetectorRef, Component, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
+import { ChangeDetectorRef,Component,Inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA,MatDialogModule,MatDialogRef } from '@angular/material/dialog';
+import { DomSanitizer,SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-pdf',

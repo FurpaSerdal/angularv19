@@ -1,11 +1,11 @@
+import { CommonModule,DatePipe } from '@angular/common';
 import {
-  Component,
-  Input,
-  OnChanges,
-  SimpleChanges,
-  AfterViewChecked
+AfterViewChecked,
+Component,
+Input,
+OnChanges,
+SimpleChanges
 } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
 import JsBarcode from 'jsbarcode';
 import { Tag } from '../../../../models/eskiAngular';
 

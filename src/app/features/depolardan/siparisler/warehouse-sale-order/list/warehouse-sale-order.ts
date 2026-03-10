@@ -1,32 +1,31 @@
+import { BreakpointObserver,Breakpoints } from '@angular/cdk/layout';
+import { DatePipe } from '@angular/common';
 import {
-  Component,
-  computed,
-  effect,
-  signal,
-  ViewChild
+Component,
+computed,
+effect,
+signal,
+ViewChild
 } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
-import { MatTableDataSource } from '@angular/material/table';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormControl,FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { MatDialog } from '@angular/material/dialog';
-import { DatePipe } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { MatTableDataSource } from '@angular/material/table';
 import { finalize } from 'rxjs/operators';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { SharedImports } from '../../../../../core/pipes/shared-imports';
 import { BaseComponent } from '../../../../../core/base/base-component/base-component';
+import { SharedImports } from '../../../../../core/pipes/shared-imports';
 import { MeService } from '../../../../../services/meservice.service';
 import { SalesOrdersService } from '../../../../../services/orders/sales-orders.service';
 
 import { WarehouseOrderComponent } from '../create/warehouse-order';
 import { WarehouseSaleOrderDetailComponent } from '../detail/detail';
 
-import { WarehouseSalesOrderToShipment } from '../to-shipment/warehouse-sales-order-to-shipment';
-import { AlinanDepoSiparisleriListeDto } from '../../../../../models/liste-dtolari.model';
 import { AlinanDepoSiparisleriAyrintiDto } from '../../../../../models/ayrinti-dtolari.model';
+import { AlinanDepoSiparisleriListeDto } from '../../../../../models/liste-dtolari.model';
+import { WarehouseSalesOrderToShipment } from '../to-shipment/warehouse-sales-order-to-shipment';
 
 @Component({
   selector: 'app-warehouse-sale-order',

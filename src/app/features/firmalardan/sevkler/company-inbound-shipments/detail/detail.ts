@@ -1,7 +1,6 @@
-import { Component, Inject } from '@angular/core';
-import { CommonModule, NgFor, NgIf } from '@angular/common';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { ToastrService } from 'ngx-toastr';
+import { CommonModule,NgFor,NgIf } from '@angular/common';
+import { Component,Inject } from '@angular/core';
+import { MAT_DIALOG_DATA,MatDialogRef } from '@angular/material/dialog';
 import { MalKabulIrsaliyeleriAyrintiDto } from '../../../../../models/ayrinti-dtolari.model';
 
 @Component({
@@ -14,7 +13,6 @@ import { MalKabulIrsaliyeleriAyrintiDto } from '../../../../../models/ayrinti-dt
 export class CompanyInboundShipmentsDetailComponent {
  
   constructor(
-    private toastr: ToastrService,
     public dialogRef: MatDialogRef<CompanyInboundShipmentsDetailComponent>,
     @Inject(MAT_DIALOG_DATA) public data: MalKabulIrsaliyeleriAyrintiDto,
   ) {}

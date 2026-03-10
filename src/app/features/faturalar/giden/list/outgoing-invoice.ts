@@ -1,29 +1,28 @@
 import { SelectionModel } from '@angular/cdk/collections';
-import { CommonModule, DatePipe } from '@angular/common';
-import { AfterViewInit, Component, effect, OnInit, signal, ViewChild, DestroyRef, inject } from '@angular/core';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatSort, MatSortModule } from '@angular/material/sort';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MeService } from '../../../../services/meservice.service';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { CommonModule,DatePipe } from '@angular/common';
+import { AfterViewInit,Component,DestroyRef,effect,inject,OnInit,signal,ViewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormControl,FormGroup,FormsModule,ReactiveFormsModule,Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatDialog,MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatPaginator,MatPaginatorModule } from '@angular/material/paginator';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { MatIconModule } from '@angular/material/icon';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatSort,MatSortModule } from '@angular/material/sort';
+import { MatTableDataSource,MatTableModule } from '@angular/material/table';
 import { ToastrService } from 'ngx-toastr';
-import { BreakpointObserver } from '@angular/cdk/layout';
-import { invoice, TopluCevirRequestDto } from '../../../../models/invoice';
 import { PdfComponent } from '../../../../modal/pdf/pdf.component';
+import { invoice,TopluCevirRequestDto } from '../../../../models/invoice';
 import { GenelİslemService } from '../../../../services/geneli̇slem.service';
 import { SalesInvoicesService } from '../../../../services/invoices/sales-invoices.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MeService } from '../../../../services/meservice.service';
 
 @Component({
   selector: 'app-outgoing-invoice',
@@ -90,16 +89,14 @@ export class outgoingInvoice implements OnInit, AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
 
   constructor(
-    private genelservice: GenelİslemService,
     private meservice: MeService,
     private salesInvoicesService: SalesInvoicesService,
     private dialog: MatDialog,
     private datePipe: DatePipe,
     private toastr: ToastrService,
-    private breakpointObserver: BreakpointObserver,
   ) {
         effect(() => {
-      const user = this.meservice.userSignal();
+      this.meservice.userSignal();
       const gorevIdFromService = this.meservice.selectedGorev();
       this.gorevid.set(gorevIdFromService?.id ?? 0);
       const gorevAdiFromService = this.meservice.selectedGorev();
@@ -193,10 +190,10 @@ export class outgoingInvoice implements OnInit, AfterViewInit {
     if (baslangic && bitis && this.gorevid() > 0) {
       this.yukleniyor.set(true);
       this.salesInvoicesService
-        .getInvoices(this.gorevid(), `aralik-${baslangic}-${bitis}`)
+        .listPendingInvoices(this.gorevid(), `aralik-${baslangic}-${bitis}`, this.gonderildi(), this.efaturaMi())
         .subscribe({
           next: (data: any) => {
-            this.DataSource.data = data.evrakListesi ?? [];
+            this.DataSource.data = data ;
             this.DataSource.sort = this.sort;
             this.DataSource.paginator = this.paginator;
             this.yukleniyor.set(false);
@@ -276,7 +273,7 @@ getVisibleRows(): any[] {
     this.yukleniyor.set(true);
     this.toastr.info(` sorgu çalısıyor...`);
 
-    this.genelservice.sorguCalistir().subscribe({
+    this.salesInvoicesService.executeCustomQuery(this.gorevid()).subscribe({
       next: (data: any) => {
         const mesaj = `Eklenen belge sayısı: ${data.eklenenBelgeNoSayisi}, İade alış faturası: ${data.iadeyeKonuAlisFaturasiSayisi}`;
         this.toastr.success(`Sorgu başarıyla çalıştırıldı. ${mesaj}`, 'Başarılı');
@@ -301,7 +298,7 @@ getVisibleRows(): any[] {
     this.toastr.info(`${selected.length} fatura işleniyor...`);
     this.yukleniyor.set(true);
 
-    this.genelservice.topluEvrakCevir(this.gorevid(), evraklar).subscribe({
+    this.salesInvoicesService.convertInvoicesBatch(this.gorevid(), evraklar).subscribe({
       next: (data: any) => {
         this.toastr.success(
           `Faturalar başarıyla görevler arası çevrildi.\nEklenen belge sayısı: ${data.faturaSayisi || 0}`,
@@ -336,7 +333,8 @@ getVisibleRows(): any[] {
   viewInvoice(evrak: invoice): void {
     if (evrak.belgeNo) {
       this.yukleniyor.set(true);
-      this.genelservice.getPdfFromUyumsoft(this.gorevid(), evrak.fatGuid.toLowerCase()).subscribe({
+      this.salesInvoicesService.downloadPdfFromUyumsoft(this.gorevid(),'2DEC4E7F-8C72-4E5E-95C1-111B4674F8C1').subscribe({
+
         next: (res) => {
           const dialogRef = this.dialog.open(PdfComponent, {
             width: '70vw',
@@ -344,7 +342,7 @@ getVisibleRows(): any[] {
             data: { url: res }
           });
           this.yukleniyor.set(false);
-          dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => URL.revokeObjectURL(res));
+        dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => URL.revokeObjectURL(res));
         },
         error: (error) => {
           console.error('PDF alma hatası:', error);
@@ -358,7 +356,7 @@ getVisibleRows(): any[] {
     else {
 
       this.yukleniyor.set(true);
-      this.genelservice.createPdf(this.gorevid(), evrak).subscribe({
+      this.salesInvoicesService.generateInvoicePdf(this.gorevid(), evrak).subscribe({
         next: (res: Blob) => {
           const url = URL.createObjectURL(res);
           const dialogRef = this.dialog.open(PdfComponent, {

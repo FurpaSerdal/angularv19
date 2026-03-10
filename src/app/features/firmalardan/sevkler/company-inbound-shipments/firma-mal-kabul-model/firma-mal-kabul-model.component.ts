@@ -1,12 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal, ViewChild, ElementRef } from '@angular/core';
+import { Component,ElementRef,signal,ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatTableDataSource,MatTableModule } from '@angular/material/table';
 import { ToastrService } from 'ngx-toastr';
-import { CompanyService } from '../../../../../services/company.service';
 import { StokAraCT } from '../../../../../models/ortakModeller';
+import { CompanyService } from '../../../../../services/company.service';
 
 
 
@@ -45,8 +44,6 @@ export class FirmaMalKabulModelComponent {
 
   constructor(
     private companyservice: CompanyService,
-    
-    private dialog: MatDialog,
     private toastr: ToastrService,
   ) {}
 
@@ -677,7 +674,7 @@ console.log(toplamKarakter);
     this.postorder.kalemler = kalemler;
     console.log("POST ORDER", this.postorder);
 
-    const toastRef = this.toastr.show('Gönderiliyor...', '', {
+    this.toastr.show('Gönderiliyor...', '', {
       disableTimeOut: true,
       progressBar: true,
       tapToDismiss: false,

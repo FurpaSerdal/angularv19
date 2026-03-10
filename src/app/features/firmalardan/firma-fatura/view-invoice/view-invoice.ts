@@ -1,8 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component,Inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA,MatDialogActions,MatDialogContent,MatDialogRef,MatDialogTitle } from '@angular/material/dialog';
 
 export interface Kalem {
   stokKodu: string;

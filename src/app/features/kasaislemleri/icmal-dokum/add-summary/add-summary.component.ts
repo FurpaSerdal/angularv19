@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component,OnInit } from '@angular/core';
 
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder,FormGroup,ReactiveFormsModule,Validators } from '@angular/forms';
 
-import { DatePipe, CommonModule, CurrencyPipe } from '@angular/common';
+import { CommonModule,CurrencyPipe,DatePipe } from '@angular/common';
 
 import { AddBanknotesComponent } from './add-banknotes/add-banknotes.component';
 import { AddCreditCardsComponent } from './add-credit-cards/add-credit-cards.component';
@@ -11,25 +11,25 @@ import { AddStoreExpensesComponent } from './add-store-expenses/add-store-expens
 
 import { AddExpenseCompassComponent } from './add-expense-compass/add-expense-compass.component';
 
-import { AddGiftChecksComponent } from './add-gift-checks/add-gift-checks.component';
 import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
+import { AddGiftChecksComponent } from './add-gift-checks/add-gift-checks.component';
 
-import { AddOnlineSalesChecksComponent } from './add-online-sales-checks/add-online-sales-checks.component';
-import { MatDialog } from '@angular/material/dialog';
-import { EskiAngularService } from '../../../../services/eskiAngular.service';
-import { MatTableDataSource } from '@angular/material/table';
-import { MatDatepickerInputEvent, MatDatepickerModule } from '@angular/material/datepicker';
+import { AbstractControl,ValidationErrors } from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatDatepickerInputEvent,MatDatepickerModule } from '@angular/material/datepicker';
+import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatGridListModule } from '@angular/material/grid-list';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatGridListModule } from '@angular/material/grid-list';
-import { WarehouseService } from '../../../../services/warehouse.service';
+import { MatTableDataSource } from '@angular/material/table';
+import { AddStoreExpenses,BanknoteMovements,Cashier,CashRegisterDetails,CashRegistryDetail,GiftCheckMovements,PaymentTypes,StoreExpenses,SummaryForAdd,SummaryTable,Warehouse } from '../../../../models/eskiAngular';
 import { AuthService } from '../../../../services/auth.service';
-import { AbstractControl, ValidationErrors } from '@angular/forms';
-import { AddStoreExpenses, BanknoteMovements, Cashier, CashRegisterDetails, CashRegistryDetail, GiftCheckMovements, PaymentTypes, StoreExpenses, SummaryForAdd, SummaryTable, Warehouse } from '../../../../models/eskiAngular';
+import { EskiAngularService } from '../../../../services/eskiAngular.service';
+import { WarehouseService } from '../../../../services/warehouse.service';
+import { AddOnlineSalesChecksComponent } from './add-online-sales-checks/add-online-sales-checks.component';
 
 
 // Validator function for cashier

@@ -1,6 +1,6 @@
 
 import { CommonModule } from '@angular/common';
-import { Component, Input, AfterViewInit, OnChanges, SimpleChanges, AfterViewChecked } from '@angular/core';
+import { AfterViewInit,Component,Input,OnChanges,SimpleChanges } from '@angular/core';
 import JsBarcode from 'jsbarcode';
 
 @Component({

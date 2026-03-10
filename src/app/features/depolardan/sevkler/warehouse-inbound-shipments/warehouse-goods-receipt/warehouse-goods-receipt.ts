@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, Inject, signal } from '@angular/core';
+import { Component,computed,Inject,signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA,MatDialog,MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatTableDataSource,MatTableModule } from '@angular/material/table';
 import { ToastrService } from 'ngx-toastr';
 
 import { RefundConfirmDialogComponent } from '../../../../../modal/refund-confirm-dialog/refund-confirm-dialog';
@@ -14,8 +14,8 @@ import { GoodsReceiptNotesService } from '../../../../../services/receipts/goods
 import { ShipmentNotesService } from '../../../../../services/shipments/shipment-notes.service';
 import { WarehouseService } from '../../../../../services/warehouse.service';
 
-import { DepolardanMalKabulIrsaliyeleriAyrintiDto, KalemDto } from '../../../../../models/ayrinti-dtolari.model';
-import { DepolaraSevkIrsaliyeleriEkleDto, DepolardanMalKabulIrsaliyeleriEkleDto } from '../../../../../models/ekle-dtolari.model';
+import { DepolardanMalKabulIrsaliyeleriAyrintiDto,KalemDto } from '../../../../../models/ayrinti-dtolari.model';
+import { DepolaraSevkIrsaliyeleriEkleDto,DepolardanMalKabulIrsaliyeleriEkleDto } from '../../../../../models/ekle-dtolari.model';
 
 
 @Component({
@@ -473,7 +473,7 @@ kaydet() {
   }
 
 
-  private handleCorrectionDecision(kalemler: KalemDto[]) {
+  private handleCorrectionDecision(_kalemler: KalemDto[]) {
 
            this.toastr.success(
             'Fazla mal kabul düzeltmesi onaylandı bısey yapmanıza gerek yok',

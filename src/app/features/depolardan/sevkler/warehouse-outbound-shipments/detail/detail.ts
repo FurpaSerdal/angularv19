@@ -1,7 +1,6 @@
-import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { ToastrService } from 'ngx-toastr';
+import { Component,Inject } from '@angular/core';
+import { MAT_DIALOG_DATA,MatDialogRef } from '@angular/material/dialog';
 import { DepolaraSevkIrsaliyeleriAyrintiDto } from '../../../../../models/ayrinti-dtolari.model';
 
 @Component({
@@ -13,7 +12,6 @@ import { DepolaraSevkIrsaliyeleriAyrintiDto } from '../../../../../models/ayrint
 })
 export class WarehouseOutboundShipmentsDetailComponent {
   constructor(
-    private toastr: ToastrService,
     public dialogRef: MatDialogRef<WarehouseOutboundShipmentsDetailComponent>,
       @Inject(MAT_DIALOG_DATA) public data: DepolaraSevkIrsaliyeleriAyrintiDto,
   ) {}

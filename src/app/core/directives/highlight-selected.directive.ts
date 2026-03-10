@@ -1,5 +1,5 @@
 // src/app/directives/highlight-selected.directive.ts
-import { Directive, ElementRef, Input, OnChanges } from '@angular/core';
+import { Directive,ElementRef,Input,OnChanges } from '@angular/core';
 
 @Directive({
   selector: '[highlightSelected]',

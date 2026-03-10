@@ -43,7 +43,7 @@
                     <!-- ANA MENÜ BUTONU -->
                     <button class="nav-item btn btn-link text-white text-decoration-none w-100 py-2 px-2 mb-3 border-0"
                          (click)="onTaskClick(menu)" [class.active]="isActiveTask(menu.id)()">
-                         <i class="nav-icon bi me-2" [ngClass]="getTaskIcon(menu)"></i>
+                         <i class="nav-icon me-2" [ngClass]="getTaskIcon(menu)"></i>
                          <span class="nav-text">{{ menu.isim }}</span>
                          @if (menu.altMenuler?.length) {
                          <i class="nav-arrow bi bi-chevron-down" [class.rotate-180]="isActiveTask(menu.id)()"></i>

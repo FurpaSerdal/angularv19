@@ -1,13 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, computed, OnInit, signal, ViewChild } from '@angular/core';
+import { AfterViewInit,Component,computed,OnInit,signal,ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatPaginator,MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSort, MatSortModule } from '@angular/material/sort';
-import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { PurchaseInvoicesService } from '../../../../services/invoices/purchase-invoices.service';
+import { MatSort,MatSortModule } from '@angular/material/sort';
+import { MatTable,MatTableDataSource,MatTableModule } from '@angular/material/table';
 import Swal from 'sweetalert2';
+import { PurchaseInvoicesService } from '../../../../services/invoices/purchase-invoices.service';
 import { MeService } from '../../../../services/meservice.service';
 
 export interface Fatura {
@@ -83,7 +83,6 @@ dataSourceFiltreli = new MatTableDataSource<Fatura>([]);
   constructor(
     private meService: MeService,
     private purchaseInvoicesService: PurchaseInvoicesService,
-    private dialog: MatDialog,
   ) { }
    user = computed(() => this.meService.userSignal());
    gorev = computed(() => this.meService.selectedGorev());
@@ -160,7 +159,7 @@ dataSourceFiltreli = new MatTableDataSource<Fatura>([]);
         this.yedeklenmisFaturalar.set(data);
         this.yukleniyor.set(false);
       },
-      error: (error) => {
+      error: (_error) => {
         this.hataGoster('Faturalar getirilirken hata oluştu');
         this.yukleniyor.set(false);
       }
@@ -173,8 +172,6 @@ async faturaAra(): Promise<void> {
     this.yukleniyor.set(true);
 
     const zamanAraligi = this.zamanAraliginiOlustur();
-    const aramaKelimesi = this.aramaKelimesi();
-
     const faturalar = await this.purchaseInvoicesService.getInvoices(this.gorev()?.id ?? 0, zamanAraligi).toPromise();
     const gelenFaturalar = faturalar ?? [];
 

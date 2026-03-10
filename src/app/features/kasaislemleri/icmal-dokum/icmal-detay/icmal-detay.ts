@@ -1,14 +1,14 @@
-import { Component, computed, Inject, ViewEncapsulation } from '@angular/core';
+import { Component,computed,Inject } from '@angular/core';
 
-import { ToastrService } from 'ngx-toastr';
+import { CommonModule,} from '@angular/common';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { NgxPrintModule } from 'ngx-print';
+import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
+import { BanknoteMovementsCT,Cashier,CashRegisterDetails,GiftCheckMovementsCT,SummariesCT,SummariesDetailsCT } from '../../../../models/eskiAngular';
+import { EskiAngularService } from '../../../../services/eskiAngular.service';
 import { MeService } from '../../../../services/meservice.service';
 import { SummaryPrintComponent } from '../summary-print/summary-print.component';
-import { CommonModule,  } from '@angular/common';
-import { NgxPrintModule } from 'ngx-print';
-import { BanknoteMovementsCT, Cashier, CashRegisterDetails, GiftCheckMovementsCT, SummariesCT, SummariesDetailsCT } from '../../../../models/eskiAngular';
-import { EskiAngularService } from '../../../../services/eskiAngular.service';
 
 @Component({
   selector: 'app-icmal-detay',

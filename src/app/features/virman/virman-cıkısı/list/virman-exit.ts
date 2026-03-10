@@ -1,19 +1,18 @@
-import { Component, effect, signal, ViewChild } from '@angular/core';
-import { SharedImports } from '../../../../core/pipes/shared-imports';
-import { FormControl, FormGroup } from '@angular/forms';
-import { User } from '../../../../models/user';
-import { MatTableDataSource } from '@angular/material/table';
+import { BreakpointObserver,Breakpoints } from '@angular/cdk/layout';
+import { DatePipe } from '@angular/common';
+import { Component,effect,signal,ViewChild } from '@angular/core';
+import { FormControl,FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { MeService } from '../../../../services/meservice.service';
-import { GoodsReceiptNotesService } from '../../../../services/receipts/goods-receipt-notes.service';
-import { MatDialog } from '@angular/material/dialog';
-import { DatePipe } from '@angular/common';
+import { MatTableDataSource } from '@angular/material/table';
 import { ToastrService } from 'ngx-toastr';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { DetailVirmanExit } from '../detay/detail-virman-exit';
-import { NewVirmanExit } from '../create/new-virman-exit';
+import { SharedImports } from '../../../../core/pipes/shared-imports';
+import { User } from '../../../../models/user';
+import { MeService } from '../../../../services/meservice.service';
 import { VirmansTransaction } from '../../../../services/virmans/virmans-transaction';
+import { NewVirmanExit } from '../create/new-virman-exit';
+import { DetailVirmanExit } from '../detay/detail-virman-exit';
 
 @Component({
   selector: 'app-virman-exit',

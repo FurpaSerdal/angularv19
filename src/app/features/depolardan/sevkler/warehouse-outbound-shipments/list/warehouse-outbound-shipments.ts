@@ -1,27 +1,25 @@
 
-import { Component, computed, effect, signal, ViewChild } from '@angular/core';
-;
-import { FormControl, FormGroup } from '@angular/forms';
-import { MatTableDataSource } from '@angular/material/table';
+import { BreakpointObserver,Breakpoints } from '@angular/cdk/layout';
+import { DatePipe } from '@angular/common';
+import { Component,computed,effect,signal,ViewChild } from '@angular/core';
+import { FormControl,FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { MatDialog } from '@angular/material/dialog';
-import { DatePipe } from '@angular/common';
+import { MatTableDataSource } from '@angular/material/table';
 import { ToastrService } from 'ngx-toastr';
-import { ActivatedRoute } from '@angular/router';
-;
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { SharedImports } from '../../../../../core/pipes/shared-imports';
-import { User } from '../../../../../models/user';
+import { PdfComponent } from '../../../../../modal/pdf/pdf.component';
+import { DepolaraSevkIrsaliyeleriAyrintiDto } from '../../../../../models/ayrinti-dtolari.model';
+import { DepolaraSevkIrsaliyeleriListeDto } from '../../../../../models/liste-dtolari.model';
 import { MeService } from '../../../../../services/meservice.service';
 import { ShipmentNotesService } from '../../../../../services/shipments/shipment-notes.service';
+import { WarehouseService } from '../../../../../services/warehouse.service';
+import { ConvertToEWaybillComponent } from '../convert-to-ewaybill-component/convert-to-ewaybill-component';
 import { WarehouseSend } from '../create/warehouse-send';
 import { WarehouseOutboundShipmentsDetailComponent } from '../detail/detail';
-import { ConvertToEWaybillComponent } from '../convert-to-ewaybill-component/convert-to-ewaybill-component';
-import { DepolaraSevkIrsaliyeleriListeDto } from '../../../../../models/liste-dtolari.model';
-import { DepolaraSevkIrsaliyeleriAyrintiDto } from '../../../../../models/ayrinti-dtolari.model';
-import { WarehouseService } from '../../../../../services/warehouse.service';
-import { PdfComponent } from '../../../../../modal/pdf/pdf.component';
+;
+;
 
 
 
@@ -67,10 +65,6 @@ paginatedCardData = computed(() => {
   return filtered.slice(start, end);
 });
 
-
-
-private lastKey = '';
-
 constructor(
   private meservice: MeService, 
   private shipmentNotesService: ShipmentNotesService,
@@ -78,7 +72,6 @@ constructor(
   private dialog: MatDialog,
   private datePipe: DatePipe,
   private toastr: ToastrService,
-  private route: ActivatedRoute,
   private breakpointObserver: BreakpointObserver
 ) {
 
@@ -135,17 +128,14 @@ constructor(
 
   ngAfterViewInit() {
     this.DataSource.sort = this.sort;
-    if (!this.paginator) {
-      return;
-    }
-
     this.DataSource.paginator = this.paginator;
+    
+    // Paginator değişikliklerini izle
     this.paginator.page.subscribe((event) => {
       this.pageIndex.set(event.pageIndex);
       this.pageSize.set(event.pageSize);
     });
   }
-
   loadData(): void {
     this.DataSource.data = [];
 
@@ -286,7 +276,7 @@ const baslangic = this.datePipe.transform(this.dateRange.get('start')?.value, 'y
            data: { url }
          });
       },
-      error: (error) => {
+      error: (_error) => {
         this.toastr.error('PDF indirme sırasında hata oluştu', 'Hata');
       }
     });

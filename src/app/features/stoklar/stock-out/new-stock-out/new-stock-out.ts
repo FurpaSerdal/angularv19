@@ -1,13 +1,13 @@
-import { Component, Inject, signal, OnInit } from '@angular/core';
-import { SharedImports } from '../../../../core/pipes/shared-imports';
+import { Component,Inject,OnInit,signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { StokAraCT } from '../../../../models/ortakModeller';
-import { WarehouseService } from '../../../../services/warehouse.service';
-import { StockOutService } from '../../../../services/inventory/stock-out.service';
-import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
-import { share, finalize } from 'rxjs';
-import { CikisFisleriEkleDto } from '../../../../models/ekle-dtolari.model';
+import { MAT_DIALOG_DATA,MatDialog } from '@angular/material/dialog';
+import { finalize,share } from 'rxjs';
+import { SharedImports } from '../../../../core/pipes/shared-imports';
 import { KalemDto } from '../../../../models/ayrinti-dtolari.model';
+import { CikisFisleriEkleDto } from '../../../../models/ekle-dtolari.model';
+import { StokAraCT } from '../../../../models/ortakModeller';
+import { StockOutService } from '../../../../services/inventory/stock-out.service';
+import { WarehouseService } from '../../../../services/warehouse.service';
 
 @Component({
   selector: 'app-new-stock-out',

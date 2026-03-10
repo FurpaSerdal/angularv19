@@ -1,13 +1,12 @@
-import { Component, Inject, signal } from '@angular/core';
+import { Component,Inject,signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MAT_DIALOG_DATA,MatDialog } from '@angular/material/dialog';
 import { share } from 'rxjs';
 import { SharedImports } from '../../../core/pipes/shared-imports';
+import { SayimSonuclariEkleDto,SayimSonucuKalemiDto } from '../../../models/ekle-dtolari.model';
+import { StokAraCT } from '../../../models/ortakModeller';
 import { StockCountService } from '../../../services/inventory/stock-count.service';
 import { WarehouseService } from '../../../services/warehouse.service';
-import { StokAraCT } from '../../../models/ortakModeller';
-import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
-import { SayimSonuclariEkleDto, SayimSonucuKalemiDto } from '../../../models/ekle-dtolari.model';
-import { KalemDto } from '../../../models/ayrinti-dtolari.model';
 
 @Component({
   selector: 'app-new-inventory-count',

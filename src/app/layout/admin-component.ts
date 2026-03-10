@@ -1,13 +1,13 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, signal } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy,Component,DestroyRef,OnInit,signal } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { fromEvent } from 'rxjs';
 import { auditTime } from 'rxjs/operators';
 
-import { SidebarComponent } from './sidebar-component/sidebar-component';
-import { NavbarComponent } from './navbar-component/navbar-component';
-import { MeService } from '../services/meservice.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MeService } from '../services/meservice.service';
+import { NavbarComponent } from './navbar-component/navbar-component';
+import { SidebarComponent } from './sidebar-component/sidebar-component';
 
 
 
@@ -16,6 +16,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   standalone: true,
   imports: [RouterModule, CommonModule, SidebarComponent, NavbarComponent],
   templateUrl: './admin-component.html',
+  styleUrl: './admin-component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AdminComponent implements OnInit {

@@ -1,8 +1,7 @@
-import { HttpInterceptorFn, HttpResponse } from '@angular/common/http';
+import { HttpInterceptorFn,HttpResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { Router } from '@angular/router';
-import { catchError, tap, throwError } from 'rxjs';
-import { Toast, ToastrService } from 'ngx-toastr';
+import { ToastrService } from 'ngx-toastr';
+import { catchError,tap,throwError } from 'rxjs';
 
 export const ErrorInterceptor: HttpInterceptorFn = (req, next) => {
 
@@ -49,7 +48,7 @@ export const ErrorInterceptor: HttpInterceptorFn = (req, next) => {
           break;
 
         case 404:
-          toastr.error('Kayıt bulunamadı.');
+          toastr.error('Rota bulunamadı.');
           break;
 
         case 500:
