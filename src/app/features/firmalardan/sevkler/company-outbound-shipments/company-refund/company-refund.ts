@@ -59,6 +59,8 @@ export class CompanyRefund {
   ) {
     effect(() => {
       this.seciliGorev.set(this.meservice.selectedGorev()?.id ?? 0);
+      this.gorevAdi.set(this.meservice.selectedGorev()?.isim ?? '');
+      this.kendiDepom.set(this.meservice.getUserSignal()()?.subeNo ?? 0);
     });
   }
   private initializeForm(): SevkIrsaliyeleriEkleDto {
@@ -71,12 +73,9 @@ export class CompanyRefund {
     };
   }
   ngOnInit(): void {
-    const depom = localStorage.getItem('depoNo');
-    const seciliGorevId = localStorage.getItem('seçiliGörevid');
-    const gorevAdi = localStorage.getItem('seçiliGörevadi');
-    this.seciliGorev.set(Number(seciliGorevId));
-    this.kendiDepom.set(Number(depom));
-    this.gorevAdi.set(gorevAdi ?? '');
+    this.seciliGorev.set(this.meservice.selectedGorev()?.id ?? 0);
+    this.gorevAdi.set(this.meservice.selectedGorev()?.isim ?? '');
+    this.kendiDepom.set(this.meservice.getUserSignal()()?.subeNo ?? 0);
   }
 
   // Firma İşlemleri

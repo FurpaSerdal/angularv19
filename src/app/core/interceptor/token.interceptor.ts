@@ -48,10 +48,7 @@ export const TokenInterceptor: HttpInterceptorFn = (req, next) => {
       // Tek refresh sistemi
       if (!refreshToken$) {
         refreshToken$ = auth.refreshToken().pipe(
-          map(res => {
-            auth.saveTokens(res.accessToken, res.refreshToken, res.expiresIn);
-            return res.accessToken;
-          }),
+          map(res => res.accessToken),
           shareReplay(1),
 
           catchError(refreshError => {

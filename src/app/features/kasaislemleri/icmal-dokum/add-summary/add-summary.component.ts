@@ -89,7 +89,7 @@ export class AddSummaryComponent implements OnInit {
     this.GetGiftCheckTypes();
     this.GetOnlineSalesTypes();
     this.storeExpenses  = { storeExpenses: [] };
-    this.currentWarehouseNo = localStorage.getItem("currentWarehouseNo") || '';
+    this.currentWarehouseNo = sessionStorage.getItem("currentWarehouseNo") || '';
     this.currentWarehouseNo == "1" ? this.isDisabled = true : this.isDisabled = false;
   }
   isDisabled!:Boolean;
@@ -109,7 +109,7 @@ export class AddSummaryComponent implements OnInit {
 
   zTotalValue=0;
   GetZReportTotalValue(){
-    var currentWarehouseNo =localStorage.getItem("currentWarehouseNo") || '';
+    var currentWarehouseNo =sessionStorage.getItem("currentWarehouseNo") || '';
     this.eskiAngularService.GetZReportTotalValue("0", 
     currentWarehouseNo == "1" 
     ? parseInt(this.summaryForm.get("warehouseNo")?.value || "1")

@@ -1,5 +1,5 @@
 import { Injectable,NgZone,OnDestroy } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { SessionDialogComponent } from '../../modal/SessionDialogComponent';
 import { AuthService } from '../auth.service';
 
@@ -24,6 +24,7 @@ export class IdleService implements OnDestroy {
    * senkron etmek için kullanılan localStorage key.
    */
   private readonly STORAGE_KEY = 'app_last_activity';
+  private readonly AUTH_EVENT_NAME = 'app-auth-changed';
 
   /** Logout zamanlayıcısı referansı */
   private timeoutId: any;
@@ -35,6 +36,9 @@ export class IdleService implements OnDestroy {
   private countdownLogInterval: any;
   /** Idle süresi başladığı zaman */
   private idleStartTime: number = 0;
+
+  /** Sadece oturum uyarı dialog referansı */
+  private warningDialogRef: MatDialogRef<SessionDialogComponent> | null = null;
 
   /**
    * Kullanıcı hareket eventleri.
@@ -53,15 +57,7 @@ export class IdleService implements OnDestroy {
     private dialog: MatDialog,
     private auth: AuthService
   ) {
-    // console.log('[IdleService] Servis başlatıldı');
-    if (this.auth.isAuthenticated()) {
-        this.initialize();
-    }
-    else {
-      // console.log('[IdleService] Kullanıcı auth değil, idle servisi başlatılmadı');
-    }
-  
-
+    this.initialize();
   }
 
   /**
@@ -83,10 +79,12 @@ export class IdleService implements OnDestroy {
 
       // Başka sekmede activity olursa tetiklenecek listener
       window.addEventListener('storage', this.handleStorageEvent);
+      window.addEventListener(this.AUTH_EVENT_NAME, this.handleAuthEvent as EventListener);
     });
 
-    // İlk timer başlatılır
-    this.resetTimer();
+    if (this.auth.isAuthenticated()) {
+      this.resetTimer();
+    }
   }
 
   /**
@@ -118,10 +116,23 @@ export class IdleService implements OnDestroy {
   private handleStorageEvent = (event: StorageEvent): void => {
 
     if (event.key === this.STORAGE_KEY) {
-
       if (!this.auth.isAuthenticated()) return;
 
-      // console.log('[IdleService] Başka sekmede aktivite var → Timer reset');
+      this.resetTimer();
+      return;
+    }
+
+  };
+
+  private handleAuthEvent = (event: Event): void => {
+    const authEvent = event as CustomEvent<{ type?: string }>;
+
+    if (authEvent.detail?.type === 'logout') {
+      this.clearTimers();
+      return;
+    }
+
+    if (this.auth.isAuthenticated()) {
       this.resetTimer();
     }
   };
@@ -137,9 +148,7 @@ export class IdleService implements OnDestroy {
     }
 
     // Önce eski timer'ları temizle
-    clearTimeout(this.timeoutId);
-    clearTimeout(this.warningTimeoutId);
-    clearInterval(this.countdownLogInterval);
+    this.clearTimers();
 
     // Timer'lar sıfırlandığında zamanı kaydet (debug için)
     // this.idleStartTime = Date.now();
@@ -184,7 +193,7 @@ export class IdleService implements OnDestroy {
    */
   private openWarningDialog(): void {
 
-    if (this.dialog.openDialogs.length > 0) {
+    if (this.warningDialogRef) {
       // console.log('[IdleService] Dialog zaten açık');
       return;
     }
@@ -193,6 +202,7 @@ export class IdleService implements OnDestroy {
       disableClose: true,
       width: '400px'
     });
+    this.warningDialogRef = dialogRef;
 
     // Dialog içindeki countdown başlatılır
     dialogRef.componentInstance.startCountdown(
@@ -201,6 +211,7 @@ export class IdleService implements OnDestroy {
 
     // Dialog kapandığında sonucu dinle
     dialogRef.afterClosed().subscribe(result => {
+      this.warningDialogRef = null;
 
       // console.log('[IdleService] Dialog sonucu:', result);
 
@@ -243,14 +254,18 @@ export class IdleService implements OnDestroy {
    * - Token'lar silinir
    */
   private logout(): void {
+    this.clearTimers();
+    this.auth.clearTokens();
+  }
 
+  private clearTimers(): void {
     clearTimeout(this.timeoutId);
     clearTimeout(this.warningTimeoutId);
     clearInterval(this.countdownLogInterval);
 
-    // console.log('[IdleService] Logout çalıştı');
-
-    this.auth.clearTokens();
+    // Aktivite resetinde tüm dialogları değil, sadece session warning dialogunu kapat.
+    this.warningDialogRef?.close();
+    this.warningDialogRef = null;
   }
 
   /**
@@ -265,9 +280,9 @@ export class IdleService implements OnDestroy {
     );
 
     window.removeEventListener('storage', this.handleStorageEvent);
+    window.removeEventListener(this.AUTH_EVENT_NAME, this.handleAuthEvent as EventListener);
 
-    clearTimeout(this.timeoutId);
-    clearTimeout(this.warningTimeoutId);
+    this.clearTimers();
 
     // console.log('[IdleService] Servis destroy edildi');
   }

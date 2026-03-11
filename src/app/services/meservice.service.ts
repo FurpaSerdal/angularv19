@@ -15,6 +15,15 @@ export class MeService {
 
   private apiUrl = environment.apiurl;
 
+  private readonly USER_KEY = 'user';
+  private readonly MENU_KEY = 'menu';
+  private readonly ALTMENU_KEY = 'altmenu';
+  private readonly GOREV_KEY = 'gorev';
+
+  private get storage(): Storage {
+    return sessionStorage;
+  }
+
   public selectedMenu = signal<string>("")
   public selectedAltMenu = signal<AltMenu | null>(null);
   public selectedGorev = signal<Gorev | null>(null)
@@ -69,6 +78,19 @@ export class MeService {
     this.userSignal.set(null);
   }
 
+  clearSessionState(): void {
+    this.userSignal.set(null);
+    this.selectedMenu.set('');
+    this.selectedAltMenu.set(null);
+    this.selectedGorev.set(null);
+    this.selectedrota.set('');
+
+    this.storage.removeItem(this.USER_KEY);
+    this.storage.removeItem(this.MENU_KEY);
+    this.storage.removeItem(this.ALTMENU_KEY);
+    this.storage.removeItem(this.GOREV_KEY);
+  }
+
   // User menülerini almak için computed property
   userTasks = computed(() => {
     return this.userSignal()?.menuler || [];
@@ -82,8 +104,28 @@ export class MeService {
   
 
   setUser(user: User) {
-    localStorage.setItem('user', JSON.stringify(user));
+    this.storage.setItem(this.USER_KEY, JSON.stringify(user));
     this.userSignal.set(user);
+  }
+
+  restoreUserSnapshot(user: User | null): void {
+    if (!user) {
+      this.userSignal.set(null);
+      this.storage.removeItem(this.USER_KEY);
+      return;
+    }
+
+    this.storage.setItem(this.USER_KEY, JSON.stringify(user));
+    this.userSignal.set(user);
+  }
+
+  getUserSnapshot(): User | null {
+    if (this.userSignal()) {
+      return this.userSignal();
+    }
+
+    const user = this.storage.getItem(this.USER_KEY);
+    return user ? JSON.parse(user) as User : null;
   }
 
 
@@ -91,18 +133,19 @@ export class MeService {
     this.selectedMenu.set(menu); 
     this.selectedAltMenu.set(null)
     this.selectedGorev.set(null)
-    localStorage.setItem('menu', JSON.stringify(menu));  }
+    this.storage.setItem(this.MENU_KEY, JSON.stringify(menu));
+  }
 
   setaltmenu(data:AltMenu){
   this.selectedAltMenu.set(data)
    this.selectedGorev.set(null)
-   localStorage.setItem('altmenu', JSON.stringify(data));     
+   this.storage.setItem(this.ALTMENU_KEY, JSON.stringify(data));     
 
   }
   
   setgorev(data:Gorev){
   this.selectedGorev.set(data)
-    localStorage.setItem('gorev', JSON.stringify(data));
+    this.storage.setItem(this.GOREV_KEY, JSON.stringify(data));
 
   
   }
@@ -110,10 +153,10 @@ export class MeService {
     this.selectedrota.set(data)
   }
   private rehydrate() {
-    const user = localStorage.getItem('user');
-    const menu = localStorage.getItem('menu');
-    const altmenu = localStorage.getItem('altmenu');
-    const gorev = localStorage.getItem('gorev');
+    const user = this.storage.getItem(this.USER_KEY);
+    const menu = this.storage.getItem(this.MENU_KEY);
+    const altmenu = this.storage.getItem(this.ALTMENU_KEY);
+    const gorev = this.storage.getItem(this.GOREV_KEY);
 
     if (user) this.userSignal.set(JSON.parse(user));
     if (menu) this.selectedMenu.set(JSON.parse(menu));

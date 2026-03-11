@@ -189,7 +189,7 @@ export class HomePage {
     const capped = saved.slice(0, 50);
 
     if (typeof window !== 'undefined') {
-      window.localStorage.setItem(this.feedbackStorageKey, JSON.stringify(capped));
+      window.sessionStorage.setItem(this.feedbackStorageKey, JSON.stringify(capped));
     }
 
     this.feedbackMessage.set('');
@@ -232,7 +232,7 @@ export class HomePage {
     }
 
     try {
-      const raw = window.localStorage.getItem(this.feedbackStorageKey);
+      const raw = window.sessionStorage.getItem(this.feedbackStorageKey);
       if (!raw) {
         return [];
       }

@@ -1,4 +1,3 @@
-
 /* İnce üst progress bar görünümü */
 mat-progress-bar {
   position: sticky;
@@ -8,3 +7,100 @@ mat-progress-bar {
   border-top-right-radius: .5rem;
 }
 
+/* Tablo responsif - Scroll yok tamamen sıgacak */
+.table-responsive {
+  display: block;
+  width: 100%;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: auto;
+}
+
+.table-responsive > .table {
+  margin-bottom: 0;
+  width: 100%;
+  table-layout: fixed;
+}
+
+/* Tüm hücreler küçük ve sıkı */
+.table > thead > tr > th,
+.table > tbody > tr > td {
+  padding: 0.35rem !important;
+  font-size: 0.7rem !important;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  border-width: 1px;
+}
+
+/* Seçim kutusu sütunu en dar */
+.table > thead > tr > th:first-child,
+.table > tbody > tr > td:first-child {
+  width: 40px;
+  max-width: 40px;
+  padding: 0.25rem !important;
+}
+
+/* Tutar sütunu */
+.table > thead > tr > th:nth-last-child(2),
+.table > tbody > tr > td:nth-last-child(2) {
+  width: 80px;
+  max-width: 80px;
+}
+
+/* İşlemler sütunu */
+.table > thead > tr > th:last-child,
+.table > tbody > tr > td:last-child {
+  width: 45px;
+  max-width: 45px;
+  text-align: center;
+}
+
+/* Diğer sütunlar eşit paylaşım */
+.th-wrapper {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.th-wrapper input {
+  padding: 0.2rem !important;
+  font-size: 0.65rem !important;
+  height: 24px !important;
+  margin-top: 0.25rem !important;
+}
+
+.th-wrapper span {
+  display: block;
+  padding: 0.2rem 0 !important;
+}
+
+/* Container ve konteyner */
+.container-fluid {
+  overflow-x: hidden;
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+}
+
+.table-container {
+  width: 100%;
+  overflow-x: hidden;
+  border-radius: 0.375rem;
+}
+
+/* Form kontrolleri küçült */
+.table-container .form-control-sm {
+  padding: 0.2rem 0.35rem !important;
+  font-size: 0.65rem !important;
+  height: 24px !important;
+}
+
+/* Material checkbox küçültme */
+mat-checkbox {
+  transform: scale(0.8);
+  transform-origin: left center;
+}
+
+/* Buton boyutu küçültme */
+.btn-sm {
+  padding: 0.25rem 0.5rem !important;
+  font-size: 0.65rem !important;
+}

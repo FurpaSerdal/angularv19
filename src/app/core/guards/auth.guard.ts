@@ -10,12 +10,20 @@ export class AuthGuard implements CanActivate {
     private router: Router
   ) {  }
  
-  canActivate(): boolean {
+  async canActivate(): Promise<boolean> {
+    const hasSession = await this.auth.ensureAuthState();
+
+    if (!hasSession) {
+      this.auth.clearTokens(false);
+      this.router.navigate(['/login']);
+      return false;
+    }
+
     if (this.auth.isAuthenticated()) {
       return true;
     }
 
-    this.auth.clearTokens();
+    this.auth.clearTokens(false);
     this.router.navigate(['/login']);
     return false;
   }

@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component,ElementRef,signal,ViewChild } from '@angular/core';
+import { Component,ElementRef,effect,signal,ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableDataSource,MatTableModule } from '@angular/material/table';
 import { ToastrService } from 'ngx-toastr';
 import { StokAraCT } from '../../../../../models/ortakModeller';
 import { CompanyService } from '../../../../../services/company.service';
+import { MeService } from '../../../../../services/meservice.service';
 
 
 
@@ -45,7 +46,14 @@ export class FirmaMalKabulModelComponent {
   constructor(
     private companyservice: CompanyService,
     private toastr: ToastrService,
-  ) {}
+    private meService: MeService,
+  ) {
+    effect(() => {
+      this.seciliGorev.set(this.meService.selectedGorev()?.id ?? 0);
+      this.gorevAdi.set(this.meService.selectedGorev()?.isim ?? '');
+      this.kendiDepom.set(this.meService.getUserSignal()()?.subeNo ?? 0);
+    });
+  }
 
   private initializeForm(): any {
     return {
@@ -83,12 +91,9 @@ export class FirmaMalKabulModelComponent {
   }
 
   ngOnInit(): void {
-    const depom = localStorage.getItem('depoNo');
-    const seciliGorevId = localStorage.getItem('seçiliGörevid');
-    const gorevAdi = localStorage.getItem('seçiliGörevadi');
-    this.seciliGorev.set(Number(seciliGorevId));
-    this.kendiDepom.set(Number(depom));
-    this.gorevAdi.set(gorevAdi ?? '');
+    this.seciliGorev.set(this.meService.selectedGorev()?.id ?? 0);
+    this.gorevAdi.set(this.meService.selectedGorev()?.isim ?? '');
+    this.kendiDepom.set(this.meService.getUserSignal()()?.subeNo ?? 0);
   }
 
   // QR okuma butonu için
