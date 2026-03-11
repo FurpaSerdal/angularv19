@@ -21,7 +21,7 @@
 
     <!-- Login Form -->
     <form (ngSubmit)="login()" class="login-form" #loginForm="ngForm" novalidate>
-      
+
       <!-- Email Input -->
       <div class="form-group">
         <label for="email" class="form-label">
@@ -73,12 +73,12 @@
             autocomplete="current-password"
             class="form-input"
             required>
-          <button 
-            type="button" 
+          <button
+            type="button"
             class="password-toggle"
             (click)="togglePasswordVisibility()"
             [attr.aria-pressed]="showPassword"
-            aria-label="Sifreyi goster/gizle">
+            aria-label="Şifreyi göster/gizle">
             <i class="bi" [class.bi-eye]="!showPassword" [class.bi-eye-slash]="showPassword"></i>
           </button>
         </div>
@@ -95,17 +95,17 @@
       </div>
 
       <!-- Submit Button -->
-      <button 
-        type="submit" 
+      <button
+        type="submit"
         class="login-btn"
         [disabled]="isLoading"
         [class.loading]="isLoading">
-        
+
         <span class="btn-content" [class.hidden]="isLoading">
           <i class="bi bi-box-arrow-in-right"></i>
           Giriş Yap
         </span>
-        
+
         <span class="loading-spinner" *ngIf="isLoading">
           <div class="spinner"></div>
           Giriş Yapılıyor...
