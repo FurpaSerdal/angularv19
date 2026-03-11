@@ -1,166 +1,201 @@
-<div class="container-fluid p-4">
-  <!-- Header -->
-  <div class="row mb-5">
-    <div class="col-12 text-center">
-      <h1 class="display-4 text-primary">Admin Panel Dashboard</h1>
-      <p class="lead text-muted">Welcome to your business management system</p>
+<section class="container-fluid ">
+  <div class="row g-2 align-items-stretch hd-top-row">
+    <div class="col-12 col-xl-8">
+      <div class="card border-0 rounded-4 hd-card hd-hero-card h-100">
+        <div class="card-body p-3 p-lg-4">
+          <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+            <span class="hd-pill">
+              <i class="bi bi-stars me-1"></i>
+              Operasyon merkezi
+            </span>
+            <span class="hd-count-pill">
+              <i class="bi bi-grid me-1"></i>
+              {{ shortcuts().length }} gorev
+            </span>
+          </div>
+
+          <div class="hd-hero-content">
+            <div>
+              <h1 class="hd-hero-title mb-1">Ana Sayfa</h1>
+              <p class="hd-hero-text mb-0">{{ greeting() }} icin en hizli gecisler tek alanda.</p>
+            </div>
+
+            <div class="hd-hero-visual" aria-hidden="true">
+              <span class="hd-hero-orb hd-hero-orb-main">
+                <i class="bi bi-rocket-takeoff-fill"></i>
+              </span>
+              <span class="hd-hero-orb hd-hero-orb-soft">
+                <i class="bi bi-lightning-charge-fill"></i>
+              </span>
+              <span class="hd-hero-orb hd-hero-orb-soft">
+                <i class="bi bi-bar-chart-fill"></i>
+              </span>
+            </div>
+          </div>
+
+          <div class="hd-hero-highlights mt-3">
+            <div class="hd-highlight-chip">
+              <span class="hd-highlight-icon"><i class="bi bi-speedometer2"></i></span>
+              Hizli erisim
+            </div>
+            <div class="hd-highlight-chip">
+              <span class="hd-highlight-icon"><i class="bi bi-window-stack"></i></span>
+              Tek ekranda yonetim
+            </div>
+            <div class="hd-highlight-chip">
+              <span class="hd-highlight-icon"><i class="bi bi-shield-check"></i></span>
+              Duzenli calisma alani
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+
+    @if (selectedTaskLink(); as selectedTask) {
+      <div class="col-12 col-xl-4">
+        <button type="button" class="card border-0 rounded-4 hd-card hd-selected-task h-100 w-100 text-start" (click)="openTask(selectedTask)">
+          <div class="card-body p-3">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <span class="hd-icon-bubble hd-icon-bubble-soft">
+                <i class="bi bi-compass"></i>
+              </span>
+              <span class="hd-label">Secili Gorev</span>
+            </div>
+
+            <h2 class="hd-selected-title mb-1">{{ selectedTask.gorev.isim }}</h2>
+            <p class="hd-selected-path mb-0">
+              {{ selectedTask.menu.isim }}
+              <span class="hd-dot-separator">•</span>
+              {{ selectedTask.altMenu.isim }}
+            </p>
+
+            <div class="hd-open-link mt-2">
+              Aç
+              <i class="bi bi-arrow-right-short"></i>
+            </div>
+          </div>
+        </button>
+      </div>
+    }
   </div>
 
-  <!-- Quick Stats -->
-  <div class="row mb-5">
-    <div class="col-xl-3 col-md-6 mb-4">
-      <div class="card border-start border-primary border-4 shadow h-100 py-2">
-        <div class="card-body">
-          <div class="row no-gutters align-items-center">
-            <div class="col mr-2">
-              <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                Sevk Emirleri
+  <div class="row g-2 hd-main-row">
+    <div class="col-12 col-xl-8">
+      <div class="card border-0 rounded-4 hd-card hd-shortcuts-card h-100">
+        <div class="card-body p-2 p-lg-3 d-flex flex-column h-100">
+          <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+            <div class="d-flex align-items-center gap-2">
+              <span class="hd-icon-bubble hd-icon-bubble-soft">
+                <i class="bi bi-lightning-charge-fill"></i>
+              </span>
+              <div>
+                <h2 class="hd-section-title mb-0">Hizli Gorevler</h2>
+                <p class="hd-section-subtitle mb-0">Tum ekranlar mini kart olarak listelenir.</p>
               </div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">15</div>
-              <div class="text-muted">Bekleyen işlemler</div>
-            </div>
-            <div class="col-auto">
-              <i class="fas fa-box fa-2x text-gray-300">📦</i>
             </div>
           </div>
-          <button class="btn btn-primary btn-sm mt-3 w-100" routerLink="/admin/task/11">
-            Yeni Oluştur
-          </button>
+
+          <div class="hd-shortcut-grid">
+            @for (shortcut of shortcuts(); track shortcut.title) {
+              <button type="button" class="hd-shortcut-btn" (click)="openTask(shortcut.task)">
+                <div class="hd-shortcut-top">
+                  <span class="hd-shortcut-icon">
+                    <i class="bi bi-grid-1x2-fill"></i>
+                  </span>
+                  <small class="hd-shortcut-meta">{{ shortcut.task?.menu?.isim }}</small>
+                </div>
+
+                <strong class="hd-shortcut-title">{{ shortcut.title }}</strong>
+
+                <div class="hd-shortcut-foot">
+                  <small class="hd-shortcut-meta">{{ shortcut.task?.altMenu?.isim }}</small>
+                  <span class="hd-go-chip">Git</span>
+                </div>
+              </button>
+            }
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="col-xl-3 col-md-6 mb-4">
-      <div class="card border-start border-success border-4 shadow h-100 py-2">
-        <div class="card-body">
-          <div class="row no-gutters align-items-center">
-            <div class="col mr-2">
-              <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                Siparişler
-              </div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">28</div>
-              <div class="text-muted">Aktif siparişler</div>
-            </div>
-            <div class="col-auto">
-              <i class="fas fa-clipboard-list fa-2x text-gray-300">📋</i>
+    <div class="col-12 col-xl-4">
+      <div class="card border-0 rounded-4 hd-card hd-feedback-card h-100">
+        <div class="card-body p-2 p-lg-3 d-flex flex-column">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="hd-icon-bubble hd-icon-bubble-soft">
+              <i class="bi bi-chat-left-text-fill"></i>
+            </span>
+            <div>
+              <h2 class="hd-section-title mb-0">Oneri ve Sikayet</h2>
+              <p class="hd-section-subtitle mb-0">API yok. Mesajlar yerel olarak saklanir.</p>
             </div>
           </div>
-          <button class="btn btn-success btn-sm mt-3 w-100" routerLink="/admin/task/21">
-            Yönet
-          </button>
-        </div>
-      </div>
-    </div>
 
-    <div class="col-xl-3 col-md-6 mb-4">
-      <div class="card border-start border-warning border-4 shadow h-100 py-2">
-        <div class="card-body">
-          <div class="row no-gutters align-items-center">
-            <div class="col mr-2">
-              <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                Faturalar
-              </div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">42</div>
-              <div class="text-muted">Bu ay oluşturulan</div>
+          <div class="hd-feedback-form mb-2">
+            <div class="d-flex align-items-center gap-1 mb-1">
+              <button
+                type="button"
+                class="btn btn-sm hd-toggle-btn"
+                [class.hd-toggle-btn-active]="feedbackType() === 'oneri'"
+                (click)="setFeedbackType('oneri')">
+                <i class="bi bi-lightbulb me-1"></i>
+                Oneri
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm hd-toggle-btn"
+                [class.hd-toggle-btn-active]="feedbackType() === 'sikayet'"
+                (click)="setFeedbackType('sikayet')">
+                <i class="bi bi-exclamation-octagon me-1"></i>
+                Sikayet
+              </button>
             </div>
-            <div class="col-auto">
-              <i class="fas fa-receipt fa-2x text-gray-300">🧾</i>
-            </div>
-          </div>
-          <button class="btn btn-warning btn-sm mt-3 w-100" routerLink="/admin/task/41">
-            Fatura Oluştur
-          </button>
-        </div>
-      </div>
-    </div>
 
-    <div class="col-xl-3 col-md-6 mb-4">
-      <div class="card border-start border-info border-4 shadow h-100 py-2">
-        <div class="card-body">
-          <div class="row no-gutters align-items-center">
-            <div class="col mr-2">
-              <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                Firma İşlemleri
+            <textarea
+              class="form-control hd-feedback-textarea"
+              rows="3"
+              maxlength="500"
+              [value]="feedbackMessage()"
+              (input)="onFeedbackMessageInput($event)"
+              [placeholder]="feedbackType() === 'oneri' ? 'Onerini yaz...' : 'Sikayetini yaz...'"></textarea>
+
+            <div class="d-flex align-items-center justify-content-between gap-2 mt-1">
+              <small class="hd-counter">{{ feedbackMessageLength() }}/500</small>
+              <button type="button" class="btn btn-sm hd-submit-btn" (click)="submitFeedback()">
+                <i class="bi bi-send-fill me-1"></i>
+                Gonder
+              </button>
+            </div>
+
+            @if (feedbackStatus(); as status) {
+              <div class="hd-feedback-status mt-1" [class.hd-feedback-status-error]="status.kind === 'error'">
+                {{ status.message }}
               </div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">8</div>
-              <div class="text-muted">Kayıtlı firmalar</div>
-            </div>
-            <div class="col-auto">
-              <i class="fas fa-building fa-2x text-gray-300">🏢</i>
-            </div>
+            }
           </div>
-          <button class="btn btn-info btn-sm mt-3 w-100" routerLink="/admin/21">
-            Firma Faturaları
-          </button>
+
+          @if (hasFeedbackTasks()) {
+            <div class="row g-1 mt-auto">
+              @if (feedbackTasks().suggestion; as suggestionTask) {
+                <div class="col-12 col-md-6 col-xl-12">
+                  <button type="button" class="hd-quick-link" (click)="openTask(suggestionTask)">
+                    <span class="hd-quick-link-icon"><i class="bi bi-lightbulb-fill"></i></span>
+                    <span class="hd-quick-link-text">Oneri modulu ac</span>
+                    <i class="bi bi-chevron-right"></i>
+                  </button>
+                </div>
+              }
+            </div>
+
+            <div class="hd-feedback-note mt-2">
+              <span class="hd-feedback-note-icon">
+                <i class="bi bi-info-circle-fill"></i>
+              </span>
+              Mesajlar tarayicida tutulur, bu yuzden hizli ve hafif calisir.
+            </div>
+          }
         </div>
       </div>
     </div>
   </div>
-
-  <!-- Recent Activities & Quick Actions -->
-  <div class="row">
-    <!-- Recent Activities -->
-    <div class="col-lg-8 mb-4">
-      <div class="card shadow">
-        <div class="card-header py-3">
-          <h6 class="m-0 font-weight-bold text-primary">Son İşlemler</h6>
-        </div>
-        <div class="card-body">
-          <div class="list-group list-group-flush">
-            <div class="list-group-item d-flex justify-content-between align-items-center">
-              <div>
-                <span class="badge bg-primary me-2">Görev</span>
-                Sevk emri #TRK-1256 oluşturuldu
-              </div>
-              <small class="text-muted">2 dakika önce</small>
-            </div>
-            <div class="list-group-item d-flex justify-content-between align-items-center">
-              <div>
-                <span class="badge bg-success me-2">Fatura</span>
-                Fatura #INV-7891 onaylandı
-              </div>
-              <small class="text-muted">1 saat önce</small>
-            </div>
-            <div class="list-group-item d-flex justify-content-between align-items-center">
-              <div>
-                <span class="badge bg-warning me-2">Sipariş</span>
-                Sipariş #ORD-4567 tamamlandı
-              </div>
-              <small class="text-muted">3 saat önce</small>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Quick Actions -->
-    <div class="col-lg-4 mb-4">
-      <div class="card shadow">
-        <div class="card-header py-3">
-          <h6 class="m-0 font-weight-bold text-primary">Hızlı İşlemler</h6>
-        </div>
-        <div class="card-body">
-          <div class="d-grid gap-2">
-            <button class="btn btn-primary btn-lg" routerLink="/admin/task/11">
-              <i class="fas fa-box me-2">📦</i>
-              Sevk Emri Oluştur
-            </button>
-            <button class="btn btn-warning btn-lg" routerLink="/admin/task/41">
-              <i class="fas fa-receipt me-2">🧾</i>
-              Fatura Oluştur
-            </button>
-            <button class="btn btn-success btn-lg" routerLink="/admin/task/21">
-              <i class="fas fa-clipboard-list me-2">📋</i>
-              Sipariş Yönet
-            </button>
-            <button class="btn btn-info btn-lg" routerLink="/admin/21">
-              <i class="fas fa-building me-2">🏢</i>
-              Firma Faturaları
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+</section>

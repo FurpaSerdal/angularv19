@@ -1,110 +1,56 @@
-<!-- =======================================================================
-     TOP NAVBAR / ÜST NAVBAR
-     EN: Main top navigation bar with mobile toggle, welcome text and actions.
-     TR: Mobil menü butonu, hoş geldiniz mesajı ve aksiyon butonlarını içeren üst bar.
-     ======================================================================= -->
-<nav class="navbar navbar-expand navbar-light bg-white border-bottom shadow-sm">
-  <div class="container-fluid">
-    
-    <!-- ===========================================================
-         MOBILE SIDEBAR TOGGLE BUTTON / MOBİL SIDEBAR AÇ/KAPA BUTONU
-         EN: Visible only on small screens (d-lg-none). Toggles sidebar.
-         TR: Sadece küçük ekranlarda görünür (d-lg-none). Sidebar'ı aç/kapa yapar.
-         =========================================================== -->
-    <button class="btn btn-link d-lg-none me-2 p-2 text-dark" 
-            type="button"
-            (click)="onMobileToggle()">
-      <!-- EN: Icon changes according to sidebar state (e.g., list / x).
-           TR: İkon, sidebar durumuna göre değişir (liste / çarpı gibi). -->
+<nav class="topbar">
+  <div class="topbar__section topbar__section--start">
+    <button
+      class="topbar__toggle d-lg-none"
+      type="button"
+      (click)="onMobileToggle()"
+      aria-label="Menuyu ac">
       <i class="bi fs-5" [ngClass]="getMobileMenuIcon()"></i>
     </button>
 
-    <!-- ===========================================================
-         DESKTOP WELCOME MESSAGE / MASAÜSTÜ HOŞ GELDİNİZ MESAJI
-         EN: Shown on md and larger screens (d-none d-md-block).
-         TR: md ve üzeri ekranlarda gösterilir (d-none d-md-block).
-         =========================================================== -->
-    <div class="navbar-text me-auto d-none d-md-block">
-
-      <!-- EN: If user data loaded, show personalized greeting and warehouse number.
-           TR: Kullanıcı verisi yüklendiyse, kişisel karşılama ve depo numarasını göster. -->
-      <span *ngIf="userService.isUserDataLoaded()">
-        Sayın <strong class="text-primary">{{ userService.userSignal()?.adSoyad }}</strong>, 
-        Şube Numaranız: <strong class="text-primary">{{ userService.userSignal()?.subeNo }}</strong> – Hoş Geldiniz!
+    <a routerLink="/admin" class="topbar__brand" aria-label="Furpa ana sayfa">
+      <span class="topbar__brand-logo">
+        <img src="assets/furpa-login.png" alt="Furpa logo" />
       </span>
+    </a>
 
-      <!-- EN: While user data is loading, show spinner and 'Loading...' text.
-           TR: Kullanıcı verisi yüklenirken spinner ve 'Yükleniyor...' metni gösterilir. -->
-      <span *ngIf="userService.isLoading()" class="text-muted">
-        <div class="spinner-border spinner-border-sm me-2" role="status">
-          <span class="visually-hidden">Loading...</span>
-        </div>
-        Yükleniyor...
-      </span>
-   
+    <div class="topbar__headline">
+      <span class="topbar__eyebrow">Operasyon Paneli</span>
+
+      @if (userService.isLoading()) {
+        <span class="topbar__loading">
+          <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          Veriler yukleniyor
+        </span>
+      } @else {
+        <h1 class="topbar__title">{{ getUserDisplayName() }}</h1>
+        <p class="topbar__subtitle">
+          {{ getBranchDisplay() }}
+          @if (shownatification) {
+            <span class="topbar__badge">Sistem hazir</span>
+          }
+        </p>
+      }
+    </div>
+  </div>
+
+  <div class="topbar__section topbar__section--end">
+    <div class="topbar__profile d-none d-md-flex" aria-hidden="true">
+      <span class="topbar__avatar">{{ getUserInitials() }}</span>
+      <div class="topbar__profile-copy">
+        <strong>{{ userService.userSignal()?.sube || 'Sube' }}</strong>
+        <small>Hizli erisim acik</small>
+      </div>
     </div>
 
-    <!-- ===========================================================
-         MOBILE WELCOME MESSAGE / MOBİL HOŞ GELDİNİZ MESAJI
-         EN: Shown only on small screens (d-md-none).
-         TR: Sadece küçük ekranlarda gösterilir (d-md-none).
-         =========================================================== -->
-    <div class="navbar-text me-auto d-md-none">
+    <a routerLink="/admin" class="topbar__action topbar__action--ghost">
+      <i class="bi bi-house-door"></i>
+      <span class="d-none d-sm-inline">Anasayfa</span>
+    </a>
 
-      <!-- EN: Compact welcome text on mobile when user data is ready.
-           TR: Kullanıcı verisi hazır olduğunda, mobil için kısa hoş geldiniz metni. -->
-      <small *ngIf="userService.isUserDataLoaded()">
-        Hoş Geldiniz, {{ userService.userSignal()?.sube }}
-      </small>
-
-      <!-- EN: Compact loading state with small spinner on mobile.
-           TR: Mobilde küçük spinner ile yükleniyor durumu. -->
-      <small *ngIf="userService.isLoading()" class="text-muted">
-        <div class="spinner-border spinner-border-sm me-1" role="status">
-          <span class="visually-hidden">Loading...</span>
-        </div>
-        Yükleniyor...
-      </small>
-
-      <!-- EN: Example notification text bound to 'shownatification' flag.
-           TR: 'shownatification' property’sine bağlı örnek bildirim metni. -->
-      <span *ngIf="shownatification" class="text-danger">
-        property çalıştı
-      </span>
-    </div>
-
-    <!-- ===========================================================
-         ACTION BUTTONS / AKSİYON BUTONLARI
-         EN: Home + Logout buttons with separate mobile/desktop layouts.
-         TR: Anasayfa + Çıkış butonları, mobil/desktop için ayrı düzenle.
-         =========================================================== -->
-    <div class="d-flex align-items-center gap-2">
-
-      <!-- EN: Desktop/tablet version of Home button (with text).
-           TR: Masaüstü/tablet için metinli Anasayfa butonu. -->
-      <a routerLink="/admin" class="btn btn-primary btn-sm d-none d-sm-inline-flex">
-        <i class="bi bi-house-door me-1"></i>
-        <span>Anasayfa</span>
-      </a>
-      
-      <!-- EN: Mobile version of Home button (icon only).
-           TR: Mobil için sadece ikondan oluşan Anasayfa butonu. -->
-      <a routerLink="/admin" class="btn btn-primary btn-sm d-sm-none">
-        <i class="bi bi-house-door"></i>
-      </a>
-      
-      <!-- EN: Desktop/tablet Logout button with text.
-           TR: Masaüstü/tablet için metinli Çıkış butonu. -->
-      <button (click)="logout()" class="btn btn-danger btn-sm d-none d-sm-inline-flex">
-        <i class="bi bi-box-arrow-right me-1"></i>
-        <span>Çıkış Yap</span>
-      </button>
-
-      <!-- EN: Mobile Logout button with icon only.
-           TR: Mobil için sadece ikonlu Çıkış butonu. -->
-      <button (click)="logout()" class="btn btn-danger btn-sm d-sm-none">
-        <i class="bi bi-box-arrow-right"></i>
-      </button>
-    </div>
+    <button type="button" class="topbar__action topbar__action--danger" (click)="logout()">
+      <i class="bi bi-box-arrow-right"></i>
+      <span class="d-none d-sm-inline">Cikis</span>
+    </button>
   </div>
 </nav>

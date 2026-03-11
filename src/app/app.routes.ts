@@ -66,7 +66,8 @@ export const routes: Routes = [
       { path: 'task/inventory/stock-out', component: StockOut },  // stok çıkış işlemleri
 
       // ===== VİRMAN ÇIKIŞ =====
-      { path: 'task/transfer/exits', component: VirmanExit },  // virman çıkıs (ambalaj açma) işlemleri
+      { path: 'task/transfer/exits', component: VirmanExit },  // virman çıkıs (ambalaj açma) işlemleri,
+
 
 
       // satıs faturaları

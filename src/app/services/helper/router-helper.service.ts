@@ -1,60 +1,77 @@
-import { Injectable } from "@angular/core";
-import { Router } from "@angular/router";
-import { AltMenu,Gorev } from "../../models/user";
+import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
+
+import { AltMenu, Gorev } from '../../models/user';
 
 @Injectable({ providedIn: 'root' })
 export class RouterHelperService {
-
   constructor(private router: Router) {}
 
   private readonly routesMap: Record<number, string[]> = {
-
-    // Firma siparişler
+    // Sevk isleri -> Alinan siparisler
+    1: ['task', 'company', 'orders', 'sales'],
+    3: ['task', 'company', 'orders', 'sales'],
+    5: ['task', 'company', 'orders', 'sales'],
     26: ['task', 'company', 'orders', 'sales'],
-    32: ['task', 'company', 'orders', 'purchase'],
+    29: ['task', 'company', 'orders', 'sales'],
 
-    // Firma sevkler
+    // Sevk isleri -> Sevk irsaliyeleri
     27: ['task', 'company', 'shipments', 'outbound'],
-    33: ['task', 'company', 'shipments', 'inbound'],
+    30: ['task', 'company', 'shipments', 'outbound'],
+    36: ['task', 'warehouse', 'shipments', 'outbound'],
+    40: ['task', 'warehouse', 'shipments', 'outbound'],
 
-    // Depo siparişler
+    // Mal kabul ve depo -> Siparisler
+    7: ['task', 'company', 'orders', 'purchase'],
+    9: ['task', 'company', 'orders', 'purchase'],
+    11: ['task', 'company', 'orders', 'purchase'],
+    32: ['task', 'company', 'orders', 'purchase'],
+    35: ['task', 'warehouse', 'orders', 'sales'],
     39: ['task', 'warehouse', 'orders', 'sales'],
     41: ['task', 'warehouse', 'orders', 'purchase'],
 
-    // Depo sevkler
-    40: ['task', 'warehouse', 'shipments', 'outbound'],
-    42: ['task', 'warehouse', 'shipments', 'inbound'],
-
-    // Sayım
-    23: ['task', 'inventory-count-results'],
-    16: ['task', 'inventory', 'stock-out'],
-    // Transfer
-    15: ['task', 'transfer', 'exits'],
-
     // Faturalar
+    2: ['task', 'invoices', 'sales'],
+    4: ['task', 'invoices', 'sales'],
+    6: ['task', 'invoices', 'sales'],
+    28: ['task', 'invoices', 'sales'],
+    31: ['task', 'invoices', 'sales'],
     55: ['task', 'invoices', 'sales'],
-    34: ['task', 'invoices', 'purchase'],
     8: ['task', 'invoices', 'purchase'],
     10: ['task', 'invoices', 'purchase'],
     12: ['task', 'invoices', 'purchase'],
+    34: ['task', 'invoices', 'purchase'],
+
+    // Diger operasyonlar
+    33: ['task', 'company', 'shipments', 'inbound'],
+    42: ['task', 'warehouse', 'shipments', 'inbound'],
+    23: ['task', 'inventory-count-results'],
+    16: ['task', 'inventory', 'stock-out'],
+    15: ['task', 'transfer', 'exits'],
+
 
     // Kasa
-    45 : ['task', 'cash-operations', 'file-upload'],
-    43 : ['task', 'cash-operations', 'label-print'],
+    45: ['task', 'cash-operations', 'file-upload'],
+    43: ['task', 'cash-operations', 'label-print'],
     50: ['task', 'cash-operations', 'summary-report'],
-    51 : ['task', 'cash-operations', 'summary-add'],
+    51: ['task', 'cash-operations', 'summary-add'],
     44: ['task', 'cash-operations', 'kunye-label-print'],
-    46 : ['task', 'cash-operations', 'store-expense-receipt'],
+    46: ['task', 'cash-operations', 'store-expense-receipt'],
   };
 
-  navigateByGorev(gorev: Gorev): void {
-    if (!gorev) return;
+  getRouteSegmentsByGorevId(gorevId: number): string[] | null {
+    return this.routesMap[gorevId] ?? null;
+  }
 
-    const routeSegments = this.routesMap[gorev.id];
-    console.log('Navigating to route for Gorev ID:', gorev.id, 'Route Segments:', routeSegments);
+  navigateByGorev(gorev: Gorev): void {
+    if (!gorev) {
+      return;
+    }
+
+    const routeSegments = this.getRouteSegmentsByGorevId(gorev.id);
 
     if (!routeSegments) {
-      console.warn('Route bulunamadı:', gorev);
+      console.warn('Route bulunamadi:', gorev);
       this.router.navigate(['/admin']);
       return;
     }
@@ -63,13 +80,12 @@ export class RouterHelperService {
   }
 
   navigateToAltMenu(altMenu: AltMenu): void {
-    // Eğer alt menünün altında görevler varsa, ilk göreve yönlendir
     if (altMenu.gorevler && altMenu.gorevler.length > 0) {
       this.navigateByGorev(altMenu.gorevler[0]);
       return;
     }
-    console.warn('AltMenu altında görev bulunamadı:', altMenu);
+
+    console.warn('Alt menu altinda gorev bulunamadi:', altMenu);
     this.router.navigate(['/admin']);
   }
-
 }

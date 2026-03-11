@@ -1,15 +1,22 @@
-import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy,Component,DestroyRef,OnInit,signal } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  effect,
+  Inject,
+  OnInit,
+  PLATFORM_ID,
+  signal
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterModule } from '@angular/router';
 import { fromEvent } from 'rxjs';
 import { auditTime } from 'rxjs/operators';
 
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MeService } from '../services/meservice.service';
 import { NavbarComponent } from './navbar-component/navbar-component';
 import { SidebarComponent } from './sidebar-component/sidebar-component';
-
-
 
 @Component({
   selector: 'app-admin',
@@ -20,46 +27,61 @@ import { SidebarComponent } from './sidebar-component/sidebar-component';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AdminComponent implements OnInit {
-  // State signals
   showScrollButton = signal(false);
   isSidebarCollapsed = signal(false);
   shownatification = signal(true);
   mobileSidebarOpen = signal(false);
   isMobile = signal(false);
+  private readonly isBrowser: boolean;
 
   constructor(
-    public userService: MeService, // MeService inject
-    private destroyRef: DestroyRef
+    public userService: MeService,
+    private destroyRef: DestroyRef,
+    @Inject(PLATFORM_ID) platformId: object
   ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+
+    if (!this.isBrowser) {
+      return;
+    }
+
     this.checkScreenSize();
     this.initEventStreams();
+    this.initBodyScrollLock();
   }
 
   ngOnInit() {
-    // Kullanıcı verisini çek - MeService zaten localStorage'dan yüklüyor
     if (!this.userService.userSignal()) {
       this.userService.fetchMe();
     }
   }
 
   checkScreenSize() {
+    if (!this.isBrowser) {
+      return;
+    }
+
     const mobile = window.innerWidth < 992;
     this.isMobile.set(mobile);
 
     if (mobile && !this.mobileSidebarOpen()) {
       this.mobileSidebarOpen.set(false);
     }
-    // eger ekran mobile değilse shownatification true yap
-    if (mobile ) {
-     this.shownatification.set(true);
+
+    if (mobile) {
+      this.shownatification.set(true);
     }
-    
+
     if (!mobile && this.isSidebarCollapsed()) {
       this.isSidebarCollapsed.set(false);
     }
   }
 
   private initEventStreams() {
+    if (!this.isBrowser) {
+      return;
+    }
+
     fromEvent(window, 'scroll')
       .pipe(auditTime(100), takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.showScrollButton.set(window.pageYOffset > 300));
@@ -69,16 +91,25 @@ export class AdminComponent implements OnInit {
       .subscribe(() => this.checkScreenSize());
   }
 
-  scrollToTop() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  private initBodyScrollLock() {
+    effect(() => {
+      const shouldLock = this.isMobile() && this.mobileSidebarOpen();
+      document.body.style.overflow = shouldLock ? 'hidden' : '';
+      document.body.style.touchAction = shouldLock ? 'none' : '';
+    });
   }
 
+  scrollToTop() {
+    if (!this.isBrowser) {
+      return;
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
   toggleSidebar() {
     if (!this.isMobile()) {
       this.isSidebarCollapsed.set(!this.isSidebarCollapsed());
-       
-
     }
   }
 
@@ -89,7 +120,6 @@ export class AdminComponent implements OnInit {
   }
 
   onSidebarToggle() {
-
     this.toggleSidebar();
   }
 

@@ -2,22 +2,37 @@
 <div class="row">
 
   <!-- Yeni Gider Fişi Butonu -->
-  <div class="col-md-10 d-flex align-items-center">
+  <div class="col-md-6 d-flex align-items-center">
     <button class="btn btn-primary" (click)="Yeni()">Yeni Gider Fişi</button>
   </div>
 
-  <!-- Tarih Seçimi -->
-  <div class="col-md-2">
-    <mat-form-field appearance="outline" class="w-100">
-      <mat-label>Gün Seçiniz</mat-label>
-      <input
-        matInput
-        [matDatepicker]="datePicker"
-        (dateChange)="TarihSec($event)"
-      />
-      <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
-      <mat-datepicker #datePicker></mat-datepicker>
-    </mat-form-field>
+  <!-- Tarih Aralığı Seçimi -->
+  <div class="col-md-6" [formGroup]="dateRangeForm">
+    <div class="d-flex gap-2">
+      <mat-form-field appearance="outline" class="flex-grow-1">
+        <mat-label>Başlangıç Tarihi</mat-label>
+        <input
+          matInput
+          formControlName="startDate"
+          [matDatepicker]="startDatePicker"
+          (dateChange)="onDateRangeChange()"
+        />
+        <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
+        <mat-datepicker #startDatePicker></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="flex-grow-1">
+        <mat-label>Bitiş Tarihi</mat-label>
+        <input
+          matInput
+          formControlName="endDate"
+          [matDatepicker]="endDatePicker"
+          (dateChange)="onDateRangeChange()"
+        />
+        <mat-datepicker-toggle matSuffix [for]="endDatePicker"></mat-datepicker-toggle>
+        <mat-datepicker #endDatePicker></mat-datepicker>
+      </mat-form-field>
+    </div>
   </div>
 
 </div>

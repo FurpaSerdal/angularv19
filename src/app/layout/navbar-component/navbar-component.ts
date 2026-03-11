@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy,Component,EventEmitter,Input,OnInit,Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { RouterModule } from '@angular/router';
+
 import { AuthService } from '../../services/auth.service';
 import { MeService } from '../../services/meservice.service';
+
 @Component({
   selector: 'app-navbar',
   standalone: true,
@@ -12,17 +14,16 @@ import { MeService } from '../../services/meservice.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NavbarComponent implements OnInit {
-  @Input() mobileSidebarOpen: boolean = false;
-  @Input() shownatification: boolean = true;
+  @Input() mobileSidebarOpen = false;
+  @Input() shownatification = true;
   @Output() sidebarToggle = new EventEmitter<void>();
 
   constructor(
-    private authService: AuthService, public userService: MeService
+    private authService: AuthService,
+    public userService: MeService
   ) {}
 
-  ngOnInit() {
-    // Data is automatically handled by the service
-  }
+  ngOnInit() {}
 
   onMobileToggle() {
     this.sidebarToggle.emit();
@@ -32,8 +33,30 @@ export class NavbarComponent implements OnInit {
     return this.mobileSidebarOpen ? 'bi-x' : 'bi-list';
   }
 
+  getUserDisplayName(): string {
+    return this.userService.userSignal()?.adSoyad || 'Kullanici';
+  }
+
+  getBranchDisplay(): string {
+    const user = this.userService.userSignal();
+
+    if (!user) {
+      return 'Sube bilgisi bekleniyor';
+    }
+
+    return `${user.sube} / ${user.subeNo}`;
+  }
+
+  getUserInitials(): string {
+    return this.getUserDisplayName()
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase() ?? '')
+      .join('');
+  }
+
   logout(): void {
     this.authService.clearTokens();
-
   }
 }

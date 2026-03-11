@@ -1,50 +1,48 @@
-<!-- Page Wrapper -->
-<div  class="d-flex min-vh-100">  
-  <!-- Sidebar Component -->
-  <app-sidebar 
+<div class="admin-shell">
+  <div class="admin-shell__backdrop"></div>
+
+  <app-sidebar
     [isCollapsed]="isSidebarCollapsed()"
     [mobileOpen]="mobileSidebarOpen()"
     (sidebarToggle)="onSidebarToggle()"
     (mobileSidebarToggle)="onMobileSidebarToggle()"
-    (closeMobile)="closeMobileSidebar()"
-    >
-    
+    (closeMobile)="closeMobileSidebar()">
   </app-sidebar>
 
-  <!-- Content Wrapper -->
-  <div class="flex-grow-1 d-flex flex-column content-wrapper"
-       [class.content-collapsed]="isSidebarCollapsed() && !isMobile()"
-       [class.content-mobile]="isMobile()">
-    
-    <!-- Navbar Component -->
-    <app-navbar 
+  <div
+    class="content-wrapper"
+    [class.content-collapsed]="isSidebarCollapsed() && !isMobile()"
+    [class.content-mobile]="isMobile()">
+    <app-navbar
       [mobileSidebarOpen]="mobileSidebarOpen()"
       [shownatification]="shownatification()"
       (sidebarToggle)="onMobileSidebarToggle()">
     </app-navbar>
 
-
-    <!-- Main Content Area -->
-    <main   class="flex-grow-1 bg-light">
-      <div class="container-fluid py-4">
-        <!-- Page title for demo -->
-   
-        
-        <!-- Dynamic content will be loaded here -->
+    <main class="admin-main">
+      <section class="content-surface">
         <router-outlet></router-outlet>
-      </div>
+      </section>
     </main>
   </div>
 </div>
 
-<!-- Mobile Overlay (shown when sidebar is open on mobile) -->
-<div class="mobile-overlay d-lg-none" 
-     [class.d-none]="!mobileSidebarOpen()"
-     (click)="toggleMobileSidebar()"></div>
+<div
+  class="mobile-overlay d-lg-none"
+  [class.d-none]="!mobileSidebarOpen()"
+  (click)="toggleMobileSidebar()"></div>
 
-<!-- Scroll to Top Button -->
-<button class="scroll-to-top btn btn-primary rounded-circle shadow" 
-        [class.d-none]="!showScrollButton()"
-        (click)="scrollToTop()">
+@if (isSidebarCollapsed() && !isMobile()) {
+  <button class="sidebar-reopen btn" type="button" (click)="toggleSidebar()" aria-label="Sidebari ac">
+
+    <span class="sidebar-reopen__label">Menu</span>
+  </button>
+}
+
+<button
+  class="scroll-to-top btn"
+  [class.d-none]="!showScrollButton()"
+  (click)="scrollToTop()"
+  aria-label="Sayfanin basina don">
   <i class="bi bi-chevron-up"></i>
 </button>

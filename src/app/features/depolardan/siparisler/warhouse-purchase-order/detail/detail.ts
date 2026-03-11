@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component,Inject } from '@angular/core';
-import { MAT_DIALOG_DATA,MatDialogRef } from '@angular/material/dialog';
+import { Component, Inject } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { VerilenDepoSiparisleriAyrintiDto } from '../../../../../models/ayrinti-dtolari.model';
 
@@ -22,21 +22,40 @@ export class WarehousePurchaseOrderDetailComponent {
   ngOnInit() {
   }
 
-    getStatusText(e: VerilenDepoSiparisleriAyrintiDto): string {
-       if (e.durumu=== '1') {
-         return 'Sevke Hazırlanıyor';
-       }
-       else if (e.durumu === '2') {
-         return 'Sevk Hazır';}
-       else if (e.durumu === '3') {
-         return 'Yolda';}
-       else if (e.durumu === '4') {
-         return 'Mal Kabulü Yapıldı';
-       }
-       else {
-         return 'Bilinmeyen Durum';
-       }
-     }
+  getStatusText(e: VerilenDepoSiparisleriAyrintiDto): string {
+    if (e.durumu === '1') {
+      return 'Sevke Hazirlaniyor';
+    }
+    else if (e.durumu === '2') {
+      return 'Sevk Hazir';
+    }
+    else if (e.durumu === '3') {
+      return 'Yolda';
+    }
+    else if (e.durumu === '4') {
+      return 'Mal Kabulu Yapildi';
+    }
+
+    return 'Bilinmeyen Durum';
+  }
+
+  getStatusBadgeClass(e: VerilenDepoSiparisleriAyrintiDto): string {
+    if (e.durumu === '1') {
+      return 'wpo-status--info';
+    }
+    else if (e.durumu === '2') {
+      return 'wpo-status--primary';
+    }
+    else if (e.durumu === '3') {
+      return 'wpo-status--warning';
+    }
+    else if (e.durumu === '4') {
+      return 'wpo-status--success';
+    }
+
+    return 'wpo-status--muted';
+  }
+
   yazdir() {
     const printSection = document.getElementById('print-section');
     if (!printSection) {
@@ -93,6 +112,7 @@ export class WarehousePurchaseOrderDetailComponent {
       printWindow.print();
     };
   }
+
   kapat() {
     this.dialogRef.close();
   }

@@ -21,19 +21,21 @@ export const TokenInterceptor: HttpInterceptorFn = (req, next) => {
 
   const BranchNo = meService.getUserSignal()()?.subeNo
   const accessToken = auth.getAccessToken();
-  const isV18Api = req.url.includes('/v18/');
 
-  const authReq = accessToken && isV18Api
+
+  const authReq = accessToken 
     ? req.clone({
         setHeaders: { Authorization: `Bearer ${accessToken}`, 'X-Branch': `${BranchNo}` }
       })
     : req;
+   // console.log('Interceptor çalıştı, istek gönderiliyor...', authReq);
 
   return next(authReq).pipe(
+
     catchError(error => {
 
       // 🔐 SADECE 401 + V18 API
-      if (error.status !== 401 || !isV18Api) {
+      if (error.status !== 401 ) {
         return throwError(() => error);
       }
 

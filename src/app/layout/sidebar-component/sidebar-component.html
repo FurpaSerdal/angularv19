@@ -1,99 +1,113 @@
-<!-- =========================================================================
-     SIDEBAR / KENAR MENÜ
-     ========================================================================= -->
-<aside class="sidebar bg-primary text-white h-100" [class.sidebar-collapsed]="isCollapsed"
-     [class.sidebar-mobile-open]="mobileOpen" [class.sidebar-mobile]="isMobile()">
+<aside
+  class="sidebar"
+  [class.sidebar-collapsed]="isCollapsed"
+  [class.sidebar-mobile-open]="mobileOpen"
+  [class.sidebar-mobile]="isMobile()">
+  <div class="sidebar-main">
+    <div class="sidebar-header">
+      <a routerLink="/admin" class="sidebar-brand" (click)="closeMobileSidebar()">
+        <span class="sidebar-brand__logo">
+          <img src="assets/furpa-login.png" alt="Furpa logo" />
+        </span>
+        <span class="sidebar-brand__copy">
+          <strong class="logo-text">FURPA</strong>
+          <small class="logo-text">Operasyon merkezi</small>
+        </span>
+      </a>
 
-     <!-- LOGO AREA -->
-     <div class="sidebar-header p-3 border-bottom border-white border-opacity-25">
-          <a routerLink="/admin" class="d-flex align-items-center text-white text-decoration-none"
-               (click)="closeMobileSidebar()">
-               <div class="logo-placeholder bg-white rounded p-2 d-flex align-items-center justify-content-center">
-                    <span class="text-primary fw-bold">F</span>
-               </div>
-               <span class="logo-text ms-2 fw-bold fs-5">FURPA</span>
-          </a>
-          <button class="mobile-close-btn btn btn-link text-white p-0 d-lg-none" (click)="onMobileClose()">
-               <i class="bi bi-x fs-4"></i>
-          </button>
-     </div>
+      <button class="mobile-close-btn d-lg-none" type="button" (click)="onMobileClose()" aria-label="Menuyu kapat">
+        <i class="bi bi-x fs-4"></i>
+      </button>
+    </div>
 
-     <!-- NAVIGATION MENU -->
-     <nav class="sidebar-nav flex-grow-1 overflow-auto py-2">
-          @if (userService.isLoading()) {
-          <div class="text-center p-3">
-               <div class="spinner-border spinner-border-sm text-light" role="status">
-                    <span class="visually-hidden">Loading...</span>
-               </div>
-               <small class="d-block mt-2 text-light opacity-75">Menüler yükleniyor...</small>
+    <nav class="sidebar-nav">
+      @if (userService.isLoading()) {
+        <div class="sidebar-state">
+          <div class="spinner-border spinner-border-sm text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
           </div>
-          }
+          <small>Menuler yukleniyor...</small>
+        </div>
+      }
 
-          @if (!userService.isLoading() && userService.userTasks().length === 0) {
-          <div class="text-center p-3">
-               <i class="bi bi-inbox fs-1 text-light opacity-50"></i>
-               <small class="d-block mt-2 text-light opacity-75">Menü bulunamadı</small>
-          </div>
-          }
+      @if (!userService.isLoading() && userService.userTasks().length === 0) {
+        <div class="sidebar-state">
+          <i class="bi bi-inbox fs-3"></i>
+          <small>Bu kullanici icin menu bulunamadi.</small>
+        </div>
+      }
 
-          <!-- ÜST SEVİYE MENÜLER -->
-          <div class="nav flex-column">
-               @for (menu of userService.userTasks(); track menu.id) {
-               <div>
-                    <!-- ANA MENÜ BUTONU -->
-                    <button class="nav-item btn btn-link text-white text-decoration-none w-100 py-2 px-2 mb-3 border-0"
-                         (click)="onTaskClick(menu)" [class.active]="isActiveTask(menu.id)()">
-                         <i class="nav-icon me-2" [ngClass]="getTaskIcon(menu)"></i>
-                         <span class="nav-text">{{ menu.isim }}</span>
-                         @if (menu.altMenuler?.length) {
-                         <i class="nav-arrow bi bi-chevron-down" [class.rotate-180]="isActiveTask(menu.id)()"></i>
-                         }
+      <div class="nav-stack">
+        @for (menu of userService.userTasks(); track menu.id) {
+          <section class="nav-group">
+            <button
+              class="nav-item"
+              (click)="onTaskClick(menu)"
+              [class.active]="isActiveTask(menu.id)()"
+              [attr.aria-expanded]="menu.altMenuler?.length ? isActiveTask(menu.id)() : null"
+              [attr.data-task-id]="menu.id">
+              <span class="nav-item__icon">
+                <i class="nav-icon" [ngClass]="getTaskIcon(menu)"></i>
+              </span>
+
+              <span class="nav-item__copy">
+                <strong class="nav-text">{{ menu.isim }}</strong>
+                <small class="nav-meta">{{ getTaskMeta(menu) }}</small>
+              </span>
+
+              @if (menu.altMenuler?.length) {
+                <i class="nav-arrow bi bi-chevron-down" [class.rotate-180]="isActiveTask(menu.id)()"></i>
+              }
+            </button>
+
+            @if (menu.altMenuler && isActiveTask(menu.id)()) {
+              <div class="submenu">
+                @for (altMenu of menu.altMenuler; track altMenu.id) {
+                  <div class="submenu-item">
+                    <button
+                      class="submenu-button"
+                      (click)="seciliAltMenu(altMenu)"
+                      [class.altmenuactive]="activeAltMenuId() === altMenu.id"
+                      [class.active]="isActiveSubTask(altMenu.id)()"
+                      [attr.aria-current]="isActiveSubTask(altMenu.id)() ? 'page' : null"
+                      [attr.aria-expanded]="altMenu.gorevler?.length ? activeAltMenuId() === altMenu.id : null"
+                      [attr.data-altmenu-id]="altMenu.id">
+                      <span class="submenu-text">{{ altMenu.isim }}</span>
+
+                      @if (altMenu.gorevler?.length) {
+                        <i
+                          class="nav-arrow bi bi-chevron-down"
+                          [class.rotate-180]="activeAltMenuId() === altMenu.id"></i>
+                      }
                     </button>
 
-                    <!-- ALT MENÜLER -->
-                    @if (menu.altMenuler && isActiveTask(menu.id)()) {
-                    <div class="submenu">
-                         @for (altMenu of menu.altMenuler; track altMenu.id) {
-                         <div class="submenu-item">
-                              <!-- ALT MENÜ BUTONU -->
-                              <button class="btn btn-link text-white text-decoration-none w-100 py-2 px-3 border-0"
-                                   (click)="seciliAltMenu(altMenu)"
-                                   [class.altmenuactive]="activeAltMenuId() === altMenu.id"
-                                   [class.active]="isActiveSubTask(altMenu.id)()">
-                                   <span class="me-auto submenu-text">{{ altMenu.isim }}</span>
-                                   @if (altMenu.gorevler?.length) {
-                                   <i class="nav-arrow bi bi-chevron-down ms-2" 
-                                      [class.rotate-180]="activeAltMenuId() === altMenu.id"></i>
-                                   }
-                              </button>
-
-                              <!-- ALT MENÜ İÇİNDEKİ GÖREVLER -->
-                              @if (altMenu.gorevler && activeAltMenuId() === altMenu.id) {
-                              <div class="third-level-menu">
-                                   @for (gorev of altMenu.gorevler; track gorev.id) {
-                                   <div class="third-level-item">
-                                        <button class="btn btn-link text-white text-decoration-none w-100 py-2 px-4 border-0"
-                                             (click)="seciligorev(gorev)"
-                                             [class.active]="selectedSubTaskId() === gorev.id">
-                                             <span class="third-level-text">{{ gorev.isim }}</span>
-                                        </button>
-                                   </div>
-                                   }
-                              </div>
-                              }
-                         </div>
-                         }
-                    </div>
+                    @if (altMenu.gorevler && activeAltMenuId() === altMenu.id) {
+                      <div class="third-level-menu">
+                        @for (gorev of altMenu.gorevler; track gorev.id) {
+                          <button
+                            class="third-level-item"
+                            (click)="seciligorev(gorev)"
+                            [class.active]="selectedSubTaskId() === gorev.id"
+                            [attr.aria-current]="selectedSubTaskId() === gorev.id ? 'page' : null"
+                            [attr.data-gorev-id]="gorev.id">
+                            <span class="third-level-text">{{ gorev.isim }}</span>
+                          </button>
+                        }
+                      </div>
                     }
-               </div>
-               }
-          </div>
-     </nav>
+                  </div>
+                }
+              </div>
+            }
+          </section>
+        }
+      </div>
+    </nav>
+  </div>
 
-     <!-- FOOTER -->
-     <div class="sidebar-footer p-1 border-top border-white border-opacity-25 d-none d-lg-block">
-          <button class="sidebar-toggle-btn btn btn-info btn-sm rounded-circle" (click)="onSidebarToggle()">
-               <i class="bi" [class.bi-chevron-left]="!isCollapsed" [class.bi-chevron-right]="isCollapsed"></i>
-          </button>
-     </div>
+  <div class="sidebar-footer d-none d-lg-flex">
+    <button class="sidebar-toggle-btn" type="button" (click)="onSidebarToggle()" aria-label="Sidebar boyutunu degistir">
+      <i class="bi" [class.bi-chevron-left]="!isCollapsed" [class.bi-chevron-right]="isCollapsed"></i>
+    </button>
+  </div>
 </aside>

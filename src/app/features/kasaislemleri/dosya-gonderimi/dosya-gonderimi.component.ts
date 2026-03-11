@@ -1,6 +1,7 @@
-import { Component,computed } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { Observable } from 'rxjs';
 import Swal from 'sweetalert2';
 import { DataTransferService } from '../../../services/dataTransfer/dataTransfer.service';
 import { MeService } from '../../../services/meservice.service';
@@ -13,82 +14,76 @@ import { MeService } from '../../../services/meservice.service';
   styleUrls: ['./dosya-gonderimi.component.css']  // styleUrl -> styleUrls
 })
 export class DosyaGonderimiComponent {
-  /**
-   *
-   */
-  constructor(private dataTransferService: DataTransferService, private meService: MeService ) { }
+  yukleniyor = signal(false);
+  constructor(private dataTransferService: DataTransferService, private meService: MeService) { }
   gorevid = computed(() => this.meService.selectedGorev()?.id ?? 0);
 
-
   sendScaleFile() {
-    this.dataTransferService.scaleFile(this.gorevid()).subscribe(
-      response => {
-        this.showmessage();
-            },
-      error => {
-        this.ermessage();
-      }
-    );
-
+    this.sendFile(this.dataTransferService.scaleFile(this.gorevid()));
   }
 
   sendProductFile() {
-    this.dataTransferService.productFile(this.gorevid()).subscribe(
-      response => {
-  this.showmessage();
-      },
-      error => {
-        this.ermessage();
-      }
-    );
+    this.sendFile(this.dataTransferService.productFile(this.gorevid()));
   }
+
   sendCashierFile() {
-    this.dataTransferService.cashierFile(this.gorevid()).subscribe(
-      response => {
-  this.showmessage();
-      },
-      error => {
-        this.ermessage();
-      }
-    );
+    this.sendFile(this.dataTransferService.cashierFile(this.gorevid()));
   }
+
   sendPromotionFile() {
-    this.dataTransferService.promotionFile(this.gorevid()).subscribe(
-      response => {
-        this.showmessage();
-      },
-      error => {
-        this.ermessage();
-      }
-    );
+    this.sendFile(this.dataTransferService.promotionFile(this.gorevid()));
   }
+
   sendCustomerFile() {
-    this.dataTransferService.customerFile(this.gorevid()).subscribe(
-      response => {
+    this.sendFile(this.dataTransferService.customerFile(this.gorevid()));
+  }
+
+  private sendFile(request$: Observable<unknown>) {
+    this.yukleniyor.set(true);
+    this.showLoadingMessage();
+
+    request$.subscribe({
+      next: () => {
+        this.yukleniyor.set(false);
+        this.closeLoadingMessage();
         this.showmessage();
       },
-      error => {
+      error: (err) => {
+        console.error(err);
+        this.yukleniyor.set(false);
+        this.closeLoadingMessage();
         this.ermessage();
       }
-    );
+    });
+  }
+
+  private showLoadingMessage() {
+    Swal.fire({
+      title: 'Yükleniyor',
+      text: 'Dosya gönderimi devam ediyor, lütfen bekleyiniz...',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+  }
+
+  private closeLoadingMessage() {
+    if (Swal.isVisible()) {
+      Swal.close();
+    }
   }
 
   showmessage() {
-Swal.fire({
-  title: 'İşlem Kuyrukta',
-  text: 'Dosyalar gönderiliyor, lütfen 30 saniye bekleyiniz...',
-  icon: 'info',
-  allowOutsideClick: false,
-  allowEscapeKey: false,
-  didOpen: () => {
-    Swal.showLoading();
-  },
-  timer: 30000,
-  timerProgressBar: true,
-  footer: 'Tüm dosyalar arka planda işleniyor'
-})
-
+    Swal.fire({
+      title: 'İşlem Kuyrukta',
+      text: 'Dosya gönderimi tamamlandı, arka planda işleniyor.',
+      icon: 'success',
+      confirmButtonText: 'Tamam'
+    });
   }
+
   ermessage() {
     Swal.fire({
       title: 'Hata',
@@ -97,6 +92,4 @@ Swal.fire({
       confirmButtonText: 'Tamam'
     });
   }
- 
-
 }
