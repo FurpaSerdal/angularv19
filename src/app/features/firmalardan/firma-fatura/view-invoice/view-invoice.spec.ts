@@ -21,3 +21,4 @@ describe('ViewInvoice', () => {
     expect(component).toBeTruthy();
   });
 });
+

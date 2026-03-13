@@ -86,3 +86,4 @@ describe('HomePage', () => {
     expect(component.shortcuts()[0].title).toBe('Alinan Siparisler');
   });
 });
+

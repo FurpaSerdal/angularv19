@@ -21,3 +21,4 @@ describe('WarehouseSend', () => {
     expect(component).toBeTruthy();
   });
 });
+

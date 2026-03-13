@@ -20,3 +20,4 @@ describe('RefundConfirmDialog', () => {
     expect(component).toBeTruthy();
   });
 });
+

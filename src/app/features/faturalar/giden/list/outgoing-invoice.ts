@@ -105,15 +105,7 @@ export class outgoingInvoice implements OnInit, AfterViewInit {
    }
 
   ngOnInit() {
-
-    // CRUD Service testi
-//     this.crudservice.taskList(26,  new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 gün önce
-//  new Date(), 109).subscribe(data => {
-//       console.log('CRUD Service Data:');
-//       console.log('CRUD Service Data:', data);
-//     });
-;
-    // Sinyallerle görevid ve görevadi güncelleme
+    this.loadData();
 
   }
 
@@ -178,6 +170,26 @@ export class outgoingInvoice implements OnInit, AfterViewInit {
     this.dateRange.patchValue({ start: today, end: today });
     this.onDateChanged();
   }
+
+  loadData(){
+          this.yukleniyor.set(true);
+      this.salesInvoicesService
+        .listPendingInvoices(this.gorevid(), `bugun`, this.gonderildi(), this.efaturaMi())
+        .subscribe({
+          next: (data: any) => {
+            this.DataSource.data = data ;
+            this.DataSource.sort = this.sort;
+            this.DataSource.paginator = this.paginator;
+            this.yukleniyor.set(false);
+          },
+          error: (error) => {
+            console.error('Filtreleme hatası:', error);
+            this.toastr.error('Filtreleme sırasında hata oluştu', 'Hata');
+            this.yukleniyor.set(false);
+          }
+        });
+    }
+  
 
   onDateChanged(): void {
     console.log('Tarih aralığı değişti:', this.dateRange.value);
@@ -376,3 +388,4 @@ getVisibleRows(): any[] {
     }
   }
 }
+

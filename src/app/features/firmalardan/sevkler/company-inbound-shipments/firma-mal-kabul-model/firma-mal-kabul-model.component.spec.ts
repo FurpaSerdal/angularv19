@@ -21,3 +21,4 @@ describe('FirmaMalKabulComponent', () => {
     expect(component).toBeTruthy();
   });
 });
+

@@ -45,3 +45,4 @@ export class A5IkiliFiyatEtiketiComponent implements OnInit, AfterViewInit {
     });
   }
 }
+

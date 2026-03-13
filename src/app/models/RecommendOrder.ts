@@ -46,3 +46,4 @@ export interface OnerilenFirmaSiparisCT {
   cha_kod: string;
   dep_no: number;
 }
+

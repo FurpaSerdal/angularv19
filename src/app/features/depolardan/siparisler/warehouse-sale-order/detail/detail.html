@@ -1,16 +1,21 @@
-<div class="container-fluid p-3">
+﻿<div class="container-fluid p-3 h-100 d-flex flex-column gap-3 overflow-hidden">
   <!-- Header -->
-  <div class="d-flex justify-content-between align-items-center mb-3">
+  <div class="d-flex justify-content-between align-items-center position-sticky top-0 bg-body z-3 py-1">
     <h4 class="mb-0 text-primary">
       <i class="bi bi-file-text me-2"></i>Evrak Detayları
     </h4>
-    <button class="btn btn-sm btn-outline-secondary rounded-circle" (click)="kapat()">
-      <i class="bi bi-x-lg"></i>
-    </button>
+    <div class="d-flex gap-2">
+      <button class="btn btn-sm btn-outline-primary" (click)="yazdir()">
+        <i class="bi bi-printer me-1"></i> Yazdır
+      </button>
+      <button class="btn btn-sm btn-outline-secondary rounded-circle" (click)="kapat()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
   </div>
 
   <!-- Genel Bilgiler Kartı -->
-  <div class="card shadow-sm mb-3">
+  <div class="card shadow-sm mb-0 flex-shrink-0">
     <div class="card-header bg-white py-2 px-3">
       <h6 class="mb-0">
         <i class="bi bi-info-circle me-2"></i>Genel Bilgiler
@@ -47,7 +52,7 @@
   </div>
 
   <!-- Kalemler Tablosu -->
-  <div class="card shadow-sm">
+  <div class="card shadow-sm mb-0 d-flex flex-column flex-grow-1 overflow-hidden">
     <div class="card-header bg-white py-2 px-3">
       <div class="d-flex justify-content-between align-items-center">
         <h6 class="mb-0">
@@ -57,10 +62,10 @@
       </div>
     </div>
     
-    <div class="card-body p-0">
-      <div class="table-responsive">
+    <div class="card-body p-0 d-flex flex-column flex-grow-1 overflow-hidden">
+      <div class="table-responsive flex-grow-1 overflow-auto">
         <table class="table table-sm table-hover mb-0">
-          <thead class="table-light">
+          <thead class="table-light position-sticky top-0 z-2">
             <tr>
               <th class="ps-3">Stok Kodu</th>
               <th>Ürün Adı</th>
@@ -95,12 +100,50 @@
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Buton -->
-  <div class="d-flex justify-content-end mt-3">
-    <button class="btn btn-sm btn-primary px-4" (click)="kapat()">
-      <i class="bi bi-check-circle me-1"></i>
-      Tamam
-    </button>
+<div id="print-section" class="print-only">
+  <div class="print-header">
+    <div class="left">
+      <h2>DEPO SIPARIS BEYANI</h2>
+      <p><strong>Evrak No:</strong> {{data.seri}}-{{data.sira}}</p>
+      <p><strong>Evrak Tarihi:</strong> {{data.tarih | date:'dd.MM.yyyy'}}</p>
+      <p><strong>Durum:</strong> {{getStatusText(data)}}</p>
+    </div>
+    <div class="right">
+      <p><strong>Hedef Depo:</strong> {{data.muhatap}}</p>
+    </div>
+  </div>
+
+  <table class="print-table">
+    <thead>
+      <tr>
+        <th style="width: 18%;">Stok Kodu</th>
+        <th style="width: 37%;">Ürün Adı</th>
+        <th style="width: 15%;">Sipariş</th>
+        <th style="width: 15%;">Sevk</th>
+        <th style="width: 15%;">Mal Kabul</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of data.kalemler; let i = index">
+        <td><strong>{{item.stokKodu}}</strong></td>
+        <td>{{item.stokIsmi}}</td>
+        <td class="text-end">{{item.siparisMiktari || '-'}}</td>
+        <td class="text-end">{{item.sevkMiktari || '-'}}</td>
+        <td class="text-end">{{item.malKabulMiktari || '-'}}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="print-footer">
+    <div class="signature">
+      <p>Teslim Eden</p>
+      <div class="line">İmza / Tarih</div>
+    </div>
+    <div class="signature">
+      <p>Teslim Alan</p>
+      <div class="line">İmza / Tarih</div>
+    </div>
   </div>
 </div>

@@ -21,3 +21,35 @@
     font-size: 0.875rem;
     padding: 0.4rem 0.6rem;
 }
+
+.page-title {
+    font-size: clamp(1.4rem, 2vw, 1.9rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.filter-card {
+    border-radius: 1rem;
+}
+
+.inventory-results-table {
+    border-radius: 1rem;
+    background: #fff;
+}
+
+.inventory-results-table .table {
+    margin-bottom: 0;
+}
+
+.inventory-results-table .table thead th {
+    white-space: nowrap;
+}
+
+.paginator-summary-row {
+    margin-top: 0.75rem;
+}
+
+.paginator-summary-row .mat-mdc-paginator {
+    background: transparent;
+    padding: 0;
+}

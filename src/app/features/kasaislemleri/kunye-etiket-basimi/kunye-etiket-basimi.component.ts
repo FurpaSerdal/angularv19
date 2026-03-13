@@ -9,6 +9,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableDataSource,MatTableModule } from '@angular/material/table';
 
 import { NgxPrintModule } from 'ngx-print';
@@ -31,6 +32,7 @@ import { MeService } from '../../../services/meservice.service';
     MatDatepickerModule,
     MatNativeDateModule,
     MatCheckboxModule,
+    MatPaginatorModule,
     MatTableModule,
     EtiketPrint,
     NgxPrintModule
@@ -42,6 +44,7 @@ import { MeService } from '../../../services/meservice.service';
 })
 export class KunyeEtiketBasimiComponent implements OnInit, AfterViewInit {
   @ViewChild('dateInput', { static: false }) dateInput!: ElementRef;
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   tableSource = new MatTableDataSource<Tag>();
   tableColumns: string[] = ['selector', 'takenTag', 'productName'];
@@ -59,6 +62,8 @@ export class KunyeEtiketBasimiComponent implements OnInit, AfterViewInit {
   depoNo = computed(() => this.meService.getUserSignal()()?.subeNo || 0);
 
   ngAfterViewInit(): void {
+    this.tableSource.paginator = this.paginator;
+
     if (this.dateInput) {
       const today = new Date();
       this.dateInput.nativeElement.value = today.toISOString().split('T')[0];
@@ -79,6 +84,9 @@ export class KunyeEtiketBasimiComponent implements OnInit, AfterViewInit {
           this.toast.info('Seçilen tarihe ait etiket bulunamadı.', 'Bilgi');
         }
         this.tableSource.data = tags;
+        if (this.tableSource.paginator) {
+          this.tableSource.paginator.firstPage();
+        }
         this.selection.clear();
       },
       error: (error) => {

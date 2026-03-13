@@ -175,3 +175,4 @@ export interface VirmanAyrintiDto {
   durumu: string;
   kalemler: KalemDto[];
 }
+

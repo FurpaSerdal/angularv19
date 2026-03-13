@@ -21,3 +21,4 @@ describe('PrintChangePrice', () => {
     expect(component).toBeTruthy();
   });
 });
+

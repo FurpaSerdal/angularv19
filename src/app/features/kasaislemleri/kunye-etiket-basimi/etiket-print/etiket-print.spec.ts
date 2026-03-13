@@ -21,3 +21,4 @@ describe('EtiketPrint', () => {
     expect(component).toBeTruthy();
   });
 });
+

@@ -481,8 +481,8 @@ export class AddSummaryComponent implements OnInit {
     this.summary.giftCheckMovements = this.giftChecksMovements.filter(x=>x.quantity != 0);;
 
     this.summary.cashNo = this.summaryForm.get("cashNo")?.value || 0;
-    this.summary.cashierNo = this.selectedCashier.cashierCode;
-    this.summary.managerNo = this.selectedManager.cashierCode;
+    this.summary.cashierNo = Number(this.selectedCashier.kasiyerKodu);
+    this.summary.managerNo = Number(this.selectedManager.kasiyerKodu);
     var currentWarehouseNo = 109;
     if(currentWarehouseNo == 1){
       this.selectedDate.setHours(new Date().getHours() + 3);
@@ -602,13 +602,13 @@ export class AddSummaryComponent implements OnInit {
   }
   displayFnCashier(cashier: Cashier): string {
     if (cashier) {
-      return cashier.cashierCode + " " + cashier.cashierName;
+      return `${cashier.kasiyerKodu} ${cashier.kasiyerAdi} ${cashier.kasiyerSoyadi}`.trim();
     }
     return '';
   }
   displayFnManager(manager: Cashier): string {
     if (manager) {
-      return manager.cashierCode + " " + manager.cashierName;
+      return `${manager.kasiyerKodu} ${manager.kasiyerAdi} ${manager.kasiyerSoyadi}`.trim();
     }
     return '';
   }
@@ -624,3 +624,4 @@ export class AddSummaryComponent implements OnInit {
     });
   }
 }
+

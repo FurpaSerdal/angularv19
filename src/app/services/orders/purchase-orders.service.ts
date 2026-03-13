@@ -38,3 +38,4 @@ export class PurchaseOrdersService extends BaseApiService {
     return this.post(`ekle/${taskId}`, payload);
   }
 }
+

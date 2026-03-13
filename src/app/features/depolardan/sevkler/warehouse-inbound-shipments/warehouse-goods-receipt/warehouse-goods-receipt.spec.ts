@@ -21,3 +21,4 @@ describe('WarehouseGoodsReceipt', () => {
     expect(component).toBeTruthy();
   });
 });
+

@@ -21,3 +21,4 @@ describe('RafEtiketA5Component', () => {
     expect(component).toBeTruthy();
   });
 });
+

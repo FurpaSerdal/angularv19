@@ -12,10 +12,13 @@
 
 .detail-scrollable-content {
   flex: 1 1 auto;
-  overflow-y: auto;
-  overflow-x: hidden;
+  display: flex;
+  overflow: hidden;
   min-height: 0;
-  padding-right: 0.25rem;
+}
+
+.detail-scrollable-content .table-responsive {
+  min-height: 0;
 }
 
 .print-only {

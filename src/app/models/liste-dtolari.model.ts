@@ -162,3 +162,4 @@ export interface VirmanListeDto {
   tarih: Date;
   durumu: string;
 }
+

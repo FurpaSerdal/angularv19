@@ -21,3 +21,4 @@ describe('DetailVirmanExit', () => {
     expect(component).toBeTruthy();
   });
 });
+

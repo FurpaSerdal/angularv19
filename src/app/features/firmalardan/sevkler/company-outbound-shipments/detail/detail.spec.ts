@@ -21,3 +21,4 @@ describe('CompanyOutboundShipmentsDetailComponent', () => {
     expect(component).toBeTruthy();
   });
 });
+

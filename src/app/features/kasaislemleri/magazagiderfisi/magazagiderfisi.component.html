@@ -1,4 +1,4 @@
-<div class="container-fluid">
+<div class="container-fluid app-list-page">
 <div class="row">
 
   <!-- Yeni Gider Fişi Butonu -->
@@ -36,9 +36,12 @@
   </div>
 
 </div>
-  
-    <!-- Tablo -->
-    <table mat-table [dataSource]="tableSource" class=" table-responsive mat-elevation-z8" matSort>
+
+  <div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+      <div class="table-responsive app-list-table">
+        <!-- Tablo -->
+        <table mat-table [dataSource]="tableSource" class="w-100 mat-elevation-z8" matSort>
       <!-- Evrak Seri -->
       <ng-container matColumnDef="documentSerie">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>Evrak Seri</th>
@@ -76,7 +79,13 @@
       <!-- Tablo Satırları -->
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-    </table>
-  
-    <!-- Sayfalama -->
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sayfalama -->
+  <div class="pagination-section">
+    <mat-paginator [pageSize]="10" [pageSizeOptions]="[10]" showFirstLastButtons class="custom-paginator app-list-paginator">
+    </mat-paginator>
   </div>

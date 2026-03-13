@@ -20,3 +20,4 @@ export  class BaseComponent {
     this.toastr.error(message, 'Hata');
   }
 }
+

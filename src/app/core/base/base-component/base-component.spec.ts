@@ -22,3 +22,4 @@ describe('BaseComponent', () => {
     expect(component).toBeTruthy();
   });
 });
+

@@ -21,3 +21,4 @@ describe('FiyatetiketComponent', () => {
     expect(component).toBeTruthy();
   });
 });
+

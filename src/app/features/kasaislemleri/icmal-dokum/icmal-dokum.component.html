@@ -1,4 +1,4 @@
-<div class="container-fluid">
+<div class="container-fluid app-list-page">
     <div class="row">
       <div class="col-md-12 d-flex justify-content-between align-items-center">
 
@@ -20,7 +20,8 @@
       </div>
     </div>
   
-    <table class="table-responsive col-md-12 mt-3" mat-table [dataSource]="tabloVerisi" matSort>
+    <div class="table-responsive app-list-table mt-3">
+      <table class="col-md-12" mat-table [dataSource]="tableSource" matSort>
       <ng-container matColumnDef="sube">
         <th mat-header-cell *matHeaderCellDef>Şube</th>
         <td mat-cell *matCellDef="let kayit">{{ kayit.warehouse }}</td>
@@ -70,6 +71,16 @@
   
       <tr mat-header-row *matHeaderRowDef="tabloKolonlari; sticky: true"></tr>
       <tr mat-row *matRowDef="let satir; columns: tabloKolonlari"></tr>
-    </table>
+      </table>
+    </div>
+
+    <div class="pagination-section mt-2" *ngIf="tableSource.data.length > 0">
+      <mat-paginator
+        [pageSize]="10"
+        [pageSizeOptions]="[10, 25, 50]"
+        showFirstLastButtons
+        class="custom-paginator app-list-paginator">
+      </mat-paginator>
+    </div>
   </div>
   

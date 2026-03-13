@@ -20,3 +20,4 @@ describe('WarehouseOutboundShipments', () => {
     expect(component).toBeTruthy();
   });
 });
+

@@ -14,3 +14,4 @@ export class HighlightSelectedDirective implements OnChanges {
     this.el.nativeElement.style.backgroundColor = this.highlightSelected ? '#d1ffd6' : 'transparent';
   }
 }
+

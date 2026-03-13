@@ -12,7 +12,6 @@ import { WarehouseService } from '../../../../services/warehouse.service';
   selector: 'app-new-virman-exit',
   imports: [SharedImports, FormsModule],
   templateUrl: './new-virman-exit.html',
-  styleUrls: ['./new-virman-exit.css'],
 })
 export class NewVirmanExit {
 
@@ -194,3 +193,4 @@ trackByStokKod(_: number, item: any) {
     this.dialog.closeAll();
   }
 }
+

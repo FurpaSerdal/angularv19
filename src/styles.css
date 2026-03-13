@@ -1,31 +1,75 @@
 /* ============================================================
-   GLOBAL SHARED STYLES
-   ============================================================ */
+  GLOBAL SHARED STYLES
+  ============================================================ */
+
+/* Theme tokens and Bootstrap variable mapping */
 
 :root {
-  --app-bg: #eef3f8;
-  --app-bg-soft: #f7fafc;
-  --app-surface: rgba(255, 255, 255, 0.92);
+  --sidebar-bg: #1f3f8f;
+  --sidebar-bg-2: #243c7a;
+  --sidebar-text: #eaf0ff;
+  --sidebar-active: rgba(255, 255, 255, 0.12);
+  --sidebar-active-soft: rgba(134, 183, 255, 0.18);
+  --primary-blue: #3d56c5;
+  --primary-blue-hover: #3248ae;
+  --primary-blue-soft: #eaf0ff;
+  --teal-soft: #0f6d77;
+  --success: #19c37d;
+  --success-hover: #12a76b;
+  --bg: #f4f6f8;
+  --card: #ffffff;
+  --border: #e2e8f0;
+  --text: #1f2937;
+  --text-muted: #667085;
+  --brand-yellow: #f4c542;
+  --app-bg: #f4f6f8;
+  --app-bg-soft: #f8fafc;
+  --app-surface: rgba(255, 255, 255, 0.94);
   --app-surface-strong: #ffffff;
-  --app-surface-muted: #f4f7fb;
-  --app-border: rgba(15, 23, 42, 0.09);
-  --app-border-strong: rgba(15, 23, 42, 0.14);
-  --app-text: #142235;
-  --app-text-soft: #5f7287;
-  --app-text-muted: #7d8da1;
-  --app-primary: #1f6f78;
-  --app-primary-strong: #185961;
-  --app-primary-soft: #e4f3f4;
-  --app-accent: #d7e8ea;
+  --app-surface-muted: #f8fafc;
+  --app-border: #e2e8f0;
+  --app-border-strong: #cfd8e3;
+  --app-text: #1f2937;
+  --app-text-soft: #667085;
+  --app-text-muted: #98a2b3;
+  --app-primary: var(--primary-blue);
+  --app-primary-strong: var(--primary-blue-hover);
+  --app-primary-soft: var(--primary-blue-soft);
+  --app-accent: #dce5ff;
+  --app-action-primary: var(--success);
+  --app-action-primary-strong: var(--success-hover);
   --app-success-soft: #e8f7ef;
   --app-danger-soft: #fdecec;
   --app-warning-soft: #fff6e5;
-  --app-shadow-sm: 0 10px 24px rgba(20, 34, 53, 0.06);
-  --app-shadow-md: 0 18px 40px rgba(20, 34, 53, 0.08);
+  --app-shadow-sm: 0 10px 24px rgba(15, 23, 42, 0.05);
+  --app-shadow-md: 0 18px 40px rgba(15, 23, 42, 0.08);
   --app-radius-sm: 0.85rem;
   --app-radius-md: 1.1rem;
-  --app-radius-lg: 1.5rem;
+  --app-radius-lg: 1.35rem;
   --app-content-max: 1600px;
+  --bs-body-bg: var(--bg);
+  --bs-body-color: var(--text);
+  --bs-border-color: var(--border);
+  --bs-primary: var(--primary-blue);
+  --bs-primary-rgb: 61, 86, 197;
+  --bs-success: var(--success);
+  --bs-success-rgb: 25, 195, 125;
+  --bs-secondary-color: var(--text-muted);
+  --bs-light-bg-subtle: #f8fafc;
+  --bs-tertiary-bg: #f8fafc;
+  --bs-card-bg: var(--card);
+  --bs-card-border-color: var(--border);
+  --bs-card-border-radius: 1.35rem;
+  --bs-btn-border-radius: 0.85rem;
+  --bs-btn-font-weight: 600;
+  --bs-card-spacer-y: 0.9rem;
+  --bs-card-spacer-x: 1rem;
+  --bs-card-cap-padding-y: 0.8rem;
+  --bs-card-cap-padding-x: 1rem;
+  --bs-border-radius-lg: 1.35rem;
+  --bs-border-radius: 0.9rem;
+  --bs-table-hover-bg: rgba(61, 86, 197, 0.06);
+  --bs-table-striped-bg: rgba(61, 86, 197, 0.03);
 }
 
 html,
@@ -34,9 +78,9 @@ body {
   margin: 0;
   overflow: hidden;
   background:
-    radial-gradient(circle at top left, rgba(31, 111, 120, 0.08), transparent 24%),
-    radial-gradient(circle at right, rgba(22, 34, 53, 0.05), transparent 26%),
-    linear-gradient(180deg, #f7fafc 0%, #eef3f8 100%);
+    radial-gradient(circle at top left, rgba(61, 86, 197, 0.08), transparent 24%),
+    radial-gradient(circle at right, rgba(31, 63, 143, 0.05), transparent 26%),
+    linear-gradient(180deg, #f8fafc 0%, #f4f6f8 100%);
   color: var(--app-text);
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -52,6 +96,7 @@ app-root {
   height: 100%;
 }
 
+/* Base reset and global element defaults */
 *,
 *::before,
 *::after {
@@ -66,10 +111,6 @@ a {
   color: inherit;
 }
 
-.min-vh-100 {
-  min-height: 100vh;
-}
-
 .bi::before {
   vertical-align: middle;
   line-height: 1;
@@ -80,19 +121,16 @@ a {
   height: 1rem;
 }
 
-.container-fluid,
-.container-xxl,
-.container-xl,
-.container-lg,
-.container-md,
-.container-sm {
+/* Layout container tuning */
+.container-fluid {
   max-width: var(--app-content-max);
 }
 
+/* Card and button polish */
 .card {
   border-color: var(--app-border) !important;
-  border-radius: var(--app-radius-lg) !important;
-  background: var(--app-surface);
+  border-radius: 1.1rem !important;
+  background: var(--card);
   box-shadow: var(--app-shadow-sm);
 }
 
@@ -103,47 +141,45 @@ a {
 }
 
 .btn {
-  border-radius: 0.9rem;
+  min-height: 2.55rem;
+  border-radius: 0.8rem;
   font-weight: 600;
   box-shadow: none;
 }
 
 .btn-primary {
-  border-color: var(--app-primary);
-  background: var(--app-primary);
-}
-
-.btn-primary:hover,
-.btn-primary:focus,
-.btn-primary:active {
-  border-color: var(--app-primary-strong) !important;
-  background: var(--app-primary-strong) !important;
+  --bs-btn-bg: var(--app-action-primary);
+  --bs-btn-border-color: var(--app-action-primary);
+  --bs-btn-hover-bg: var(--app-action-primary-strong);
+  --bs-btn-hover-border-color: var(--app-action-primary-strong);
+  --bs-btn-active-bg: var(--app-action-primary-strong);
+  --bs-btn-active-border-color: var(--app-action-primary-strong);
+  --bs-btn-color: #ffffff;
 }
 
 .btn-outline-primary {
-  color: var(--app-primary);
-  border-color: rgba(31, 111, 120, 0.24);
-}
-
-.btn-outline-primary:hover,
-.btn-outline-primary:focus,
-.btn-outline-primary.active {
-  color: #ffffff !important;
-  border-color: var(--app-primary) !important;
-  background: var(--app-primary) !important;
+  --bs-btn-color: var(--app-primary);
+  --bs-btn-border-color: rgba(61, 86, 197, 0.28);
+  --bs-btn-hover-bg: var(--app-primary);
+  --bs-btn-hover-border-color: var(--app-primary);
+  --bs-btn-hover-color: #ffffff;
+  --bs-btn-active-bg: var(--app-primary);
+  --bs-btn-active-border-color: var(--app-primary);
+  --bs-btn-active-color: #ffffff;
 }
 
 .btn-outline-secondary {
-  color: var(--app-text-soft);
-  border-color: var(--app-border-strong);
+  --bs-btn-color: var(--app-text-soft);
+  --bs-btn-border-color: var(--app-border-strong);
 }
 
+/* Form and input consistency */
 .form-control,
 .form-select,
 .input-group-text {
-  min-height: 2.8rem;
+  min-height: 2.55rem;
   border-color: var(--app-border);
-  border-radius: 0.9rem;
+  border-radius: 0.8rem;
   background: rgba(255, 255, 255, 0.88);
   color: var(--app-text);
 }
@@ -155,23 +191,23 @@ a {
 
 .form-control:focus,
 .form-select:focus {
-  border-color: rgba(31, 111, 120, 0.45);
-  box-shadow: 0 0 0 0.2rem rgba(31, 111, 120, 0.12);
+  border-color: rgba(61, 86, 197, 0.42);
+  box-shadow: 0 0 0 0.2rem rgba(61, 86, 197, 0.12);
 }
 
 .input-group > .form-control,
 .input-group > .form-select,
 .input-group > .btn {
-  min-height: 2.8rem;
+  min-height: 2.55rem;
 }
 
-.badge.bg-primary,
-.text-bg-primary {
+/* Utility color harmonization */
+.badge.bg-primary {
   background: var(--app-primary) !important;
 }
 
 .bg-light {
-  background: var(--app-surface-muted) !important;
+  background: var(--primary-blue-soft) !important;
 }
 
 .text-primary {
@@ -182,14 +218,11 @@ a {
   color: var(--app-text-soft) !important;
 }
 
-.table-responsive {
-  border-radius: 1rem;
-}
-
+/* Table rhythm and readability */
 .table,
 table {
-  --bs-table-striped-bg: rgba(31, 111, 120, 0.03);
-  --bs-table-hover-bg: rgba(31, 111, 120, 0.06);
+  --bs-table-striped-bg: rgba(61, 86, 197, 0.03);
+  --bs-table-hover-bg: rgba(61, 86, 197, 0.06);
 }
 
 .table > :not(caption) > * > *,
@@ -200,10 +233,19 @@ table > :not(caption) > * > * {
 
 .table thead th,
 table thead th {
-  font-size: 0.84rem;
+  font-size: 0.8rem;
   color: var(--app-text-soft);
   font-weight: 700;
-  background: rgba(244, 247, 251, 0.9);
+  background: #f8fafc;
+}
+
+.card-body {
+  padding: 0.95rem 1rem;
+}
+
+.card-header,
+.card-footer {
+  padding: 0.8rem 1rem;
 }
 
 .alert {
@@ -217,6 +259,7 @@ table thead th {
   color: #8a3131;
 }
 
+/* Angular Material surface overrides */
 .mat-mdc-card,
 .mat-elevation-z8,
 .mat-elevation-z4 {
@@ -230,7 +273,66 @@ table thead th {
 .mat-mdc-text-field-wrapper,
 .mdc-text-field--outlined {
   background: rgba(255, 255, 255, 0.88) !important;
-  border-radius: 0.9rem !important;
+  border-radius: 0.8rem !important;
+}
+
+.table-responsive {
+  border-radius: 1rem;
+}
+
+.mat-table,
+.mat-mdc-table {
+  background: transparent;
+}
+
+.mat-mdc-header-cell,
+.mat-sort-header-container {
+  color: var(--app-text-soft);
+}
+
+.mat-mdc-row,
+.table-row {
+  transition: background-color 0.16s ease;
+}
+
+.mat-mdc-row:hover,
+.table-row:hover {
+  background: #f5f8ff;
+}
+
+.btn-view,
+.btn-edit,
+.btn-pdf {
+  width: 2.35rem;
+  height: 2.35rem;
+  min-height: 2.35rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(61, 86, 197, 0.2);
+  background: rgba(61, 86, 197, 0.1);
+  color: var(--primary-blue);
+  box-shadow: none;
+}
+
+.btn-view:hover,
+.btn-edit:hover,
+.btn-pdf:hover {
+  background: var(--primary-blue);
+  border-color: var(--primary-blue);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.btn-view[disabled],
+.btn-edit[disabled],
+.btn-pdf[disabled] {
+  opacity: 0.45;
+}
+
+.custom-paginator,
+.mat-mdc-paginator {
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid var(--app-border);
+  box-shadow: var(--app-shadow-sm);
 }
 
 .mat-mdc-paginator,
@@ -238,6 +340,99 @@ table thead th {
 .mat-mdc-menu-panel,
 .mat-datepicker-content {
   border-radius: var(--app-radius-md) !important;
+}
+
+/* List page compact layout system */
+.app-list-page {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-height: calc(100dvh - 11.2rem);
+  overflow: hidden;
+}
+
+.app-list-page > .row,
+.app-list-page > .card,
+.app-list-page > .pagination-section {
+  margin-bottom: 0 !important;
+}
+
+.app-list-page .row {
+  --bs-gutter-y: 0.75rem;
+}
+
+.app-list-page .card-body {
+  padding: 0.85rem 0.95rem;
+}
+
+.app-list-page .card-header,
+.app-list-page .card-footer {
+  padding: 0.7rem 0.95rem;
+}
+
+.app-list-page .table-view,
+.app-list-page .table-container {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  flex-direction: column;
+}
+
+.app-list-page .table-view .card,
+.app-list-page .table-container,
+.app-list-page .table-view .card-body {
+  min-height: 0;
+}
+
+.app-list-page .app-list-table {
+  width: 100%;
+  overflow: hidden !important;
+  border-radius: 0.9rem;
+}
+
+.app-list-page table[mat-table],
+.app-list-page .mat-mdc-table,
+.app-list-page .mat-table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.app-list-page .mat-mdc-header-row,
+.app-list-page .mat-header-row {
+  height: 46px;
+}
+
+.app-list-page .mat-mdc-row,
+.app-list-page .mat-row {
+  height: 42px;
+}
+
+.app-list-paginator {
+  margin-top: 0.2rem;
+}
+
+.app-list-page .pagination-section {
+  margin-top: 0.35rem !important;
+}
+
+.app-list-page .btn-group > .btn,
+.app-list-page .btn-sm {
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
+}
+
+.app-list-page .form-label {
+  margin-bottom: 0.3rem;
+}
+
+.app-list-page h1,
+.app-list-page h2,
+.app-list-page h3,
+.app-list-page h4,
+.app-list-page h5,
+.app-list-page h6,
+.app-list-page p {
+  margin-bottom: 0.35rem;
 }
 
 .cdk-overlay-container {
@@ -248,18 +443,14 @@ table thead th {
   z-index: 2000 !important;
 }
 
+/* Tablet and below */
 @media (max-width: 991.98px) {
   html,
   body {
     overflow: auto;
   }
 
-  .container-fluid,
-  .container-xxl,
-  .container-xl,
-  .container-lg,
-  .container-md,
-  .container-sm {
+  .container-fluid {
     padding-left: 0.85rem;
     padding-right: 0.85rem;
   }
@@ -267,15 +458,24 @@ table thead th {
   .card {
     border-radius: 1.2rem !important;
   }
+
+  .card-body {
+    padding: 0.85rem 0.9rem;
+  }
+
+  .app-list-page {
+    min-height: auto;
+    overflow: visible;
+  }
+
+  .app-list-page .app-list-table {
+    overflow: auto !important;
+  }
 }
 
+/* Small phones */
 @media (max-width: 575.98px) {
-  .container-fluid,
-  .container-xxl,
-  .container-xl,
-  .container-lg,
-  .container-md,
-  .container-sm {
+  .container-fluid {
     padding-left: 0.7rem;
     padding-right: 0.7rem;
   }
@@ -284,5 +484,9 @@ table thead th {
   .form-control,
   .form-select {
     font-size: 0.95rem;
+  }
+
+  .btn {
+    min-height: 2.45rem;
   }
 }

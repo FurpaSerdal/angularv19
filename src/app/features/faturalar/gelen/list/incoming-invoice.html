@@ -1,4 +1,4 @@
-<div class="container-fluid mt-3">
+<div class="container-fluid mt-3 app-list-page">
   <div class="card shadow-sm border-0">
     <!-- Başlık Kısmı -->
     <header class="card-header bg-primary text-white py-3">
@@ -109,7 +109,7 @@
           </div>
         </div>
 
-      <div class="table-responsive border rounded-3">
+      <div class="table-responsive app-list-table border rounded-3">
  <table mat-table [dataSource]="dataSourceFiltreli" matSort class="w-100">
           <!-- Fatura No Column -->
           <ng-container matColumnDef="cha_belge_no">
@@ -233,8 +233,8 @@
           <p class="text-muted small m-0">
             Toplam {{dataSourceFiltreli.data.length}} fatura listeleniyor
           </p>
-          <mat-paginator [pageSize]="100" [pageSizeOptions]="[5, 10, 20, 50]" 
-                         showFirstLastButtons class="custom-paginator"
+          <mat-paginator [pageSize]="10" [pageSizeOptions]="[10]" 
+                         showFirstLastButtons class="custom-paginator app-list-paginator"
                          aria-label="Fatura sayfalandırma">
           </mat-paginator>
         </footer>

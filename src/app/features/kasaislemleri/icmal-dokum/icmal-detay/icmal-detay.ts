@@ -9,6 +9,7 @@ import { BanknoteMovementsCT,Cashier,CashRegisterDetails,GiftCheckMovementsCT,Su
 import { EskiAngularService } from '../../../../services/eskiAngular.service';
 import { MeService } from '../../../../services/meservice.service';
 import { SummaryPrintComponent } from '../summary-print/summary-print.component';
+import { SummaryService } from '../../../../services/summary/summary.service';
 
 @Component({
   selector: 'app-icmal-detay',
@@ -22,7 +23,7 @@ cashierName: string = '';
 managerName: string = '';
   constructor(
     @Inject(MAT_DIALOG_DATA) public summary: SummariesCT,
-    private eskiAngularService: EskiAngularService,
+    private summaryService: SummaryService,
     private meservice: MeService,
     private toastrService:ToastrService,
   ) { }
@@ -38,6 +39,7 @@ managerName: string = '';
 
   readonly  warehouseNo = computed(() => this.meservice.userSignal()?.subeNo ?? 0);
   readonly warehouseName = computed(() => this.meservice.userSignal()?.sube ?? '');
+  taskid = computed(() => this.meservice.selectedGorev()?.id ?? 0);
   cashRegisterDetail!:CashRegisterDetails ;
 
 
@@ -45,26 +47,26 @@ cashierAndManagerList!: Cashier[];
 
 
 GetCashierAndManager(summary: SummariesCT) {
-  this.eskiAngularService
-    .GetCashierAndManager(summary.cashierNo, summary.managerNo)
+  this.summaryService
+    .GetCashierAndManager(this.taskid(), summary.cashierNo, summary.managerNo)
     .subscribe(list => {
 
       this.cashierAndManagerList = list ?? [];
 
       const cashier = this.cashierAndManagerList.find(
-        x => x.cashierCode === summary.cashierNo
+        x => Number(x.kasiyerKodu) === summary.cashierNo
       );
 
       const manager = this.cashierAndManagerList.find(
-        x => x.cashierCode === summary.managerNo
+        x => Number(x.kasiyerKodu) === summary.managerNo
       );
 
       this.cashierName = cashier
-        ? `${summary.cashierNo} ${cashier.cashierName}`
+        ? `${summary.cashierNo} ${cashier.kasiyerAdi} ${cashier.kasiyerSoyadi}`.trim()
         : `${summary.cashierNo} - Bulunamadı`;
 
       this.managerName = manager
-        ? `${summary.managerNo} ${manager.cashierName}`
+        ? `${summary.managerNo} ${manager.kasiyerAdi} ${manager.kasiyerSoyadi}`.trim()
         : `${summary.managerNo} - Bulunamadı`;
 
 
@@ -78,7 +80,7 @@ GetCashierAndManager(summary: SummariesCT) {
   storeExpenses!:SummariesDetailsCT[];
   onlineSales!:SummariesDetailsCT[];
   GetSummariesDetails(summary:SummariesCT){
-    this.eskiAngularService.GetSummariesDetails(summary.documentSerie,summary.documentOrderNo)
+    this.summaryService.GetSummariesDetails(this.taskid(), summary.documentSerie, summary.documentOrderNo)
     .subscribe(summariesDetails=>{
       this.summariesDetails = summariesDetails;
       
@@ -97,7 +99,7 @@ GetCashierAndManager(summary: SummariesCT) {
 
   banknoteMovements!:BanknoteMovementsCT[];
   GetBanknoteMovements(summary:SummariesCT){
-    this.eskiAngularService.GetBanknoteMovementDetails(summary.documentSerie, summary.documentOrderNo)
+    this.summaryService.GetBanknoteMovementDetails(this.taskid(), summary.documentSerie, summary.documentOrderNo)
     .subscribe(banknoteMovements => {
       this.banknoteMovements = banknoteMovements.filter(x=>x.quantity!=0);
       this.BanknoteMovementsValues();
@@ -106,7 +108,7 @@ GetCashierAndManager(summary: SummariesCT) {
 
   giftCheckMovements!:GiftCheckMovementsCT[];
   GetGiftCheckMovements(summary:SummariesCT){
-    this.eskiAngularService.GetGiftCheckMovemntDetails(summary.documentSerie, summary.documentOrderNo)
+    this.summaryService.GetGiftCheckMovemntDetails(this.taskid(), summary.documentSerie, summary.documentOrderNo)
     .subscribe(giftCheckMovements => {
       this.giftCheckMovements = giftCheckMovements.filter(x=>x.quantity!=0);
       this.GiftCheckMovementsValues();
@@ -182,9 +184,9 @@ GetCashierAndManager(summary: SummariesCT) {
 
   zTotalValue=0;
   GetZTotalValue(summary:SummariesCT){
-    this.eskiAngularService.GetZReportTotalValue(summary.documentSerie, 1, summary.zReportNo, summary.cashNo)
+    this.summaryService.GetZReportTotalValue(this.taskid(), summary.documentSerie, 1, summary.zReportNo, summary.cashNo)
     .subscribe(response => {
-      if(response.body == -1){
+      if(!response){
         this.zTotalValue = 0;
         this.toastrService.error("Uyarıları dikkate alınız.");
         Swal.fire({
@@ -203,16 +205,17 @@ GetCashierAndManager(summary: SummariesCT) {
         return;
       }
       else{
-        this.zTotalValue = response.body ?? 0;
+        this.zTotalValue = response ?? 0;
         this.toastrService.success("Z Toplamı Başarıyla Getirildi.");
       }
     });
   }
 
  GetCashRegisterNo(cashNo:number){
-  this.eskiAngularService.GetCashRegisterDetail(cashNo).subscribe(detail=>{
+  this.summaryService.GetCashRegisteryDetails(this.taskid(), cashNo).subscribe(detail=>{
     this.cashRegisterDetail=detail;
   });
  }
   
 }
+

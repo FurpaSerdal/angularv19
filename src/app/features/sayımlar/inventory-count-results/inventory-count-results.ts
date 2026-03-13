@@ -1,7 +1,8 @@
 import { CommonModule,DatePipe } from '@angular/common';
-import { Component,DestroyRef,effect,signal } from '@angular/core';
+import { Component,DestroyRef,ViewChild,effect,signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder,FormGroup,FormsModule,ReactiveFormsModule } from '@angular/forms';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { SharedImports } from '../../../core/pipes/shared-imports';
 import { StockCountService } from '../../../services/inventory/stock-count.service';
 import { NewInventoryCount } from '../new-inventory-count/new-inventory-count';
@@ -21,6 +22,7 @@ import { MeService } from '../../../services/meservice.service';
   providers: [DatePipe]
 })
 export class InventoryCountResults {
+  @ViewChild(MatPaginator) paginator?: MatPaginator;
 
   // -------------------- SIGNAL STATE --------------------
   anaekran = '';
@@ -43,6 +45,24 @@ export class InventoryCountResults {
   listOfData: SayimSonuclariListeDto[] = [];
 sortColumn: string = '';
 sortDirection: 'none' | 'asc' | 'desc' = 'none';
+  pageSize = 10;
+  pageIndex = 0;
+
+  get pagedData(): SayimSonuclariListeDto[] {
+    const start = this.pageIndex * this.pageSize;
+    return this.listOfData.slice(start, start + this.pageSize);
+  }
+
+  get pageStart(): number {
+    if (!this.listOfData.length) {
+      return 0;
+    }
+    return this.pageIndex * this.pageSize + 1;
+  }
+
+  get pageEnd(): number {
+    return Math.min((this.pageIndex + 1) * this.pageSize, this.listOfData.length);
+  }
   constructor(
     private stockcountService: StockCountService,
     private dialog: MatDialog,
@@ -133,7 +153,20 @@ sortDirection: 'none' | 'asc' | 'desc' = 'none';
     this.stockcountService.getResults(currentGorevId, zamanlama).subscribe((data: SayimSonuclariListeDto[]) => {
 
       this.listOfData = data;
+      this.resetPagination();
     });
+  }
+
+  onPageChange(event: PageEvent): void {
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
+  }
+
+  private resetPagination(): void {
+    this.pageIndex = 0;
+    if (this.paginator) {
+      this.paginator.firstPage();
+    }
   }
 
   newInventoryCount() {
@@ -203,9 +236,11 @@ sortBy(column: string) {
     if (valueA > valueB) return this.sortDirection === 'asc' ? 1 : -1;
     return 0;
   });
+  this.resetPagination();
 }
 
 
 
 
 }
+

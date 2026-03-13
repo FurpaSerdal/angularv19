@@ -16,3 +16,4 @@ export class StockCountService extends BaseApiService {
     return this.post(`ekle/${taskId}`, payload);
   }
 }
+

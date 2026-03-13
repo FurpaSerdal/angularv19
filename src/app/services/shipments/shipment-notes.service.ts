@@ -32,3 +32,4 @@ export class ShipmentNotesService extends BaseApiService {
     return this.post(`ekle/${taskId}`, payload);
   }
 }
+

@@ -723,3 +723,4 @@ console.log(toplamKarakter);
            this.dataSource.data.every(item => (item.MalKabulMiktari ?? 0) > 0);
   }
 }
+

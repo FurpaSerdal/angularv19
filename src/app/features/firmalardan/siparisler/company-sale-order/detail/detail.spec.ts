@@ -20,3 +20,4 @@ describe('CompanySaleOrderDetailComponent', () => {
     expect(component).toBeTruthy();
   });
 });
+

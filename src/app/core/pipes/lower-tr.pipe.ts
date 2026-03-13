@@ -11,3 +11,4 @@ export class LowerTrPipe implements PipeTransform {
     return value.toString().replace(/\u00A0/g, ' ').trim().toLocaleLowerCase('tr');
   }
 }
+

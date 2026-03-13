@@ -12,3 +12,4 @@ export class NumberCleanPipe implements PipeTransform {
     return Number(String(value).replace(/\s/g, '')) || 0;
   }
 }
+

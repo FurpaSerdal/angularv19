@@ -1,11 +1,11 @@
 <!-- pages/company-goods-receipt/company-goods-receipt.html -->
-<div class="container-fluid py-2 d-flex flex-column" style="height: 100vh; overflow: hidden;"> <!-- Ana container full height ve overflow hidden -->
+<div class="container-fluid d-flex flex-column py-2" style="height: 100vh; overflow: hidden;"> <!-- Ana container full height ve overflow hidden -->
   
   <!-- ================= HEADER (Sabit) ================= -->
   <div class="row mb-2 flex-shrink-0"> <!-- flex-shrink-0 ile sabitlendi -->
     <div class="col-12">
-      <div class="card shadow-sm">
-        <div class="card-header py-2"> <!-- py-3 -> py-2 -->
+      <div class="card shadow-sm border-0">
+        <div class="card-header py-2 bg-white border-bottom"> <!-- py-3 -> py-2 -->
           <div class="d-flex justify-content-between align-items-center">
             <h6 class="card-title mb-0 fw-semibold"> <!-- h5 -> h6 -->
               <i class="bi bi-building me-2"></i>
@@ -23,15 +23,15 @@
     <!-- SOL: FORM -->
     <div class="col-lg-8">
       <!-- Evrak Bilgileri (Kompakt) -->
-      <div class="card shadow-sm mb-2"> <!-- mb-3 -> mb-2 -->
+      <div class="card shadow-sm mb-1"> <!-- mb-3 -> mb-2 -->
         <div class="card-header bg-light py-1"> <!-- py-2 -> py-1 -->
           <small class="fw-semibold" style="font-size: 0.7rem;"> <!-- Daha küçük -->
             <i class="bi bi-file-earmark-text me-2"></i>
             Evrak Bilgileri
           </small>
         </div>
-        <div class="card-body py-2"> <!-- py-3 -> py-2 -->
-          <div class="row g-2"> <!-- g-3 -> g-2 -->
+        <div class="card-body py-1"> <!-- py-3 -> py-2 -->
+          <div class="row g-1"> <!-- g-3 -> g-2 -->
             <!-- QR Butonu -->
             <div class="col-6">
               <label class="form-label fw-semibold text-primary mb-1" style="font-size: 0.7rem;"> <!-- mb-2 -> mb-1, yazı küçültüldü -->
@@ -101,14 +101,14 @@
     <!-- SAĞ: İRSALİYE BİLGİLERİ (Kompakt) -->
     <div class="col-lg-4">
       <!-- Özet Kartı -->
-      <div class="card shadow-sm mb-2"> <!-- mb-3 -> mb-2 -->
+      <div class="card shadow-sm mb-1"> <!-- mb-3 -> mb-2 -->
         <div class="card-header bg-light py-1"> <!-- py-2 -> py-1 -->
           <small class="fw-semibold" style="font-size: 0.7rem;">
             <i class="bi bi-clipboard-data me-2"></i>
             Özet
           </small>
         </div>
-        <div class="card-body py-1 small" style="font-size: 0.75rem;"> <!-- py-3 -> py-1 -->
+        <div class="card-body py-1 small" style="font-size: 0.72rem;"> <!-- py-3 -> py-1 -->
           <div class="d-flex justify-content-between mb-1" style="font-size: 0.7rem;"> <!-- mb-2 -> mb-1 -->
             <span>Toplam Kalem</span>
             <span class="fw-semibold">{{ toplamKalemSayisi() }}</span>
@@ -132,14 +132,14 @@
       </div>
 
       <!-- Fark Özeti Kartı -->
-      <div class="card shadow-sm mb-2"> <!-- mb-3 -> mb-2 -->
+      <div class="card shadow-sm mb-1"> <!-- mb-3 -> mb-2 -->
         <div class="card-header bg-light py-1"> <!-- py-2 -> py-1 -->
           <small class="fw-semibold" style="font-size: 0.7rem;">
             <i class="bi bi-graph-down-arrow me-2"></i>
             Fark Özeti
           </small>
         </div>
-        <div class="card-body py-1 small" style="font-size: 0.75rem;"> <!-- py-3 -> py-1 -->
+        <div class="card-body py-1 small" style="font-size: 0.72rem;"> <!-- py-3 -> py-1 -->
           <div class="d-flex justify-content-between mb-1" style="font-size: 0.7rem;"> <!-- mb-2 -> mb-1 -->
             <span>Pozitif Fark Toplam</span>
             <span class="fw-semibold text-success">{{ pozitifFarkToplam() }}</span>
@@ -156,14 +156,14 @@
   <!-- ===== ÜRÜN ARAMA + FİRMA (Sabit) ===== -->
   <div class="row g-2 flex-shrink-0"> <!-- flex-shrink-0 ile sabitlendi -->
     <div class="col-md-6">
-      <div class="card shadow-sm mb-2"> <!-- mb-3 -> mb-2 -->
+      <div class="card shadow-sm mb-1"> <!-- mb-3 -> mb-2 -->
         <div class="card-header bg-light py-1"> <!-- py-2 -> py-1 -->
           <small class="fw-semibold" style="font-size: 0.7rem;">
             <i class="bi bi-box-seam me-2"></i>
             Ürün Arama
           </small>
         </div>
-        <div class="card-body py-2"> <!-- py-3 -> py-2 -->
+        <div class="card-body py-1"> <!-- py-3 -> py-2 -->
           <div class="input-group input-group-sm">
             <span class="input-group-text bg-white border-end-0">
               <i class="bi bi-search text-primary"></i>
@@ -177,12 +177,12 @@
 
           <!-- Arama Sonuçları -->
           <div *ngIf="bulunanUrunler().length > 0" class="mt-2"> <!-- mt-3 -> mt-2 -->
-            <div class="alert alert-light border mb-0 p-2"> <!-- p-3 -> p-2 -->
+            <div class="alert alert-light border mb-0 p-2" style="max-height: 120px; overflow-y: auto;"> <!-- p-3 -> p-2 -->
               <div class="d-flex justify-content-between align-items-center mb-1"> <!-- mb-2 -> mb-1 -->
                 <span class="text-muted" style="font-size: 0.7rem;">Arama Sonuçları</span>
                 <small class="text-muted" style="font-size: 0.6rem;">{{ bulunanUrunler().length }} ürün bulundu</small>
               </div>
-              <div class="list-group" style="max-height: 150px; overflow-y: auto;"> <!-- Yükseklik sınırı ve scroll -->
+              <div class="list-group" style="max-height: 95px; overflow-y: auto;"> <!-- Yükseklik sınırı ve scroll -->
                 <a *ngFor="let urun of bulunanUrunler()"
                   class="list-group-item list-group-item-action border-0 rounded-1 py-1 px-2 mb-0 hover-lift"
                   (click)="urunSec(urun)" style="font-size: 0.75rem;">
@@ -209,14 +209,14 @@
     </div>
     
     <div class="col-6">
-      <div class="card shadow-sm mb-2"> <!-- mb-3 -> mb-2 -->
+      <div class="card shadow-sm mb-1"> <!-- mb-3 -> mb-2 -->
         <div class="card-header bg-light py-1"> <!-- py-2 -> py-1 -->
           <small class="fw-semibold" style="font-size: 0.7rem;">
             <i class="bi bi-building me-2"></i>
             Firma Seçimi
           </small>
         </div>
-        <div class="card-body py-2"> <!-- py-3 -> py-2 -->
+        <div class="card-body py-1"> <!-- py-3 -> py-2 -->
           <label for="cariKodu" class="form-label fw-semibold text-primary mb-1" style="font-size: 0.7rem;"> <!-- mb-2 -> mb-1 -->
             <i class="bi bi-building me-2"></i>
             Firma Cari Kodu
@@ -235,7 +235,7 @@
           
           <!-- Firma Arama Sonuçları -->
           <div *ngIf="bulunancariler().length > 0" class="mt-2"> <!-- mt-2 -> mt-2 -->
-            <div class="list-group" style="max-height: 150px; overflow-y: auto;"> <!-- Yükseklik sınırı ve scroll -->
+            <div class="list-group" style="max-height: 95px; overflow-y: auto;"> <!-- Yükseklik sınırı ve scroll -->
               <a *ngFor="let firma of bulunancariler()"
                 class="list-group-item list-group-item-action border-0 rounded-1 py-1 px-2 mb-0 hover-scale"
                 (click)="firmaSec(firma)" style="font-size: 0.75rem;">
@@ -255,7 +255,7 @@
   </div>
 
   <!-- ===== MAL KABUL KARTLARI (SADECE BURADA SCROLL - Esnek yükseklik) ===== -->
-  <div class="row mt-2 flex-fill" style="min-height: 0; overflow: hidden;"> <!-- flex-fill ve overflow hidden -->
+  <div class="row mt-1 flex-fill" style="min-height: 0; overflow: hidden;"> <!-- flex-fill ve overflow hidden -->
     <div class="col-12 h-100"> <!-- h-100 ile yüksekliği tam al -->
       <div class="card shadow-sm d-flex flex-column h-100"> <!-- flex-column ve h-100 -->
         <div class="card-header bg-light py-1 flex-shrink-0"> <!-- flex-shrink-0 ile sabit başlık -->
@@ -265,7 +265,7 @@
           </small>
         </div>
         <!-- Scroll sadece bu div'de, tüm kalan alanı kapla -->
-        <div class="card-body p-0 table-responsive flex-fill" style="overflow-y: auto; min-height: 100px;"> <!-- flex-fill ve overflow-y: auto -->
+        <div class="card-body p-0 table-responsive flex-fill" style="overflow-y: auto; min-height: 0;"> <!-- flex-fill ve overflow-y: auto -->
 
           <!-- Select Mode -->
           <ng-container *ngIf="data && data.mode === 'select'">
@@ -447,11 +447,11 @@
 
         <!-- Butonlar (Sabit) -->
         <div class="card-footer bg-light py-2 flex-shrink-0"> <!-- flex-shrink-0 ile sabit -->
-          <div class="d-flex justify-content-between align-items-center">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
             <small class="text-muted" style="font-size: 0.7rem;">
-              Toplam <strong>{{ dataSource.data.length }}</strong> ürün
+              Toplam <strong>{{ dataSource.data.length }}</strong> urun
             </small>
-            <div class="d-flex gap-2">
+            <div class="d-flex flex-wrap gap-2 ms-auto justify-content-end">
               <button class="btn btn-outline-secondary btn-sm py-1" style="font-size: 0.75rem;" (click)="temizle()">
                 <i class="bi bi-eraser me-1"></i>Temizle
               </button>

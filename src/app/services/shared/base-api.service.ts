@@ -19,3 +19,4 @@ export class BaseApiService {
     return this.http.post<T>(`${this.apiUrl}/${url}`, body);
   }
 }
+

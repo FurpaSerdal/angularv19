@@ -77,3 +77,4 @@ export class AddFoodChecksComponent implements OnInit {
     this.dialogRef.close();
   }
 }
+

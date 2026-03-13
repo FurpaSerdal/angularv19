@@ -287,3 +287,4 @@ export class IdleService implements OnDestroy {
     // console.log('[IdleService] Servis destroy edildi');
   }
 }
+

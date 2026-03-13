@@ -24,6 +24,7 @@ import { MagazagiderfisiComponent } from './features/kasaislemleri/magazagiderfi
 import { InventoryCountResults } from './features/sayımlar/inventory-count-results/inventory-count-results';
 import { StockOut } from './features/stoklar/stock-out/list/stock-out';
 import { VirmanExit } from './features/virman/virman-cıkısı/list/virman-exit';
+import { BirlikKartSorgulama } from './features/kasaislemleri/birlik-kart-sorgulama/birlik-kart-sorgulama';
 
 
 
@@ -83,6 +84,7 @@ export const routes: Routes = [
       { path: 'task/cash-operations/summary-add', component: AddSummaryComponent },  // icmal ekle
       { path: 'task/cash-operations/kunye-label-print', component: KunyeEtiketBasimiComponent },  // künye etiket yazdır
       { path: 'task/cash-operations/store-expense-receipt', component: MagazagiderfisiComponent },  // mağaza gider fişi
+      { path: 'task/cash-operations/union-card', component: BirlikKartSorgulama },  // birlilik kartı
  
        //{ path: 'task/:id', component: OrtakMenu }, // Ortak Menü Yönlendirmesi
 
@@ -94,3 +96,4 @@ export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: '**', redirectTo: '/login' },
 ];
+

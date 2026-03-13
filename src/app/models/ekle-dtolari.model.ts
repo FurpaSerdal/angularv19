@@ -118,3 +118,4 @@ export interface VirmanKalemiDto {
   virmaniYapilacakStokKodu: string;
   virmanMiktari: number;
 }
+

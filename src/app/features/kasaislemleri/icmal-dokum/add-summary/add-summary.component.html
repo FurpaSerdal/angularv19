@@ -54,8 +54,8 @@
            <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFnCashier">
               <mat-option *ngFor="let cashier of cashiersByFilter" [value]="cashier"
                   (onSelectionChange)="selectedCashier=cashier">
-                  <span>{{cashier.cashierCode}} </span>
-                  <span>{{cashier.cashierName}}</span>
+                  <span>{{cashier.kasiyerKodu}} </span>
+                  <span>{{cashier.kasiyerAdi}} {{cashier.kasiyerSoyadi}}</span>
               </mat-option>
           </mat-autocomplete>
           </mat-form-field>
@@ -67,8 +67,8 @@
            <mat-autocomplete #auto2="matAutocomplete" [displayWith]="displayFnManager">
               <mat-option *ngFor="let manager of managersByFilter" [value]="manager"
                   (onSelectionChange)="selectedManager=manager">
-                  <span>{{manager.cashierCode}} </span>
-                  <span>{{manager.cashierName}}</span>
+                  <span>{{manager.kasiyerKodu}} </span>
+                  <span>{{manager.kasiyerAdi}} {{manager.kasiyerSoyadi}}</span>
               </mat-option>
           </mat-autocomplete>
           </mat-form-field>

@@ -4,8 +4,8 @@ import { Component } from '@angular/core';
   selector: 'app-detail-virman-exit',
   imports: [],
   templateUrl: './detail-virman-exit.html',
-  styleUrl: './detail-virman-exit.css',
 })
 export class DetailVirmanExit {
 
 }
+

@@ -155,3 +155,4 @@ getPdfFromUyumsoft(gorevid:Number,belgeId: string): Observable<string> {
 
 }
 
+

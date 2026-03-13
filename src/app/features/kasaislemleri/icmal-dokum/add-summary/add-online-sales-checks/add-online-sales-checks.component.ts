@@ -77,3 +77,4 @@ export class AddOnlineSalesChecksComponent implements OnInit {
     this.dialogRef.close();
   }
 }
+

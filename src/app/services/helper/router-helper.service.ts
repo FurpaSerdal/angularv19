@@ -57,6 +57,7 @@ export class RouterHelperService {
     51: ['task', 'cash-operations', 'summary-add'],
     44: ['task', 'cash-operations', 'kunye-label-print'],
     46: ['task', 'cash-operations', 'store-expense-receipt'],
+    48: ['task', 'cash-operations', 'union-card']
   };
 
   getRouteSegmentsByGorevId(gorevId: number): string[] | null {
@@ -67,6 +68,7 @@ export class RouterHelperService {
     if (!gorev) {
       return;
     }
+
 
     const routeSegments = this.getRouteSegmentsByGorevId(gorev.id);
 
@@ -89,3 +91,4 @@ export class RouterHelperService {
     this.router.navigate(['/admin']);
   }
 }
+

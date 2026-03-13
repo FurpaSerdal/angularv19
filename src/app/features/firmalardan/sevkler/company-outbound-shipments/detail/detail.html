@@ -1,6 +1,6 @@
-<div class="container-fluid p-3">
+﻿<div class="container-fluid p-3 h-100 d-flex flex-column gap-3 overflow-hidden">
   <!-- Header -->
-  <div class="d-flex justify-content-between align-items-center mb-3">
+  <div class="d-flex justify-content-between align-items-center position-sticky top-0 bg-body z-3 py-1">
     <h4 class="mb-0 text-primary">
       <i class="bi bi-file-text me-2"></i>Evrak Detayları
     </h4>
@@ -10,7 +10,7 @@
   </div>
 
   <!-- Genel Bilgiler Kartı -->
-  <div class="card shadow-sm mb-3">
+  <div class="card shadow-sm mb-0 flex-shrink-0">
     <div class="card-header bg-white py-2 px-3">
       <h6 class="mb-0">
         <i class="bi bi-info-circle me-2"></i>Genel Bilgiler
@@ -43,7 +43,7 @@
   </div>
 
   <!-- Kalemler Tablosu -->
-  <div class="card shadow-sm">
+  <div class="card shadow-sm mb-0 d-flex flex-column flex-grow-1 overflow-hidden">
     <div class="card-header bg-white py-2 px-3">
       <div class="d-flex justify-content-between align-items-center">
         <h6 class="mb-0">
@@ -53,10 +53,10 @@
       </div>
     </div>
     
-    <div class="card-body p-0">
-      <div class="table-responsive">
+    <div class="card-body p-0 d-flex flex-column flex-grow-1 overflow-hidden">
+      <div class="table-responsive flex-grow-1 overflow-auto">
         <table class="table table-sm table-hover mb-0" *ngIf="data.kalemler.length">
-          <thead class="table-light">
+          <thead class="table-light position-sticky top-0 z-2">
             <tr>
               <th class="ps-3">Stok Kodu</th>
               <th>Ürün Adı</th>
@@ -88,13 +88,5 @@
         </div>
       </div>
     </div>
-  </div>
-
-  <!-- Buton -->
-  <div class="d-flex justify-content-end mt-3">
-    <button class="btn btn-sm btn-primary px-4" (click)="kapat()">
-      <i class="bi bi-check-circle me-1"></i>
-      Tamam
-    </button>
   </div>
 </div>

@@ -77,3 +77,4 @@ export class RafetiketiComponent implements AfterViewInit, OnChanges {
       });
     }
 }
+

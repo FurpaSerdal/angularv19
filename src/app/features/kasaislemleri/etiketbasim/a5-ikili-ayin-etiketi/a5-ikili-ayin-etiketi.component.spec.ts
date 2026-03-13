@@ -21,3 +21,4 @@ describe('A5IkiliAyinEtiketiComponent', () => {
     expect(component).toBeTruthy();
   });
 });
+

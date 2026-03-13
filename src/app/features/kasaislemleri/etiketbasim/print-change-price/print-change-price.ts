@@ -13,3 +13,4 @@ export class PrintChangePrice {
 @Input() productsToPrint: Product[] = [];
 today: Date = new Date();
 }
+

@@ -275,3 +275,4 @@ urunAra(term: string) {
     this.dialogRef.close();
   }
 }
+

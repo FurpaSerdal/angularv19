@@ -39,3 +39,4 @@ export class SalesInvoicesService extends BaseApiService {
     return of(url);
   }
 }
+

@@ -7,3 +7,4 @@ export interface listProducts {
   miktar: number;
   fiyat?: number;
 }
+

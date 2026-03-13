@@ -21,3 +21,4 @@ describe('IncomingInvoice', () => {
     expect(component).toBeTruthy();
   });
 });
+

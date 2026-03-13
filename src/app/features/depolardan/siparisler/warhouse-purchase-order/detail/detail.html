@@ -1,23 +1,23 @@
-<div class="container-fluid p-3 screen-only detail-container">
+﻿<div class="container-fluid p-3 screen-only detail-container h-100 d-flex flex-column gap-3 overflow-hidden">
   <!-- Header -->
   <div class="detail-fixed-header">
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex justify-content-between align-items-center position-sticky top-0 bg-body z-3 py-1">
       <h4 class="mb-0 text-primary">
         <i class="bi bi-file-text me-2"></i>Evrak Detayları
       </h4>
 
       <div class="d-flex gap-2">
-        <button class="btn btn-sm btn-outline-secondary rounded-circle" (click)="kapat()">
-          <i class="bi bi-x-lg"></i>
-        </button>
         <button class="btn btn-sm btn-outline-primary" (click)="yazdir()">
           <i class="bi bi-printer me-1"></i> Yazdır
+        </button>
+        <button class="btn btn-sm btn-outline-secondary rounded-circle" (click)="kapat()">
+          <i class="bi bi-x-lg"></i>
         </button>
       </div>
     </div>
 
     <!-- Genel Bilgiler Kartı -->
-    <div class="card shadow-sm mb-3">
+    <div class="card shadow-sm mb-0 flex-shrink-0">
       <div class="card-body py-2">
       <div class="row g-2">
         <div class="col-md-3 col-6">
@@ -47,7 +47,7 @@
 
   <!-- Kalemler Tablosu -->
   <div class="detail-scrollable-content">
-    <div class="card shadow-sm">
+    <div class="card shadow-sm mb-0 d-flex flex-column flex-grow-1 overflow-hidden">
       <div class="card-header bg-white py-2 px-3">
         <div class="d-flex justify-content-between align-items-center">
           <h6 class="mb-0">
@@ -57,10 +57,10 @@
         </div>
       </div>
       
-      <div class="card-body p-0">
-        <div class="table-responsive">
+      <div class="card-body p-0 d-flex flex-column flex-grow-1 overflow-hidden">
+        <div class="table-responsive flex-grow-1 overflow-auto">
         <table class="table table-sm table-hover mb-0">
-            <thead class="table-light">
+            <thead class="table-light position-sticky top-0 z-2">
               <tr>
                 <th class="ps-3">Stok Kodu</th>
                 <th>Ürün Adı</th>
@@ -91,13 +91,6 @@
       </div>
     </div>
 
-    <!-- Buton -->
-    <div class="d-flex justify-content-end mt-3">
-      <button class="btn btn-sm btn-primary px-4" (click)="kapat()">
-        <i class="bi bi-check-circle me-1"></i>
-        Tamam
-      </button>
-    </div>
   </div>
 </div>
 
@@ -117,8 +110,8 @@
   <table class="print-table">
     <thead>
       <tr>
-        <th style="width: 15%;">Stok Kodu</th>
-        <th style="width: 40%;">Ürün Adı</th>
+        <th style="width: 18%;">Stok Kodu</th>
+        <th style="width: 37%;">Ürün Adı</th>
         <th style="width: 15%;">Sipariş</th>
         <th style="width: 15%;">Sevk</th>
         <th style="width: 15%;">Mal Kabul</th>

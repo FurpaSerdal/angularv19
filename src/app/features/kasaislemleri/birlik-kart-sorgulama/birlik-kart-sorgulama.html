@@ -1,0 +1,67 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-8">
+            <div class="d-flex align-items-start">
+                <div class="input">
+                    <input type="text" class="form-control" [(ngModel)]="cekNo" placeholder="Birlik Kartı Sorgulama">
+                </div>
+                <div class="mt-2">
+                    <button class="btn btn-primary" (click)="sorgula()">Sorgula</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row" *ngIf="yukleniyor">
+        <div class="col-12 d-flex justify-content-center align-items-center" style="height: 200px;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+     </div>
+
+    <div class="row">
+        
+        <div class="col-12">
+            <table class="table table-striped align-middle">
+                <thead>
+
+                    <tr>
+                     
+                        <th scope="col">Çek Numarası</th>
+                        <th scope="col">Çek Tarihi</th>
+                    <th scope="col">Çek Durumu</th>
+                    <th scope="col">İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngIf="cek">
+                    <td>{{ cek.checkNo }}</td>
+                    <td>
+                        <span class="badge rounded-pill text-bg-light border d-inline-flex align-items-center gap-2 px-3 py-2 fw-semibold">
+                            <i class="bi bi-calendar-event text-primary"></i>
+                            {{ cek.checkDueDate | date:'dd.MM.yyyy' }}
+                        </span>
+                    </td>
+                    <td>
+                        <span
+                            class="badge rounded-pill d-inline-flex align-items-center gap-2 px-3 py-2 fw-semibold border"
+                            [ngClass]="cek.checkState ? 'text-success bg-success-subtle border-success-subtle' : 'text-danger bg-danger-subtle border-danger-subtle'"
+                        >
+                            <i class="bi" [class.bi-check-circle-fill]="cek.checkState" [class.bi-pause-circle-fill]="!cek.checkState"></i>
+                            {{ cek.checkState ? 'Aktif' : 'Pasif' }}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-primary rounded-pill d-inline-flex align-items-center gap-2 px-3 fw-semibold" (click)="uzat(cek)">
+                            <i class="bi bi-calendar2-plus-fill"></i>
+                            <span>Tarihi Uzat</span>
+                        </button>
+                    </td>
+                </tr>
+   
+            </tbody>
+           </table>
+       </div>
+     </div>
+    
+</div>

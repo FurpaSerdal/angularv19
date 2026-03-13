@@ -21,3 +21,4 @@ describe('DetailStockOut', () => {
     expect(component).toBeTruthy();
   });
 });
+

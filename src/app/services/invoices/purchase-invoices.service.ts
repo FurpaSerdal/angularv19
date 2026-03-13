@@ -13,3 +13,4 @@ export class PurchaseInvoicesService extends BaseApiService {
     return this.post(`ekle/${taskId}`, payload);
   }
 }
+

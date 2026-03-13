@@ -21,3 +21,4 @@ describe('StockIn', () => {
     expect(component).toBeTruthy();
   });
 });
+

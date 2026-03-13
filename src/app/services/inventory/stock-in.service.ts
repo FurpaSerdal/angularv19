@@ -15,3 +15,4 @@ export class StockInService extends BaseApiService {
     return this.post(`/ekle/${taskId}`, payload);
   }
 }
+

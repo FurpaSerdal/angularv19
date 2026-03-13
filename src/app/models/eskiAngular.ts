@@ -157,11 +157,19 @@ export interface CashRegisterDetails {
 }
 
 export interface Cashier {
-    cashierCode:number;
-    cashierName:string;
-    cashierPassword:string;
-    cashierAuthorization:string;
-    cashierState:boolean;
+    kasiyerId:number;
+    olusturanKullanici:string;
+    olusturmaTarihi:string;
+    guncelleyenKullanici:string;
+    guncellemeTarihi:string;
+    kasiyerKodu:string;
+    kasiyerAdi:string;
+    kasiyerSoyadi:string;
+    kasiyerSifre:string;
+    kasiyerYetki:string;
+    kasiyerDurumu:boolean;
+    adres:string;
+    telefon:string;
 }
 
 export interface SummariesDetailsCT{
@@ -238,3 +246,4 @@ export interface Promotion {
     productPluNo:number;
     expirationDate:string;
 }
+

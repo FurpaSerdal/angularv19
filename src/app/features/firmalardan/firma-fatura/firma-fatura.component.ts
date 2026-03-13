@@ -376,3 +376,4 @@ getVisibleRows(): any[] {
     }
   }
 }
+

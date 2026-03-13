@@ -20,3 +20,4 @@ describe('EtiketbasimComponent', () => {
     expect(component).toBeTruthy();
   });
 });
+

@@ -65,3 +65,4 @@ export class AddBanknotesComponent implements OnInit {
     this.dialogRef.close();
   }
 }
+

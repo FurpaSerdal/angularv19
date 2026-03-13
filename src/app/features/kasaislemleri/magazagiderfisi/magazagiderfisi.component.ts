@@ -9,8 +9,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { YeniComponent } from './yeni/yeni.component';
 import { StoreExpenseReceiptService } from '../../../services/storeExpenseReceipt/store-expense-receipt.service';
@@ -34,6 +34,8 @@ export interface OutageReceipt {
     MatInputModule,
     MatDatepickerModule,
     MatFormFieldModule,
+    MatSortModule,
+    MatPaginatorModule,
     ReactiveFormsModule,
     DatePipe
   ],

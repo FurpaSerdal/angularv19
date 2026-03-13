@@ -18,7 +18,6 @@ import { DetailVirmanExit } from '../detay/detail-virman-exit';
   selector: 'app-virman-exit',
   imports: [...SharedImports],
   templateUrl: './virman-exit.html',
-  styleUrls: ['./virman-exit.css'],
   standalone: true,
    providers: [DatePipe]
 })

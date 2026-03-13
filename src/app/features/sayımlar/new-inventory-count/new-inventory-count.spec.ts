@@ -21,3 +21,4 @@ describe('NewInventoryCount', () => {
     expect(component).toBeTruthy();
   });
 });
+

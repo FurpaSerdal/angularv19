@@ -6,6 +6,7 @@ ApplicationConfig,
 LOCALE_ID,
 provideBrowserGlobalErrorListeners
 } from '@angular/core';
+import { MAT_PAGINATOR_DEFAULT_OPTIONS } from '@angular/material/paginator';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 import { provideToastr } from 'ngx-toastr';
@@ -27,6 +28,15 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([TokenInterceptor, ErrorInterceptor])),
     provideRouter(routes),
     { provide: LOCALE_ID, useValue: 'tr-TR' },
+    {
+      provide: MAT_PAGINATOR_DEFAULT_OPTIONS,
+      useValue: {
+        pageSize: 10,
+        pageSizeOptions: [10],
+        hidePageSize: true,
+        showFirstLastButtons: true
+      }
+    },
 
     // Toastr ayarları
     provideToastr({
@@ -41,3 +51,4 @@ export const appConfig: ApplicationConfig = {
     }),
   ]
 };
+

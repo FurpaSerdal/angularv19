@@ -23,3 +23,4 @@ describe('AddOnlineSalesChecksComponent', () => {
     expect(component).toBeTruthy();
   });
 });
+

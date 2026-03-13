@@ -21,3 +21,4 @@ describe('A5IkiliFiyatEtiketiComponent', () => {
     expect(component).toBeTruthy();
   });
 });
+
