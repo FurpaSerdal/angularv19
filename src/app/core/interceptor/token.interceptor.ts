@@ -22,6 +22,12 @@ export const TokenInterceptor: HttpInterceptorFn = (req, next) => {
   const BranchNo = meService.getUserSignal()()?.subeNo
   const accessToken = auth.getAccessToken();
 
+  if(req.url.includes('/api/products/GetGreenGrocerProducts')) {
+   return next(req);
+  }
+  if(req.url.includes('/api/products/GetBakeryProducts')) {
+    return next(req);
+  }
 
   const authReq = accessToken 
     ? req.clone({

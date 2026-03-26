@@ -156,10 +156,12 @@ this.paginator.page.subscribe((event) => {
   onDateChanged(): void {
     const baslangic = this.datePipe.transform(this.dateRange.get('start')?.value, 'yyyy-MM-dd');
     const bitis = this.datePipe.transform(this.dateRange.get('end')?.value, 'yyyy-MM-dd');
+ 
 
     if (baslangic && bitis) {
+          const zamanlama: string = `aralik-${baslangic}-${bitis}`;
       this.yukleniyor.set(true);
-      this.salseOrdersService.getCompanyOrders(this.gorevid(), "").subscribe({
+      this.salseOrdersService.getCompanyOrders(this.gorevid(), zamanlama).subscribe({
         next: (data: AlinanSiparislerListeDto[]) => {
           this.DataSource.data = data;
           this.yukleniyor.set(false);

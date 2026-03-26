@@ -180,7 +180,7 @@ const baslangic = this.datePipe.transform(this.dateRange.get('start')?.value, 'y
         const isMobile = this.breakpointObserver.isMatched(Breakpoints.Handset);  
         this.dialog.open(ConvertToEWaybillComponent, {
           width: isMobile ? '100vw' : '50vw',
-          height: isMobile ? '100vh' : '70vh',
+          height: isMobile ? '100vh' : '85vh',
           maxWidth: '100vw',
           disableClose: true,
           panelClass: isMobile ? 'full-screen-dialog' : '',

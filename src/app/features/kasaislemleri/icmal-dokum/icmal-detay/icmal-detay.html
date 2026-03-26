@@ -1,231 +1,246 @@
-<div class="container-fluid">
+<div class="container-fluid py-3">
+  <!-- Header Actions -->
   <div class="row mb-4">
     <div class="col-12">
-      <div class="d-flex justify-content-end">
+      <div class="d-flex justify-content-end gap-2">
         <button
-          class="btn btn-light btn-sm border d-flex align-items-center"
+          class="btn btn-outline-primary btn-sm d-flex align-items-center"
           ngxPrint
           printSectionId="print_section"
           [useExistingCss]="true"
           styleSheetFile="assets/summaryPrint.css"
         >
-          <i class="fas fa-print me-2"></i>
+          <i class="bi bi-printer me-2"></i>
           Yazdır
+        </button>
+        <button class="btn btn-outline-secondary btn-sm d-flex align-items-center" (click)="Close()">
+          <i class="bi bi-box-arrow-right me-2"></i>
+          Çıkış Yap
         </button>
       </div>
     </div>
   </div>
 
-  <div class="card border-0 shadow-sm">
+  <!-- Main Card -->
+  <div class="card border-0 shadow-lg rounded-4">
     <div class="card-body p-4">
-      <table class="table table-borderless mb-0">
+      
+      <!-- Header Section -->
+      <div class="border-bottom pb-4 mb-4">
+        <div class="d-flex align-items-center">
+          <div class="bg-primary bg-opacity-10 p-3 rounded-3 me-3">
+            <i class="bi bi-shop-window fs-1 text-primary"></i>
+          </div>
+          <div>
+            <h3 class="mb-1 fw-bold">
+              {{ warehouseNo() }} / {{ warehouseName() }}
+            </h3>
+            <p class="text-muted mb-0">
+              <i class="bi bi-calendar-check me-2"></i>
+              Günlük Kasa Hesabı
+            </p>
+          </div>
+        </div>
         
-        <!-- Başlık Satırı -->
-        <thead>
-          <tr>
-            <td colspan="2" class="border-bottom pb-3">
-              <h4 class="mb-1">
-                <i class="fas fa-warehouse text-primary me-2"></i>
-                <strong>{{ warehouseNo() }}</strong> /
-                <strong>{{ warehouseName() }}</strong> Günlük Kasa Hesabı
-              </h4>
-            </td>
-          </tr>
-        </thead>
+        <!-- Document Info Badge -->
+        <div class="mt-3 d-flex gap-3">
+          <span class="badge bg-light text-dark p-2">
+            <i class="bi bi-file-text me-1"></i>
+            Evrak Seri: <strong>{{ summary.documentSerie }}</strong>
+          </span>
+          <span class="badge bg-light text-dark p-2">
+            <i class="bi bi-sort-numeric-up me-1"></i>
+            Evrak Sıra: <strong>{{ summary.documentOrderNo }}</strong>
+          </span>
+        </div>
+      </div>
 
-        <tbody>
-          <!-- Alt Başlık -->
-          <tr>
-            <td colspan="2" class="pb-3">
-              <div class="d-flex align-items-center text-muted">
-                <i class="fas fa-file-alt me-2"></i>
-                <span>
-                  Evrak Seri: <strong class="text-dark">{{ summary.documentSerie }}</strong>
-                  /
-                  Evrak Sıra: <strong class="text-dark">{{ summary.documentOrderNo }}</strong>
-                </span>
+      <!-- Info Grid -->
+      <div class="row g-4 mb-4">
+        <!-- Cashier Info -->
+        <div class="col-md-6">
+          <div class="bg-light bg-opacity-50 p-3 rounded-3">
+            <div class="d-flex align-items-center mb-2">
+              <i class="bi bi-person-badge fs-4 text-primary me-2"></i>
+              <span class="fw-semibold text-secondary">Kasiyer</span>
+            </div>
+            <div class="d-flex align-items-center">
+              <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-2">
+                <i class="bi bi-person-circle text-primary"></i>
               </div>
-            </td>
-          </tr>
+              <span class="fw-medium">{{ cashierName }}</span>
+            </div>
+          </div>
+        </div>
 
-          <!-- Kasiyer -->
-          <tr>
-            <td class="py-2" style="width: 30%">
-              <div class="d-flex align-items-center">
-                <i class="fas fa-user-tie text-secondary me-2"></i>
-                <span class="fw-medium">Kasiyer</span>
+        <!-- Manager Info -->
+        <div class="col-md-6">
+          <div class="bg-light bg-opacity-50 p-3 rounded-3">
+            <div class="d-flex align-items-center mb-2">
+              <i class="bi bi-person-workspace fs-4 text-success me-2"></i>
+              <span class="fw-semibold text-secondary">Düzenleyen</span>
+            </div>
+            <div class="d-flex align-items-center">
+              <div class="bg-success bg-opacity-10 rounded-circle p-2 me-2">
+                <i class="bi bi-person-check text-success"></i>
               </div>
-            </td>
-            <td class="py-2">
-              <div class="d-flex align-items-center">
-                <i class="fas fa-user-circle me-2 text-primary"></i>
-                {{ cashierName }}
-              </div>
-            </td>
-          </tr>
+              <span class="fw-medium">{{ managerName }}</span>
+            </div>
+          </div>
+        </div>
 
-          <!-- Düzenleyen -->
-          <tr>
-            <td class="py-2">
-              <div class="d-flex align-items-center">
-                <i class="fas fa-user-shield text-secondary me-2"></i>
-                <span class="fw-medium">Düzenleyen</span>
-              </div>
-            </td>
-            <td class="py-2">
-              <div class="d-flex align-items-center">
-                <i class="fas fa-user-check me-2 text-success"></i>
-                {{ managerName }}
-              </div>
-            </td>
-          </tr>
+        <!-- Cash Number -->
+        <div class="col-md-4">
+          <div class="d-flex align-items-center">
+            <div class="bg-info bg-opacity-10 p-2 rounded-3 me-3">
+              <i class="bi bi-cash-stack text-info fs-5"></i>
+            </div>
+            <div>
+              <small class="text-secondary d-block">Kasa No</small>
+              <span class="fw-bold">{{ summary.cashNo }}</span>
+            </div>
+          </div>
+        </div>
 
-          <!-- Kasa No -->
-          <tr>
-            <td class="py-2">
-              <div class="d-flex align-items-center">
-                <i class="fas fa-cash-register text-secondary me-2"></i>
-                <span class="fw-medium">Kasa No</span>
-              </div>
-            </td>
-            <td class="py-2">
-              <div class="badge bg-light text-dark border">
-                {{ summary.cashNo }}
-              </div>
-            </td>
-          </tr>
+        <!-- Z Report No -->
+        <div class="col-md-4">
+          <div class="d-flex align-items-center">
+            <div class="bg-warning bg-opacity-10 p-2 rounded-3 me-3">
+              <i class="bi bi-receipt text-warning fs-5"></i>
+            </div>
+            <div>
+              <small class="text-secondary d-block">Z Rapor No</small>
+              <span class="fw-bold">{{ summary.zReportNo }}</span>
+            </div>
+          </div>
+        </div>
 
-          <!-- Z Rapor No -->
-          <tr>
-            <td class="py-2">
-              <div class="d-flex align-items-center">
-                <i class="fas fa-list-alt text-secondary me-2"></i>
-                <span class="fw-medium">Z Rapor No</span>
-              </div>
-            </td>
-            <td class="py-2">
-              <div class="badge bg-info text-white">
-                {{ summary.zReportNo }}
-              </div>
-            </td>
-          </tr>
+        <!-- Summary Date -->
+        <div class="col-md-4">
+          <div class="d-flex align-items-center">
+            <div class="bg-danger bg-opacity-10 p-2 rounded-3 me-3">
+              <i class="bi bi-calendar-date text-danger fs-5"></i>
+            </div>
+            <div>
+              <small class="text-secondary d-block">İcmal Tarihi</small>
+              <span class="fw-bold">{{ summary.summaryDate | date:"dd.MM.yyyy" }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-          <!-- İcmal Tarihi -->
-          <tr>
-            <td class="py-2">
-              <div class="d-flex align-items-center">
-                <i class="fas fa-calendar-alt text-secondary me-2"></i>
-                <span class="fw-medium">İcmal Tarihi</span>
-              </div>
-            </td>
-            <td class="py-2">
-              <div class="d-flex align-items-center">
-                <i class="fas fa-clock me-2 text-warning"></i>
-                {{ summary.summaryDate | date:"dd.MM.yyyy" }}
-              </div>
-            </td>
-          </tr>
+      <!-- Divider -->
+      <hr class="my-4 opacity-25">
 
-          <!-- Ayırıcı -->
-          <tr>
-            <td colspan="2" class="pt-4">
-              <hr class="border-secondary opacity-50">
-            </td>
-          </tr>
+      <!-- Totals Section -->
+      <div class="row g-4">
+        <!-- General Total -->
+        <div class="col-md-4">
+          <div class="card border-0 bg-primary bg-opacity-10 h-100">
+            <div class="card-body text-center">
+              <i class="bi bi-calculator fs-1 text-primary mb-2"></i>
+              <h6 class="text-secondary mb-2">Kasa Genel Toplam</h6>
+              <h3 class="fw-bold text-primary mb-0">
+                {{ banknoteTotal + creditCardsTotal + foodChecksTotal +
+                   storeExpensesTotal + onlineSalesTotal | currency:'':'':'1.2-2' }} TL
+              </h3>
+            </div>
+          </div>
+        </div>
 
-          <!-- Kasa Genel Toplam -->
-          <tr>
-            <td class="py-3">
-              <div class="d-flex align-items-center justify-content-end">
-                <i class="fas fa-calculator text-success me-2"></i>
-                <span class="fw-bold">Kasa Genel Toplam</span>
-              </div>
-            </td>
-            <td class="py-3">
-              <div class="d-flex align-items-center justify-content-end">
-                <span class="h5 fw-bold text-success mb-0">
-                  {{ banknoteTotal + creditCardsTotal + foodChecksTotal +
-                     storeExpensesTotal + onlineSalesTotal | currency:'':'':'1.2-2' }} TL
-                </span>
-              </div>
-            </td>
-          </tr>
+        <!-- Z Report Total -->
+        <div class="col-md-4">
+          <div class="card border-0 bg-info bg-opacity-10 h-100">
+            <div class="card-body text-center">
+              <i class="bi bi-file-earmark-text fs-1 text-info mb-2"></i>
+              <h6 class="text-secondary mb-2">Kasa Z Raporu Tutarı</h6>
+              <h3 class="fw-bold text-info mb-0">
+                {{ zTotalValue | currency:'':'':'1.2-2' }} TL
+              </h3>
+            </div>
+          </div>
+        </div>
 
-          <!-- Kasa Z Raporu Tutarı -->
-          <tr>
-            <td class="py-2">
-              <div class="d-flex align-items-center justify-content-end">
-                <i class="fas fa-file-invoice-dollar text-info me-2"></i>
-                <span class="fw-bold">Kasa Z Raporu Tutarı</span>
-              </div>
-            </td>
-            <td class="py-2">
-              <div class="d-flex align-items-center justify-content-end">
-                <span class="h5 fw-bold text-info mb-0">
-                  {{ zTotalValue | currency:'':'':'1.2-2' }} TL
-                </span>
-              </div>
-            </td>
-          </tr>
+        <!-- Difference Total -->
+        <div class="col-md-4">
+          <div class="card border-0 bg-warning bg-opacity-10 h-100">
+            <div class="card-body text-center">
+              <i class="bi bi-bar-chart-steps fs-1 text-warning mb-2"></i>
+              <h6 class="text-secondary mb-2">Kasa Fark Tutarı</h6>
+              <h3 class="fw-bold text-warning mb-0">
+                {{
+                  (banknoteTotal + creditCardsTotal + foodChecksTotal +
+                   storeExpensesTotal + onlineSalesTotal) - zTotalValue
+                  | currency:'':'':'1.2-2'
+                }} TL
+              </h3>
+            </div>
+          </div>
+        </div>
+      </div>
 
-          <!-- Kasa Fark Tutarı -->
-          <tr>
-            <td class="py-2">
-              <div class="d-flex align-items-center justify-content-end">
-                <i class="fas fa-balance-scale text-warning me-2"></i>
-                <span class="fw-bold">Kasa Fark Tutarı</span>
-              </div>
-            </td>
-            <td class="py-2">
-              <div class="d-flex align-items-center justify-content-end">
-                <span class="h5 fw-bold text-warning mb-0">
-                  {{
-                    (banknoteTotal + creditCardsTotal + foodChecksTotal +
-                     storeExpensesTotal + onlineSalesTotal) - zTotalValue
-                    | currency:'':'':'1.2-2'
-                  }} TL
-                </span>
-              </div>
-            </td>
-          </tr>
-
-        </tbody>
-      </table>
+      <!-- Additional Stats (Optional) -->
+      <div class="row mt-4 g-3">
+        <div class="col-md-3 col-6">
+          <div class="d-flex align-items-center p-2 bg-light rounded">
+            <i class="bi bi-cash text-success me-2"></i>
+            <small>Banknot: {{ banknoteQuantity || 0 }} Adet</small>
+          </div>
+        </div>
+        <div class="col-md-3 col-6">
+          <div class="d-flex align-items-center p-2 bg-light rounded">
+            <i class="bi bi-credit-card text-primary me-2"></i>
+            <small>Kart: {{ creditCardsQuantity || 0 }} Adet</small>
+          </div>
+        </div>
+        <div class="col-md-3 col-6">
+          <div class="d-flex align-items-center p-2 bg-light rounded">
+            <i class="bi bi-ticket text-warning me-2"></i>
+            <small>Çek: {{ foodChecksQuantity || 0 }} Adet</small>
+          </div>
+        </div>
+        <div class="col-md-3 col-6">
+          <div class="d-flex align-items-center p-2 bg-light rounded">
+            <i class="bi bi-cart text-info me-2"></i>
+            <small>Online: {{ onlineSalesQuantity || 0 }} Adet</small>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div id="print_section">
-  <app-summary-print
-    *ngIf="cashRegisterDetail"
-    [summary]="summary"
-    [banknoteMovements]="banknoteMovements"
-    [summariesDetails]="summariesDetails"
-    [giftCheckMovements]="giftCheckMovements"
-    [creditCards]="creditCards"
-    [foodChecks]="foodChecks"
-    [expenseCompass]="expenseCompass"
-    [storeExpenses]="storeExpenses"
-    [onlineSales]="onlineSales"
-    [banknoteTotal]="banknoteTotal"
-    [banknoteQuantity]="banknoteQuantity"
-    [giftCheckTotal]="giftCheckTotal"
-    [giftCheckQuantity]="giftCheckQuantity"
-    [creditCardsTotal]="creditCardsTotal"
-    [creditCardsQuantity]="creditCardsQuantity"
-    [foodChecksTotal]="foodChecksTotal"
-    [foodChecksQuantity]="foodChecksQuantity"
-    [onlineSalesTotal]="onlineSalesTotal"
-    [onlineSalesQuantity]="onlineSalesQuantity"
-    [expenseCompassTotal]="expenseCompassTotal"
-    [expenseCompassQuantity]="expenseCompassQuantity"
-    [storeExpensesTotal]="storeExpensesTotal"
-    [cashierName]="cashierName"
-    [managerName]="managerName"
-    [zTotalValue]="zTotalValue"
-    [warehouseNo]="warehouseNo()"
-    [warehouseName]="warehouseName()"
-    [cashRegisterNo]="cashRegisterDetail.cashRegisterNo"
-  ></app-summary-print>
+  <!-- Print Section (Hidden) -->
+  <div id="print_section" class="d-print-block">
+    <app-summary-print
+      *ngIf="cashRegisterDetail"
+      [summary]="summary"
+      [banknoteMovements]="banknoteMovements"
+      [summariesDetails]="summariesDetails"
+      [giftCheckMovements]="giftCheckMovements"
+      [creditCards]="creditCards"
+      [foodChecks]="foodChecks"
+      [expenseCompass]="expenseCompass"
+      [storeExpenses]="storeExpenses"
+      [onlineSales]="onlineSales"
+      [banknoteTotal]="banknoteTotal"
+      [banknoteQuantity]="banknoteQuantity"
+      [giftCheckTotal]="giftCheckTotal"
+      [giftCheckQuantity]="giftCheckQuantity"
+      [creditCardsTotal]="creditCardsTotal"
+      [creditCardsQuantity]="creditCardsQuantity"
+      [foodChecksTotal]="foodChecksTotal"
+      [foodChecksQuantity]="foodChecksQuantity"
+      [onlineSalesTotal]="onlineSalesTotal"
+      [onlineSalesQuantity]="onlineSalesQuantity"
+      [expenseCompassTotal]="expenseCompassTotal"
+      [expenseCompassQuantity]="expenseCompassQuantity"
+      [storeExpensesTotal]="storeExpensesTotal"
+      [cashierName]="cashierName"
+      [managerName]="managerName"
+      [zTotalValue]="zTotalValue"
+      [warehouseNo]="warehouseNo()"
+      [warehouseName]="warehouseName()"
+      [cashRegisterNo]="cashRegisterDetail.cashRegisterNo"
+    ></app-summary-print>
+  </div>
 </div>
-</div>
-

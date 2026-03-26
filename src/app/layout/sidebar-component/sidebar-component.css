@@ -2,23 +2,25 @@
   display: block;
 }
 
+/* Acilir ok ikonunu donduren kisa animasyon */
 .rotate-180 {
   transform: rotate(180deg);
   transition: transform 0.15s ease;
 }
 
+/* Sidebar ana kabuk: boyut, konum ve tema degiskenleri burada tanimli */
 .sidebar {
-  --sidebar-surface: linear-gradient(180deg, var(--sidebar-bg, #1f3f8f) 0%, var(--sidebar-bg-2, #243c7a) 100%);
+  --sidebar-surface: linear-gradient(180deg, var(--sidebar-bg, #0d6efd) 0%, var(--sidebar-bg-2, #0b5ed7) 100%);
   --sidebar-text-strong: #ffffff;
-  --sidebar-text-sub: var(--sidebar-text, #eaf0ff);
-  --sidebar-text-muted: rgba(234, 240, 255, 0.76);
-  --sidebar-accent: #7de3e1;
+  --sidebar-text-sub: var(--sidebar-text, #dbe9ff);
+  --sidebar-text-muted: rgba(219, 233, 255, 0.8);
+  --sidebar-accent: #cfe2ff;
   --sidebar-active-bg: var(--sidebar-active, rgba(255, 255, 255, 0.12));
-  --sidebar-active-soft: var(--sidebar-active-soft, rgba(134, 183, 255, 0.18));
+  --sidebar-active-soft: var(--sidebar-active-soft, rgba(13, 110, 253, 0.18));
   --sidebar-active-text: #ffffff;
   --sidebar-hover: rgba(255, 255, 255, 0.06);
   --sidebar-border: rgba(255, 255, 255, 0.08);
-  --sidebar-focus-ring: rgba(125, 227, 225, 0.4);
+  --sidebar-focus-ring: rgba(207, 226, 255, 0.6);
   width: 280px;
   height: 100dvh;
   min-height: 100dvh;
@@ -36,7 +38,7 @@
   background: var(--sidebar-surface);
   color: var(--sidebar-text-strong);
   border-right: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 12px 0 28px rgba(12, 24, 31, 0.16);
+  box-shadow: 0 1rem 2rem rgba(13, 42, 84, 0.18);
   will-change: width, transform;
   overflow: hidden;
 }
@@ -49,6 +51,7 @@
   overflow: hidden;
 }
 
+/* Kaydirilabilir menu alani ve scrollbar gorunumu */
 .sidebar-nav {
   flex: 1;
   min-height: 0;
@@ -78,6 +81,7 @@
   background: transparent;
 }
 
+/* Masaustunde daraltma durumunda sidebar'i tamamen gizler */
 .sidebar.sidebar-collapsed {
   width: 0;
   padding-left: 0;
@@ -90,6 +94,7 @@
   display: none !important;
 }
 
+/* Mobilde sidebar soldan acilip kapanir */
 .sidebar.sidebar-mobile {
   transform: translateX(-100%);
 }
@@ -99,6 +104,7 @@
   width: 280px;
 }
 
+/* Ust kisim: logo, marka metni ve mobil kapatma butonu */
 .sidebar-header {
   display: flex;
   align-items: center;
@@ -139,14 +145,10 @@
   display: block;
 }
 
-.sidebar-brand__copy,
-.sidebar-user__copy {
+.sidebar-brand__copy {
   min-width: 0;
   display: flex;
   flex-direction: column;
-}
-
-.sidebar-brand__copy {
   gap: 0.15rem;
 }
 
@@ -168,30 +170,6 @@ small.logo-text {
   color: var(--sidebar-text-muted);
 }
 
-.sidebar-user {
-  margin-top: 0.75rem;
-  padding: 0.75rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  border-radius: 0.75rem;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid var(--sidebar-border);
-}
-
-.sidebar-user__avatar {
-  width: 2.4rem;
-  height: 2.4rem;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--sidebar-accent);
-  color: #ffffff;
-  font-weight: 700;
-  font-size: 0.85rem;
-}
-
 .mobile-close-btn {
   border: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(255, 255, 255, 0.08);
@@ -210,6 +188,7 @@ small.logo-text {
   color: var(--sidebar-text-strong);
 }
 
+/* Menu yuklenirken ya da bossa gosterilen durum kutusu */
 .sidebar-state {
   margin-top: 0.75rem;
   padding: 1rem;
@@ -237,6 +216,7 @@ small.logo-text {
   flex-direction: column;
 }
 
+/* 1. seviye menu butonlari (ana gorevler) */
 .nav-item {
   position: relative;
   border: none;
@@ -330,27 +310,109 @@ small.logo-text {
 }
 
 .nav-arrow {
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: transform 0.15s ease;
   font-size: 0.75rem;
   flex-shrink: 0;
-  color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.96);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .nav-item.active .nav-arrow {
   color: var(--sidebar-accent);
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
+/* 2. seviye kapsayici: acik gri gecisli panel */
 .submenu {
   width: 100%;
-  margin: 0 0 0.15rem 0;
+  margin: 0.2rem 0 0.2rem 0;
   padding: 0.1rem 0 0.1rem 2.45rem;
   border-left: none;
+  border-radius: 0.85rem;
+  background: linear-gradient(180deg, rgba(248, 249, 250, 0.98) 0%, rgba(233, 236, 239, 0.96) 100%);
+  border: 1px solid rgba(13, 110, 253, 0.16);
 }
 
 .submenu-item {
   position: relative;
 }
 
+/* 2. seviye butonlari icin okunurluk ve aktif/hover tonlari */
+.submenu .submenu-button {
+  color: #0a3d91;
+  font-weight: 600;
+}
+
+.submenu .submenu-text {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-rendering: geometricPrecision;
+}
+
+.submenu .submenu-button.altmenuactive {
+  background: rgba(13, 110, 253, 0.12);
+  color: #0a3d91;
+  font-weight: 700;
+}
+
+.submenu .submenu-button:hover {
+  background: rgba(13, 110, 253, 0.08);
+  color: #0a3d91;
+}
+
+.submenu .submenu-button.altmenuactive:hover {
+  background: rgba(13, 110, 253, 0.16);
+  color: #0a3d91;
+}
+
+/* 3. seviye gorev listesi: beyaz kart etkisi */
+.submenu .third-level-menu {
+  margin-top: 0.15rem;
+  margin-right: 0.2rem;
+  padding: 0.28rem 0.28rem 0.28rem 0.55rem;
+  border-radius: 0.7rem;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(13, 110, 253, 0.14);
+  border-left-color: rgba(13, 110, 253, 0.24);
+}
+
+.submenu .third-level-item {
+  color: #0b3f93;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.submenu .third-level-item.active {
+  background: rgba(13, 110, 253, 0.14);
+  color: #0b3f93;
+  font-weight: 700;
+}
+
+.submenu .third-level-item:hover {
+  background: rgba(13, 110, 253, 0.08);
+  color: #0b3f93;
+}
+
+.submenu .third-level-item.active:hover {
+  background: rgba(13, 110, 253, 0.16);
+  color: #0b3f93;
+}
+
+.submenu .third-level-text {
+  font-weight: inherit;
+  text-rendering: geometricPrecision;
+}
+
+/* Temel submenu stilleri (genel davranis; yukaridaki .submenu kapsamli kurallarla ozellestirilir) */
 .submenu-button {
   position: relative;
   border-radius: 0.8rem;
@@ -395,6 +457,8 @@ small.logo-text {
 
 .submenu-button.altmenuactive .nav-arrow {
   color: var(--sidebar-accent);
+  background: rgba(13, 110, 253, 0.14);
+  border-color: rgba(13, 110, 253, 0.22);
 }
 
 .submenu-button:hover {
@@ -469,6 +533,7 @@ small.logo-text {
   min-width: 0;
 }
 
+/* Alt kisimdaki daralt/genislet butonu */
 .sidebar-footer {
   margin-top: auto;
   flex-shrink: 0;
@@ -498,6 +563,7 @@ small.logo-text {
   color: var(--sidebar-text-strong);
 }
 
+/* Klavye ile dolasimi gorunur yapmak icin focus halkasi */
 .nav-item:focus-visible,
 .submenu-button:focus-visible,
 .third-level-item:focus-visible,
@@ -520,9 +586,23 @@ small.logo-text {
 }
 
 .nav-arrow.bi {
-  font-size: 0.875rem;
+  font-size: 1rem;
 }
 
+.submenu .nav-arrow {
+  color: #0a3d91;
+  background: rgba(13, 110, 253, 0.08);
+  border-color: rgba(13, 110, 253, 0.14);
+  box-shadow: none;
+}
+
+.submenu .submenu-button:hover .nav-arrow,
+.submenu .submenu-button.altmenuactive .nav-arrow {
+  color: #084298;
+  background: rgba(13, 110, 253, 0.14);
+}
+
+/* Tablet ve altinda: olculer ve bosluklar daha kompakt */
 @media (max-width: 991.98px) {
   .sidebar {
     width: min(280px, calc(100vw - 0.75rem));
@@ -613,6 +693,7 @@ small.logo-text {
   }
 }
 
+/* Kucuk telefonlarda ekstra sikistirma */
 @media (max-width: 575.98px) {
   .sidebar {
     width: calc(100vw - 0.35rem);
@@ -634,6 +715,7 @@ small.logo-text {
   }
 }
 
+/* 992px ve ustunde mobil kapatma butonunu gizler, sidebar'i sabit tutar */
 @media (min-width: 992px) {
   .sidebar {
     position: fixed !important;
@@ -649,6 +731,7 @@ small.logo-text {
   }
 }
 
+/* Yuksek DPI ekranda ikon kenarlarinin daha puruzsuz gorunmesi */
 @media (min-resolution: 120dpi) {
   .nav-icon.bi {
     -webkit-font-smoothing: antialiased;

@@ -16,6 +16,7 @@ import { DepoCari,StokAraCT } from '../../../../../models/ortakModeller';
 import { MeService } from '../../../../../services/meservice.service';
 import { ShipmentNotesService } from '../../../../../services/shipments/shipment-notes.service';
 import { WarehouseService } from '../../../../../services/warehouse.service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-warehouse-send',
@@ -24,6 +25,11 @@ import { WarehouseService } from '../../../../../services/warehouse.service';
   templateUrl: './warehouse-send.html',
 })
 export class WarehouseSend {
+
+searchCancel$ = new Subject<void>();
+
+
+
   // ================= STATE =================
   depoAramaGirdisi = signal('');
   bulunanDepolar = signal<DepoCari[]>([]);
@@ -82,6 +88,11 @@ export class WarehouseSend {
     });
   }
 
+  ngOnInit() { }
+  ngOnDestroy() {
+    this.searchCancel$.next(); // Bileşen yok edilirken arama iptal edilir
+  }
+
   // ================= DEPO =================
   depoAra(term: string) {
     if (!term.trim()) return;
@@ -103,8 +114,11 @@ export class WarehouseSend {
 urunAra(term: string) {
   if (!term.trim()) return;
 
+    this.searchCancel$.next(); // Önceki aramayı iptal et
   this.warehouseService
-    .searchStock(term.toLowerCase())
+    .searchStock(term.toLowerCase()).pipe(
+      takeUntil(this.searchCancel$)
+    )
     .subscribe({
       next: res => {
         const filtreli = res.filter(u => 

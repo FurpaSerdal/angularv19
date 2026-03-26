@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component,computed,OnInit,signal } from '@angular/core';
+import { Component,computed,effect,signal } from '@angular/core';
 import { FormsModule,ReactiveFormsModule } from '@angular/forms';
 
 
@@ -13,6 +13,7 @@ import { ToastrService } from 'ngx-toastr';
 import { KalemDto } from '../../../../../models/ayrinti-dtolari.model';
 import { AlinanDepoSiparisleriEkleDto } from '../../../../../models/ekle-dtolari.model';
 import { listProducts } from '../../../../../models/listProduct';
+import { catchError, debounceTime, of, switchMap } from 'rxjs';
 
 
 
@@ -23,7 +24,7 @@ import { listProducts } from '../../../../../models/listProduct';
   templateUrl: './warehouse-order.html',
   styleUrls: ['./warehouse-order.css'],
 })
-export class WarehouseOrderComponent implements OnInit {
+export class WarehouseOrderComponent {
 
   /// ===================== SIGNAL STATE =====================
   depoAramaGirdisi = signal('');
@@ -36,8 +37,6 @@ export class WarehouseOrderComponent implements OnInit {
   saveError = signal<string | null>(null);
   saveSuccess = signal(false);
 
-
-
   constructor(
     private warehouseService: WarehouseService,
     private salesOrdersService: SalesOrdersService,
@@ -46,9 +45,8 @@ export class WarehouseOrderComponent implements OnInit {
     private dialogRef: MatDialogRef<WarehouseOrderComponent>,
   ) { }
 
-  ngOnInit() {
+  ngOnInit() { }
   
-  }
   
 
   // ===================== COMPUTED =====================
@@ -112,34 +110,9 @@ export class WarehouseOrderComponent implements OnInit {
   }
 
 
-    // ===================== URUN =====================
-  onSearchChange(term: string) {
-    this.arananUrun.set(term);
-    this.urunAra();
-  }
+  urunSec(urun: StokAraCT | undefined) {
+    if (!urun) return;
 
-
-
-  urunAra() {
-    const query = this.arananUrun().trim();
-
-    if (query.length < 2) {
-      this.bulunanUrunler.set([]);
-      return;
-    }
-
-    this.warehouseService.searchStock(query).subscribe({
-      next: res => {
-        const filter = res.filter(u => !u.stokIsim?.startsWith('DLS.'));
-        const isMobile = window.innerWidth <= 768;
-        isMobile ? this.urunSec(filter[0]) : this.bulunanUrunler.set(filter);
-      },
-      error: (err) => { this.toastr.error('Ürün aranırken hata oluştu ' + err.message);
-        this.bulunanUrunler.set([]);
-      }
-    });
-  }
-  urunSec(urun: StokAraCT) {
     const exists = this.listProducts().some(k => k.stokKodu === urun.stokKod);
     if (exists) {
       this.listProducts.set(this.listProducts().map(k => {
@@ -265,6 +238,39 @@ export class WarehouseOrderComponent implements OnInit {
 
   trackByKalem = (_: number, kalem: KalemDto) => kalem.stokKodu;
 
+  
+  private readonly urunAramaEffect = effect((onCleanup) => {
+    const query = this.arananUrun();
+
+    if (query.trim().length < 2) {
+      this.bulunanUrunler.set([]);
+      return;
+    }
+
+    // signal -> RxJS stream ile debounce + switchMap
+    const searchSub = of(query.trim())
+      .pipe(
+        debounceTime(300), // 300ms debounce
+        switchMap(term =>
+          this.warehouseService.searchStock(term)
+            .pipe(
+              catchError(err => {
+                this.toastr.error('Ürün aranırken hata oluştu ' + err.message);
+                return of([]);
+              })
+            )
+        )
+      )
+      .subscribe(res => {
+        const filterRes = res.filter(u => !u.stokIsim?.startsWith('DLS.'));
+        const isMobile = window.innerWidth <= 768;
+        isMobile ? this.urunSec(filterRes[0]) : this.bulunanUrunler.set(filterRes);
+      });
+
+    onCleanup(() => searchSub.unsubscribe());
+  });
+
+
   private resetFormAfterSuccess() {
     setTimeout(() => {
       this.saveSuccess.set(false);
@@ -274,4 +280,7 @@ export class WarehouseOrderComponent implements OnInit {
       this.bulunanUrunler.set([]);
     }, 3000);
   }
+
+
+
 }

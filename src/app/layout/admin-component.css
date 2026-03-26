@@ -1,11 +1,11 @@
 :host {
   --shell-bg:
-    radial-gradient(circle at top left, rgba(61, 86, 197, 0.08), transparent 25%),
-    radial-gradient(circle at right, rgba(31, 63, 143, 0.05), transparent 24%),
-    linear-gradient(180deg, #f8fafc 0%, #f4f6f8 100%);
-  --surface-bg: rgba(255, 255, 255, 0.88);
+    radial-gradient(circle at top left, rgba(var(--app-primary-rgb), 0.12), transparent 28%),
+    radial-gradient(circle at right, rgba(var(--app-primary-rgb), 0.06), transparent 24%),
+    linear-gradient(180deg, #f8f9fa 0%, #eef3f8 100%);
+  --surface-bg: rgba(255, 255, 255, 0.96);
   --surface-border: var(--app-border);
-  --shadow-soft: 0 18px 42px rgba(15, 23, 42, 0.06);
+  --shadow-soft: var(--app-shadow-md);
   display: block;
   height: 100%;
   overflow: hidden;
@@ -23,8 +23,8 @@
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle at top right, rgba(31, 111, 120, 0.08), transparent 30%),
-    radial-gradient(circle at left center, rgba(103, 130, 152, 0.08), transparent 24%);
+    radial-gradient(circle at top right, rgba(13, 202, 240, 0.08), transparent 30%),
+    radial-gradient(circle at left center, rgba(var(--app-primary-rgb), 0.06), transparent 24%);
 }
 
 .content-wrapper {
@@ -90,10 +90,10 @@
   flex-direction: column;
   gap: 0.2rem;
   padding: 0 0.7rem;
-  border: 1px solid rgba(61, 86, 197, 0.18);
-  background: #ffffff;
+  border: 1px solid rgba(var(--app-primary-rgb), 0.2);
+  background: var(--app-surface);
   color: var(--app-primary);
-  box-shadow: 0 16px 30px rgba(20, 34, 53, 0.12);
+  box-shadow: var(--app-shadow-sm);
   transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
 
@@ -101,7 +101,7 @@
 .sidebar-reopen:focus-visible {
   transform: translateY(-1px);
   filter: brightness(1.01);
-  box-shadow: 0 18px 34px rgba(20, 34, 53, 0.16);
+  box-shadow: var(--app-shadow-md);
 }
 
 .sidebar-reopen__icon {
@@ -111,7 +111,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--app-surface-muted);
+  background: var(--app-surface-subtle);
   color: var(--app-primary);
 }
 
@@ -141,7 +141,7 @@
   justify-content: center;
   color: #fff;
   background: var(--app-primary);
-  box-shadow: 0 14px 28px rgba(20, 34, 53, 0.16);
+  box-shadow: var(--app-shadow-sm);
 }
 
 @media (max-width: 991.98px) {

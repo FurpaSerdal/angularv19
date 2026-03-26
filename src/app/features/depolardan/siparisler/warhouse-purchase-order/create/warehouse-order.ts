@@ -9,6 +9,8 @@ import { DepoCari,StokAraCT } from '../../../../../models/ortakModeller';
 import { MeService } from '../../../../../services/meservice.service';
 import { PurchaseOrdersService } from '../../../../../services/orders/purchase-orders.service';
 import { WarehouseService } from '../../../../../services/warehouse.service';
+import { Subject, takeUntil } from 'rxjs';
+import { Cart, CartLine } from '../../../../../models/eski-product.models';
 
 
 @Component({
@@ -19,6 +21,36 @@ import { WarehouseService } from '../../../../../services/warehouse.service';
   styleUrls: ['./warehouse-order.css'],
 })
 export class WarehouseOrderComponent implements OnInit {
+searchCancel$ = new Subject<void>();
+
+manunelDepolar : DepoCari[] = [
+    {
+        "yetkiliAdSoyad": "Serdal Özsoy",
+        "isim": "MANAV DEPO",
+        "depoNo": 56,
+        "cariKod": "3880115910",
+        "unvan": "FURPA GIDA TEKSTİL KUYUM.İTH.İHR.SAN.VE TİC.LTD.ŞTİ. MUTFAK YEMEKHANE",
+        "vknTckn": "3880115910",
+        "vergiDairesi": "ERTUĞRULGAZİ VERGİ DAİRESİ MÜD.",
+        "temsilciAdSoyad": "Serdal Özsoy",
+        "adres": "YOLÇATI KÖYÜ BURSA TARIM HALİ",
+        "ilce": "NİLÜFER",
+        "il": "BURSA"
+    },
+           {
+        "yetkiliAdSoyad": "Serdal Özsoy",
+        "isim": "UNLU ÜRETİM ",
+        "depoNo": 55,
+        "cariKod": "3880115910",
+        "unvan": "FURPA GIDA TEKSTİL KUYUM.İTH.İHR.SAN.VE TİC.LTD.ŞTİ. MUTFAK YEMEKHANE",
+        "vknTckn": "3880115910",
+        "vergiDairesi": "ERTUĞRULGAZİ VERGİ DAİRESİ MÜD.",
+        "temsilciAdSoyad": "Serdal Özsoy",
+        "adres": "ÇALI MAH. GÜMÜŞ CAD. NO:25B ",
+        "ilce": "NİLÜFER",
+        "il": "BURSA"
+    }
+]
 
 
   // ===================== SIGNAL STATE =====================
@@ -27,6 +59,10 @@ export class WarehouseOrderComponent implements OnInit {
 
   arananUrun = signal('');
   depoAramaGirdisi = signal('');
+  seciliDepoBilgisi = signal<DepoCari | null>(null);
+  depoSecimAcik = signal(false);
+  depoSecimYontemi = signal<'manuel' | 'hızlı' | null>(null);
+
 
   bulunanUrunler = signal<StokAraCT[]>([]);
   bulunanDepolar = signal<DepoCari[]>([]);
@@ -39,13 +75,17 @@ export class WarehouseOrderComponent implements OnInit {
   gorevid = computed(() =>
     this.meservice.selectedGorev()?.id ?? 0
   );
+  eskiApiLogin = computed(() =>
+    this.meservice.userSignal()?.eskiApiLogin ?? ''
+  );
 
   constructor(
     private warehouseService: WarehouseService,
     private purchaseOrdersService: PurchaseOrdersService,
     private meservice: MeService,
     private dialogRef: MatDialogRef<WarehouseOrderComponent>,
-  ) { }
+  ) 
+  {}
 
   ngOnInit() { }
 
@@ -93,24 +133,57 @@ export class WarehouseOrderComponent implements OnInit {
     });
   }
 
-  onDepoChange(depo: DepoCari) {
-    console.log('Seçilen depo:', depo);
+  onDepoChange(depo: DepoCari, yontem: 'manuel' | 'hızlı' = 'manuel') {
     this.postorder.update(p => ({
       ...p,
       muhatapDepoNo: depo.depoNo
     }));
 
-    console.log('Güncellenmiş postorder:', this.postorder());
     this.depoAramaGirdisi.set(`${depo.depoNo} - ${depo.isim}`);
+    this.seciliDepoBilgisi.set(depo);
+    this.depoSecimYontemi.set(yontem);
+    this.depoSecimAcik.set(false);
 
     this.bulunanDepolar.set([]);
+    this.bulunanUrunler.set([]);
+    this.arananUrun.set('');
+
+    if (yontem === 'hızlı') {
+      this.depoUrunleriniYukle(depo.depoNo);
+    }
+  }
+
+  manuelDepoSec(depo: DepoCari | null) {
+    if (!depo) {
+      this.postorder.update(p => ({
+        ...p,
+        muhatapDepoNo: 0
+      }));
+      this.seciliDepoBilgisi.set(null);
+      this.depoSecimYontemi.set(null);
+      this.depoAramaGirdisi.set('');
+      this.listProducts.set([]);
+      return;
+    }
+
+    this.onDepoChange(depo, 'hızlı');
+  }
+
+  toggleManuelDepoSecim() {
+    this.depoSecimAcik.update(v => !v);
   }
 
   // ===================== ÜRÜN =====================
 
   onSearchChange(term: string) {
     this.saveError.set(null);
-     if (this.seciliDepo() === null || this.seciliDepo() === undefined) {
+    
+    // Elle arama hızlı depo seçimi sonrasında çalışmaz
+    if (this.depoSecimYontemi() === 'hızlı') {
+      return;
+    }
+
+    if (this.seciliDepoBilgisi() === null || this.seciliDepoBilgisi() === undefined) {
       this.saveError.set('Önce depo seçmelisiniz.');
       return;
     }
@@ -120,13 +193,14 @@ export class WarehouseOrderComponent implements OnInit {
 
   urunAra() {
     const query = this.arananUrun().trim();
-
     if (query.length < 2) {
       this.bulunanUrunler.set([]);
       return;
     }
-
-    this.warehouseService.searchStock(query).subscribe({
+    this.searchCancel$.next(); // Önceki aramayı iptal et
+    this.warehouseService.searchStock(query).pipe(
+      takeUntil(this.searchCancel$)
+    ).subscribe({
       next: res => {
         const filter = res.filter(u => u.sipDursun===0);
         const isMobile = window.innerWidth <= 768;
@@ -169,13 +243,10 @@ export class WarehouseOrderComponent implements OnInit {
   }
 
   miktarArttir(index: number) { this.setMiktar(index, (this.listProducts()[index].miktar || 0) + (this.listProducts()[index].birimKatSayi ?? 1)); }
-  miktarAzalt(index: number) { this.setMiktar(index, Math.max(1, (this.listProducts()[index].miktar || 1) - (this.listProducts()[index].birimKatSayi ?? 1))); } 
- miktarGir(index: number, value: string | number) { const numericValue = Number(value); const next = Number.isFinite(numericValue) ? Math.max(1, numericValue) : 1; this.setMiktar(index, next); } 
+  miktarAzalt(index: number) { this.setMiktar(index, Math.max(0, (this.listProducts()[index].miktar || 0) - (this.listProducts()[index].birimKatSayi ?? 1))); }
+ miktarGir(index: number, value: string | number) { const numericValue = Number(value); const next = Number.isFinite(numericValue) ? Math.max(0, numericValue) : 0; this.setMiktar(index, next); }
  private setMiktar(index: number, miktar: number) { this.listProducts.update(p => { const validatedKalemler = [...p]; if (!validatedKalemler[index])
-   return p; validatedKalemler[index] = { ...validatedKalemler[index], miktar: Math.max(1, miktar) }; return validatedKalemler; }); }
-
-
-  trackByKalem = (_: number, kalem: KalemDto) => kalem.stokKodu;
+   return p; validatedKalemler[index] = { ...validatedKalemler[index], miktar: Math.max(0, miktar) }; return validatedKalemler; }); }
 
   // ===================== KALEM =====================
 
@@ -184,7 +255,9 @@ export class WarehouseOrderComponent implements OnInit {
   }
 
   tumunuTemizle() {
-    this.listProducts.set([]);
+    this.resetFormAfterSuccess();
+   
+
   }
 
   // ===================== SAVE =====================
@@ -232,6 +305,9 @@ export class WarehouseOrderComponent implements OnInit {
       this.listProducts.set([]);
       this.arananUrun.set('');
       this.bulunanUrunler.set([]);
+      this.depoAramaGirdisi.set('');
+      this.seciliDepoBilgisi.set(null);
+      this.depoSecimYontemi.set(null);
     }, 1000);
   }
 
@@ -244,11 +320,51 @@ export class WarehouseOrderComponent implements OnInit {
       ...this.postorder(),
 
       siparisAlanAdSoyad: this.postorder().siparisAlanAdSoyad,
-      kalemler: this.listProducts().map(k => ({
+      kalemler: this.listProducts().filter(k => (k.miktar ?? 0) > 0).map(k => ({
         stokKodu: k.stokKodu,
         siparisMiktari: k.miktar
       }))
     };
+  }
+
+  private depoUrunleriniYukle(depoNo: number) {
+    if (!this.eskiApiLogin()) {
+      return;
+    }
+
+    if (depoNo === 56) {
+      this.purchaseOrdersService.GetGreenGrocerProducts(this.eskiApiLogin()).subscribe({
+        next: (res: Cart) => {
+          this.listProducts.set(this.cartToListProducts(res));
+        },
+        error: err => console.error(err)
+      });
+      return;
+    }
+
+    if (depoNo === 55) {
+      this.purchaseOrdersService.GetBakeryProducts(this.eskiApiLogin()).subscribe({
+        next: (res: Cart) => {
+          this.listProducts.set(this.cartToListProducts(res));
+        },
+        error: err => console.error(err)
+      });
+      return;
+    }
+
+    this.listProducts.set([]);
+  }
+
+  private cartToListProducts(cart: Cart): listProducts[] {
+    return cart.cartLines.map((line: CartLine) => ({
+      stokKodu: line.product.productCode,
+      stokAdi: line.product.productName,
+      birimAd: line.product.unitName,
+      birimKatSayi: (line.product.unitPriceFactor && line.product.unitPriceFactor > 0) ? line.product.unitPriceFactor : 1,
+      barkod: line.product.barcode ?? '',
+      miktar: 0,
+      fiyat: line.product.price
+    }));
   }
 }
 

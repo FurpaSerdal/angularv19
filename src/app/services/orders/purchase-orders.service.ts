@@ -1,9 +1,14 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { BaseApiService } from '../shared/base-api.service';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({ providedIn: 'root' })
 export class PurchaseOrdersService extends BaseApiService {
+
+  constructor(http: HttpClient) {
+    super(http);
+  }
 
   
   // firma verilen siparişler
@@ -37,5 +42,27 @@ export class PurchaseOrdersService extends BaseApiService {
   createBranchOrder(taskId: number, payload: any): Observable<any> {
     return this.post(`ekle/${taskId}`, payload);
   }
+  
+
+GetGreenGrocerProducts(token: string): Observable<any> {
+  const url = 'http://10.0.0.100:5001/api/products/GetGreenGrocerProducts';
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  };
+
+  return this.http.get(url, { headers });
+}
+GetBakeryProducts(token: string): Observable<any> {
+  const url = 'http://10.0.0.100:5001/api/products/GetBakeryProducts';
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  };
+
+  return this.http.get(url, { headers });
+}
+
+
 }
 

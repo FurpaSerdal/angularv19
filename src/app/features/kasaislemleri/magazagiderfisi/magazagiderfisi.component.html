@@ -40,6 +40,12 @@
   <div class="card shadow-sm border-0">
     <div class="card-body p-0">
       <div class="table-responsive app-list-table">
+      
+  <!-- Yükleme Göstergesi -->
+  <div *ngIf="yukleniyor" class="d-flex flex-column justify-content-center align-items-center" style="min-height: 200px;">
+    <mat-spinner color="primary" diameter="60"></mat-spinner>
+  </div>
+
         <!-- Tablo -->
         <table mat-table [dataSource]="tableSource" class="w-100 mat-elevation-z8" matSort>
       <!-- Evrak Seri -->

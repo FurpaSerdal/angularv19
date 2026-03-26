@@ -18,6 +18,7 @@ export class FiyatetiketComponent implements OnInit, AfterViewInit, OnChanges, O
 
   ngOnInit(): void {
     window.addEventListener('beforeprint', this.beforePrintHandler);
+    console.log('FiyatetiketComponent initialized with products:', this.productsToPrint);
   }
 
   ngAfterViewInit(): void {

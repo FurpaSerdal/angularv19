@@ -11,8 +11,8 @@ export class BaseApiService {
 
   constructor(protected http: HttpClient) {}
 
-  protected get<T>(url: string) {
-    return this.http.get<T>(`${this.apiUrl}/${url}`);
+  protected get<T>(url: string, headers?: any) {
+    return this.http.get<T>(`${this.apiUrl}/${url}`, { headers });
   }
 
   protected post<T>(url: string, body: any) {

@@ -1,0 +1,170 @@
+@media print {
+  @page { size: A4; margin: 0; }
+  html, body { margin: 0; padding: 0; }
+
+  .print-half-page{
+    width: 210mm;
+    height: 148.5mm;
+    box-sizing: border-box;
+
+    /* güvenli alan */
+    padding-left: 5mm;
+    padding-top: 4mm;
+    padding-right: 4mm;
+    padding-bottom: 0mm;
+
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+
+    /* 4 satır eşit (taşmasın diye biraz küçük) */
+    grid-template-rows: repeat(4, 35.5mm) !important;
+
+    column-gap: 1.5mm !important;
+    row-gap: 1.5mm !important;
+
+    align-content: start !important;
+    page-break-after: always;
+    break-after: page;
+  }
+
+  .rack-label{
+    padding: 1mm;
+    box-sizing: border-box;
+    overflow: hidden;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+  }
+
+  .lbl-title{
+    font-size: 16px;
+    font-weight: 800;
+    text-align: center;
+    line-height: 1.05;
+    margin: 0 0 0.5mm 0;
+    padding-top: 0.5mm;
+
+    display: -webkit-box;
+    line-clamp: 2;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .lbl-mid{
+    display: flex;
+    align-items: flex-start;
+    gap: 2mm;
+  }
+
+  .lbl-barcode{
+    flex: 1;
+    position: relative; /* overlay yazı için */
+  }
+
+  .barcode-svg{
+    width: 100% !important;
+    height: 14mm !important;
+    display: block !important;
+    overflow: visible !important;
+  }
+
+  /* ✅ Barkodun üstünde küçük yazı (layout bozmaz) */
+  .lbl-barcode::before{
+    content: attr(data-koli);
+    position: absolute;
+    top: -1.3mm;
+    left: 0;
+
+    font-size: 7px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  /* data-koli boşsa gösterme */
+    .lbl-barcode::before{
+    content: attr(data-koli);
+    position: absolute;
+    top: 0mm;
+
+    left: 50%;
+    transform: translateX(-50%);
+
+    font-size: 7px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .lbl-price{
+    white-space: nowrap;
+    text-align: right;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    gap: 1mm;
+
+    margin-top: 0.3mm;
+    padding-right: 1mm;
+  }
+
+  .price-val{
+    font-size: 30px;
+    font-weight: 1000;
+    line-height: 1;
+  }
+
+  .price-cur{
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .lbl-info{
+    font-size: 9px;
+    line-height: 1.05;
+    margin-top: 0.2mm;
+    display: flex;
+    justify-content: space-between;
+    gap: 2mm;
+    white-space: nowrap;
+  }
+
+  .lbl-bottom{
+    font-size: 9px;
+    line-height: 1.05;
+    margin-top: 0.2mm;
+    display: flex;
+    gap: 2mm;
+    align-items: flex-start;
+  }
+
+  .lbl-col{ flex: 1; }
+  .lbl-strong{ font-weight: 700; }
+
+  .lbl-badge{
+    width: 18mm;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+  }
+
+  .badge-img{
+    width: 18mm;
+    height: auto;
+    display: block;
+  }
+
+  img{
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

@@ -26,9 +26,13 @@ export class RouterHelperService {
     9: ['task', 'company', 'orders', 'purchase'],
     11: ['task', 'company', 'orders', 'purchase'],
     32: ['task', 'company', 'orders', 'purchase'],
+    13: ['task', 'company', 'orders', 'purchase'],
+    37: ['task', 'warehouse', 'orders', 'purchase'],
+    41: ['task', 'warehouse', 'orders', 'purchase'],
     35: ['task', 'warehouse', 'orders', 'sales'],
     39: ['task', 'warehouse', 'orders', 'sales'],
-    41: ['task', 'warehouse', 'orders', 'purchase'],
+
+    
 
     // Faturalar
     2: ['task', 'invoices', 'sales'],
@@ -40,11 +44,13 @@ export class RouterHelperService {
     8: ['task', 'invoices', 'purchase'],
     10: ['task', 'invoices', 'purchase'],
     12: ['task', 'invoices', 'purchase'],
+    14: ['task', 'invoices', 'purchase'],
     34: ['task', 'invoices', 'purchase'],
 
     // Diger operasyonlar
     33: ['task', 'company', 'shipments', 'inbound'],
     42: ['task', 'warehouse', 'shipments', 'inbound'],
+    38: ['task', 'warehouse', 'shipments', 'inbound'],
     23: ['task', 'inventory-count-results'],
     16: ['task', 'inventory', 'stock-out'],
     15: ['task', 'transfer', 'exits'],

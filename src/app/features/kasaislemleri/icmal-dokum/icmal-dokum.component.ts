@@ -10,7 +10,6 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { SummariesCT } from '../../../models/eskiAngular';
-import { EskiAngularService } from '../../../services/eskiAngular.service';
 import { IcmalDetay } from './icmal-detay/icmal-detay';
 import { SummaryService } from '../../../services/summary/summary.service';
 import { MeService } from '../../../services/meservice.service';

@@ -83,17 +83,6 @@ filteredProductsForCrossedOut: Product[] = [];
     return `${year}-${month}-${day}T${hours}:${minutes}`;
   }
 
-  getFormattedDateTimeForDisplay(): string {
-    const now = new Date();
-    const day = String(now.getDate()).padStart(2, '0');
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const year = now.getFullYear();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-    return `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
-  }
-
   selectedEtiket: etiket | undefined;
 
   // Evrak Listesi
@@ -127,7 +116,7 @@ filteredProductsForCrossedOut: Product[] = [];
   
 
   ngOnInit(): void {
- this.getlastDocuments();
+    this.getlastDocuments();
     
     // Formları Başlat
     this.etiketTipiFormu = this.fb.group({
@@ -158,14 +147,18 @@ filteredProductsForCrossedOut: Product[] = [];
     this.etiketTipiFormu.get('labelType')?.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe(value => {
-        this.selectedEtiket = this.etiketTip().find((tip: etiket) => tip.etiketTipi === value);
+        console.log('Seçilen etiket tipi:', value);
+        this.selectedEtiket = this.getEtiketTip().find((etk: etiket) => etk.etiketTipi === value);
       });
 
-
-   interval(60000)
+interval(60000)
   .pipe(takeUntil(this.destroy$))
   .subscribe(() => {
     this.today = this.getFormattedDateTime();
+
+    this.tarihSaatFiltreFormu.patchValue({
+      filtre: this.today
+    });
   });
   }
 
@@ -366,10 +359,26 @@ getByPriceChangeDate(): void {
   }
 
   // Etiket Tiplerini Getir
-  etiketTip() {
+  getEtiketTip() {
     return this.etiketservice.etiketTip(); 
   }
 
+ getPrintCss(): string {
+  switch (this.selectedEtiket?.etiketTipi) {
+    case 'a4_pricelabel':
+      return '/assets/a4-price-label-print.css';
+    case 'rack_label':
+      return '/assets/rack-label-print.css';
+    case 'a5_pricelabel':
+      return '/assets/a5-dual-price-print.css';
+    case 'rack_label_a4':
+      return '/assets/rack-label-a4-print.css';
+    case 'a5_pricelabel_advantage':
+      return '/assets/a5-advantage-print.css';
+    default:
+      return '';
+  }
+}
 
 }
 

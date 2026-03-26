@@ -6,10 +6,10 @@ import { NgxPrintModule } from 'ngx-print';
 import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
 import { BanknoteMovementsCT,Cashier,CashRegisterDetails,GiftCheckMovementsCT,SummariesCT,SummariesDetailsCT } from '../../../../models/eskiAngular';
-import { EskiAngularService } from '../../../../services/eskiAngular.service';
 import { MeService } from '../../../../services/meservice.service';
 import { SummaryPrintComponent } from '../summary-print/summary-print.component';
 import { SummaryService } from '../../../../services/summary/summary.service';
+import { DialogRef } from '@angular/cdk/dialog';
 
 @Component({
   selector: 'app-icmal-detay',
@@ -26,6 +26,7 @@ managerName: string = '';
     private summaryService: SummaryService,
     private meservice: MeService,
     private toastrService:ToastrService,
+    private dialogRef: DialogRef<IcmalDetay>
   ) { }
   
   ngOnInit() {
@@ -215,6 +216,11 @@ GetCashierAndManager(summary: SummariesCT) {
   this.summaryService.GetCashRegisteryDetails(this.taskid(), cashNo).subscribe(detail=>{
     this.cashRegisterDetail=detail;
   });
+ }
+
+ Close(){
+  
+  this.dialogRef.close();
  }
   
 }

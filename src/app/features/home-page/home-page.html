@@ -1,199 +1,55 @@
-<section class="container-fluid ">
-  <div class="row g-2 align-items-stretch hd-top-row">
-    <div class="col-12 col-xl-8">
-      <div class="card border-0 rounded-4 hd-card hd-hero-card h-100">
-        <div class="card-body p-3 p-lg-4">
-          <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
-            <span class="hd-pill">
-              <i class="bi bi-stars me-1"></i>
-              Operasyon merkezi
+<section class="container-fluid home-static-page">
+  <div class="row justify-content-center">
+    <div class="col-12 col-xxl-10">
+      <div class="home-static-shell">
+        <div class="home-static-hero card border-0 rounded-4 overflow-hidden">
+          <div class="card-body p-4 p-lg-5">
+            <span class="home-static-badge">
+              <i class="bi bi-pin-angle-fill"></i>
+              Statik alan
             </span>
-            <span class="hd-count-pill">
-              <i class="bi bi-grid me-1"></i>
-              {{ shortcuts().length }} gorev
-            </span>
-          </div>
 
-          <div class="hd-hero-content">
-            <div>
-              <h1 class="hd-hero-title mb-1">Ana Sayfa</h1>
-              <p class="hd-hero-text mb-0">{{ greeting() }} icin en hizli gecisler tek alanda.</p>
-            </div>
-
-            <div class="hd-hero-visual" aria-hidden="true">
-              <span class="hd-hero-orb hd-hero-orb-main">
-                <i class="bi bi-rocket-takeoff-fill"></i>
-              </span>
-              <span class="hd-hero-orb hd-hero-orb-soft">
-                <i class="bi bi-lightning-charge-fill"></i>
-              </span>
-              <span class="hd-hero-orb hd-hero-orb-soft">
-                <i class="bi bi-bar-chart-fill"></i>
-              </span>
-            </div>
-          </div>
-
-          <div class="hd-hero-highlights mt-3">
-            <div class="hd-highlight-chip">
-              <span class="hd-highlight-icon"><i class="bi bi-speedometer2"></i></span>
-              Hizli erisim
-            </div>
-            <div class="hd-highlight-chip">
-              <span class="hd-highlight-icon"><i class="bi bi-window-stack"></i></span>
-              Tek ekranda yonetim
-            </div>
-            <div class="hd-highlight-chip">
-              <span class="hd-highlight-icon"><i class="bi bi-shield-check"></i></span>
-              Duzenli calisma alani
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    @if (selectedTaskLink(); as selectedTask) {
-      <div class="col-12 col-xl-4">
-        <button type="button" class="card border-0 rounded-4 hd-card hd-selected-task h-100 w-100 text-start" (click)="openTask(selectedTask)">
-          <div class="card-body p-3">
-            <div class="d-flex align-items-center gap-2 mb-2">
-              <span class="hd-icon-bubble hd-icon-bubble-soft">
-                <i class="bi bi-compass"></i>
-              </span>
-              <span class="hd-label">Secili Gorev</span>
-            </div>
-
-            <h2 class="hd-selected-title mb-1">{{ selectedTask.gorev.isim }}</h2>
-            <p class="hd-selected-path mb-0">
-              {{ selectedTask.menu.isim }}
-              <span class="hd-dot-separator">•</span>
-              {{ selectedTask.altMenu.isim }}
-            </p>
-
-            <div class="hd-open-link mt-2">
-              Aç
-              <i class="bi bi-arrow-right-short"></i>
-            </div>
-          </div>
-        </button>
-      </div>
-    }
-  </div>
-
-  <div class="row g-2 hd-main-row">
-    <div class="col-12 col-xl-8">
-      <div class="card border-0 rounded-4 hd-card hd-shortcuts-card h-100">
-        <div class="card-body p-2 p-lg-3 d-flex flex-column h-100">
-          <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
-            <div class="d-flex align-items-center gap-2">
-              <span class="hd-icon-bubble hd-icon-bubble-soft">
-                <i class="bi bi-lightning-charge-fill"></i>
-              </span>
+            <div class="home-static-header mt-3">
               <div>
-                <h2 class="hd-section-title mb-0">Hizli Gorevler</h2>
-                <p class="hd-section-subtitle mb-0">Tum ekranlar mini kart olarak listelenir.</p>
+                <h1 class="home-static-title mb-2">Ana Sayfa Geçici Olarak Statik Hale Getirildi</h1>
+                <p class="home-static-description mb-0">
+                  Bu ekran şu anda sabit bir bilgilendirme alanı olarak kullanılıyor.
+                  Ana sayfada gösterilecek veri ve kutucuklar, ilgili ekiplerin ve kullanıcıların taleplerine göre sonradan eklenecek.
+                </p>
+              </div>
+
+              <div class="home-static-icon" aria-hidden="true">
+                <i class="bi bi-layout-text-window-reverse"></i>
               </div>
             </div>
-          </div>
-
-          <div class="hd-shortcut-grid">
-            @for (shortcut of shortcuts(); track shortcut.title) {
-              <button type="button" class="hd-shortcut-btn" (click)="openTask(shortcut.task)">
-                <div class="hd-shortcut-top">
-                  <span class="hd-shortcut-icon">
-                    <i class="bi bi-grid-1x2-fill"></i>
-                  </span>
-                  <small class="hd-shortcut-meta">{{ shortcut.task?.menu?.isim }}</small>
-                </div>
-
-                <strong class="hd-shortcut-title">{{ shortcut.title }}</strong>
-
-                <div class="hd-shortcut-foot">
-                  <small class="hd-shortcut-meta">{{ shortcut.task?.altMenu?.isim }}</small>
-                  <span class="hd-go-chip">Git</span>
-                </div>
-              </button>
-            }
           </div>
         </div>
-      </div>
-    </div>
 
-    <div class="col-12 col-xl-4">
-      <div class="card border-0 rounded-4 hd-card hd-feedback-card h-100">
-        <div class="card-body p-2 p-lg-3 d-flex flex-column">
-          <div class="d-flex align-items-center gap-2 mb-2">
-            <span class="hd-icon-bubble hd-icon-bubble-soft">
-              <i class="bi bi-chat-left-text-fill"></i>
-            </span>
-            <div>
-              <h2 class="hd-section-title mb-0">Oneri ve Sikayet</h2>
-              <p class="hd-section-subtitle mb-0">API yok. Mesajlar yerel olarak saklanir.</p>
-            </div>
-          </div>
-
-          <div class="hd-feedback-form mb-2">
-            <div class="d-flex align-items-center gap-1 mb-1">
-              <button
-                type="button"
-                class="btn btn-sm hd-toggle-btn"
-                [class.hd-toggle-btn-active]="feedbackType() === 'oneri'"
-                (click)="setFeedbackType('oneri')">
-                <i class="bi bi-lightbulb me-1"></i>
-                Oneri
-              </button>
-              <button
-                type="button"
-                class="btn btn-sm hd-toggle-btn"
-                [class.hd-toggle-btn-active]="feedbackType() === 'sikayet'"
-                (click)="setFeedbackType('sikayet')">
-                <i class="bi bi-exclamation-octagon me-1"></i>
-                Sikayet
-              </button>
-            </div>
-
-            <textarea
-              class="form-control hd-feedback-textarea"
-              rows="3"
-              maxlength="500"
-              [value]="feedbackMessage()"
-              (input)="onFeedbackMessageInput($event)"
-              [placeholder]="feedbackType() === 'oneri' ? 'Onerini yaz...' : 'Sikayetini yaz...'"></textarea>
-
-            <div class="d-flex align-items-center justify-content-between gap-2 mt-1">
-              <small class="hd-counter">{{ feedbackMessageLength() }}/500</small>
-              <button type="button" class="btn btn-sm hd-submit-btn" (click)="submitFeedback()">
-                <i class="bi bi-send-fill me-1"></i>
-                Gonder
-              </button>
-            </div>
-
-            @if (feedbackStatus(); as status) {
-              <div class="hd-feedback-status mt-1" [class.hd-feedback-status-error]="status.kind === 'error'">
-                {{ status.message }}
+        <div class="row g-3 mt-1">
+          <div class="col-12 col-xl-8">
+            <div class="card border-0 rounded-4 home-static-card h-100">
+              <div class="card-body p-4">
+                <h2 class="home-static-section-title">Durum</h2>
+                <p class="home-static-text mb-0">
+                  Önceki dinamik ana sayfa içeriği kaldırıldı. Bu alanda şimdilik canlı veri, hızlı işlem kartı veya geri bildirim modülü gösterilmiyor.
+                </p>
               </div>
-            }
+            </div>
           </div>
 
-          @if (hasFeedbackTasks()) {
-            <div class="row g-1 mt-auto">
-              @if (feedbackTasks().suggestion; as suggestionTask) {
-                <div class="col-12 col-md-6 col-xl-12">
-                  <button type="button" class="hd-quick-link" (click)="openTask(suggestionTask)">
-                    <span class="hd-quick-link-icon"><i class="bi bi-lightbulb-fill"></i></span>
-                    <span class="hd-quick-link-text">Oneri modulu ac</span>
-                    <i class="bi bi-chevron-right"></i>
-                  </button>
+          <div class="col-12 col-xl-4">
+            <div class="card border-0 rounded-4 home-static-warning h-100">
+              <div class="card-body p-4">
+                <div class="home-static-warning-icon">
+                  <i class="bi bi-exclamation-triangle-fill"></i>
                 </div>
-              }
+                <h2 class="home-static-section-title mt-3">Uyarı</h2>
+                <p class="home-static-text mb-0">
+                  Bu bölüme gelecek veri yapısı, içerik başlıkları ve gösterim detayları ilgili kişilerin isteğine göre belirlenecektir.
+                </p>
+              </div>
             </div>
-
-            <div class="hd-feedback-note mt-2">
-              <span class="hd-feedback-note-icon">
-                <i class="bi bi-info-circle-fill"></i>
-              </span>
-              Mesajlar tarayicida tutulur, bu yuzden hizli ve hafif calisir.
-            </div>
-          }
+          </div>
         </div>
       </div>
     </div>

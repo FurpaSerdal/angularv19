@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
+import { Component, computed, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -14,6 +14,9 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { YeniComponent } from './yeni/yeni.component';
 import { StoreExpenseReceiptService } from '../../../services/storeExpenseReceipt/store-expense-receipt.service';
+import { MeService } from '../../../services/meservice.service';
+import { share } from 'rxjs';
+import { SharedImports } from '../../../core/pipes/shared-imports';
 
 export interface OutageReceipt {
     documentSerie:string;
@@ -37,6 +40,7 @@ export interface OutageReceipt {
     MatSortModule,
     MatPaginatorModule,
     ReactiveFormsModule,
+    SharedImports,
     DatePipe
   ],
   standalone: true,
@@ -46,6 +50,9 @@ export interface OutageReceipt {
 })
 
 export class MagazagiderfisiComponent {
+  yukleniyor: boolean = false;
+
+
   // Tablo verisi
   tableSource = new MatTableDataSource<OutageReceipt>([]);
 
@@ -64,20 +71,28 @@ export class MagazagiderfisiComponent {
   constructor(
     private dialog: MatDialog,
     private storeExpenseReceiptService: StoreExpenseReceiptService,
+    private meService: MeService,
     private datePipe: DatePipe
   ) {}
 
   ngOnInit(): void {}
 
+
+  taskid = computed(() => this.meService.selectedGorev()?.id ?? 0);
+
   ngAfterViewInit(): void {
     this.tableSource.paginator = this.paginator;
     this.tableSource.sort = this.sort;
   }
+
+
   onDateRangeChange(): void {
+    this.yukleniyor = true;
     const startDateValue = this.dateRangeForm.get('startDate')?.value;
     const endDateValue = this.dateRangeForm.get('endDate')?.value;
 
     if (!startDateValue || !endDateValue) {
+      this.yukleniyor = false;
       return;
     }
 
@@ -85,12 +100,14 @@ export class MagazagiderfisiComponent {
     const end = this.datePipe.transform(endDateValue, 'yyyy-MM-dd');
 
     if (!start || !end) {
+      this.yukleniyor = false;
       return;
     }
 
     const zamanlama = `aralik-${start}-${end}`;
     this.storeExpenseReceiptService.listReceipts(17, zamanlama).subscribe((receipts: OutageReceipt[]) => {
       this.tableSource.data = receipts;
+      this.yukleniyor = false;
     });
   }
 
@@ -98,6 +115,7 @@ export class MagazagiderfisiComponent {
     this.dialog.open(YeniComponent, {
       width: '70vw',
       height: '90vh',
+      disableClose: true,
       data: {}
     });
   }

@@ -1,38 +1,39 @@
-<div class="container-fluid p-4">
+<div class="d-flex flex-column ewaybill-screen" style="height: 100%; overflow: hidden; padding: 8px;">
 
-  <div class="row">
-    <div class="col-12">
-      <div class="card">
-        <div class="card-header">
-          <div class="d-flex justify-content-end">
-            <button type="button" class="btn-close" aria-label="Kapat" (click)="close()"></button>
-          </div>
-          <h5 class="card-title">
-            Depolardan verilen Sevkiyeyi e-İrsaliye'ye Dönüştür
-          </h5>
+  <div class="flex-shrink-0 mb-2 ewaybill-header">
+    <div class="card shadow-sm border-0">
+      <div class="card-header py-2 bg-white border-bottom">
+        <div class="d-flex justify-content-between align-items-center">
+          <h6 class="mb-0 fw-semibold text-primary">
+            <i class="bi bi-file-text me-2"></i>
+            Depolardan Verilen Sevkiyeyi e-İrsaliye'ye Dönüştür
+          </h6>
+          <button type="button" class="btn-close btn-sm" aria-label="Kapat" (click)="close()"></button>
         </div>
       </div>
     </div>
   </div>
 
   <!-- ALERTS -->
-  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show shadow-sm mb-4" role="alert">
-    <i class="bi bi-check-circle-fill me-2"></i>
-    {{ successMessage }}
-    <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
-  </div>
+  <div class="ewaybill-alerts flex-shrink-0">
+    <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show shadow-sm mb-3" role="alert">
+      <i class="bi bi-check-circle-fill me-2"></i>
+      {{ successMessage }}
+      <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
+    </div>
 
-  <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show shadow-sm mb-4" role="alert">
-    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-    {{ errorMessage }}
-    <button type="button" class="btn-close" (click)="errorMessage = ''" aria-label="Close"></button>
+    <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show shadow-sm mb-3" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+      {{ errorMessage }}
+      <button type="button" class="btn-close" (click)="errorMessage = ''" aria-label="Close"></button>
+    </div>
   </div>
 
   <!-- FORM CARD -->
-  <form (ngSubmit)="openConfirmDialog(); $event.preventDefault()" #ewaybillForm="ngForm">
+  <form class="ewaybill-form" (ngSubmit)="openConfirmDialog(); $event.preventDefault()" #ewaybillForm="ngForm">
 
-    <div class="card shadow border-0 mb-4">
-      <div class="card-header bg-light py-3">
+    <div class="card shadow-sm border-0 mb-2 ewaybill-info-card">
+      <div class="card-header bg-light py-2">
         <h5 class="mb-0 fw-semibold">
           <i class="bi bi-file-text text-primary me-2"></i>
           Sevkiye Bilgileri
@@ -42,22 +43,8 @@
       <div class="card-body">
 
         <!-- ROW 1: Belge Bilgileri -->
-        <div class="row g-3 mb-4">
-          <div class="col-md-4">
-            <label class="form-label fw-semibold">
-              <i class="bi bi-hash text-muted me-1"></i>
-              Sıra No
-            </label>
-            <input
-              type="number"
-              class="form-control"
-              [(ngModel)]="shipmentData.sira"
-              name="documentOrderNo"
-              readonly
-              [class.bg-light]="true">
-          </div>
-
-          <div class="col-md-4">
+        <div class="row g-2 mb-2">
+          <div class="col-md-3">
             <label class="form-label fw-semibold">
               <i class="bi bi-sort-alpha-down text-muted me-1"></i>
               Seri
@@ -71,11 +58,44 @@
               [class.bg-light]="true">
           </div>
 
-   
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">
+              <i class="bi bi-hash text-muted me-1"></i>
+              Sıra No
+            </label>
+            <input
+              type="number"
+              class="form-control"
+              [(ngModel)]="shipmentData.sira"
+              name="documentOrderNo"
+              readonly
+              [class.bg-light]="true">
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">
+              <i class="bi bi-box-arrow-right text-muted me-1"></i>
+              Kaynak Depo
+            </label>
+            <div>
+              <span class="badge bg-secondary">{{ shipmentData.kaynakDepoNo || '-' }}</span>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">
+              <i class="bi bi-box-arrow-in-right text-muted me-1"></i>
+              Hedef Depo
+            </label>
+            <div>
+              <span class="badge bg-info text-dark">{{ shipmentData.hedefDepoNo || '-' }}</span>
+            </div>
+          </div>
+
         </div>
 
         <!-- ROW 2: Zorunlu Alanlar -->
-        <div class="row g-3 mb-4">
+        <div class="row g-2 mb-0">
           <div class="col-md-4">
             <label class="form-label fw-semibold">
               <i class="bi bi-person-badge text-primary me-1"></i>
@@ -138,66 +158,77 @@
     </div>
 
     <!-- CART CARD -->
-    <div class="card shadow-sm border-0 mb-4" *ngIf="shipmentData.kalemler.length">
-      <div class="card-header bg-light py-3">
-        <h5 class="mb-0 fw-semibold">
-          <i class="bi bi-cart-check text-primary me-2"></i>
-          Kalemler
-          <span class="badge bg-primary ms-2">{{ shipmentData.kalemler.length }}</span>
-        </h5>
-      </div>
+    <div class="ewaybill-items-wrap flex-fill d-flex flex-column mb-2">
+      <div class="card shadow-sm border-0 ewaybill-items-card" *ngIf="shipmentData.kalemler.length; else noItemsTemplate">
+        <div class="card-header bg-light py-3">
+          <h5 class="mb-0 fw-semibold">
+            <i class="bi bi-cart-check text-primary me-2"></i>
+            Kalemler
+            <span class="badge bg-primary ms-2">{{ shipmentData.kalemler.length }}</span>
+          </h5>
+        </div>
 
-      <div class="card-body p-0">
-        <div class="table-responsive">
-          <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
-              <tr>
-                <th class="border-0">#</th>
-                <th class="border-0">Ürün Kodu</th>
-                <th class="border-0">Ürün Adı</th>
-                <th class="border-0">Birim</th>
-                <th class="border-0 text-end">Miktar</th>
-                <th class="border-0 text-end">Önerilen</th>
-                <th class="border-0 text-end">Teslim</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let item of shipmentData.kalemler; let i = index" 
-                  [class.table-primary]="i % 2 === 0">
-                <td class="fw-semibold">{{ i + 1 }}</td>
-                <td>
-                  <span class="badge bg-secondary">{{ item.stok.stokKodu }}</span>
-                </td>
-                <td>{{ item.stok.stokIsmi }}</td>
-                <td>
-                  <span class="badge bg-light text-dark">{{ item.stok.birim }}</span>
-                </td>
-                <td class="text-end fw-semibold">{{ item.miktar | number:'1.2-2' }}</td>
-                <td class="text-end text-muted">{{ item.onerilenMiktar | number:'1.2-2' }}</td>
-                <td class="text-end text-success">{{ item.teslimMiktari | number:'1.2-2' }}</td>
-              </tr>
-            </tbody>
-            <tfoot class="table-light">
-              <tr>
-                <td colspan="4" class="fw-bold text-end">Toplam:</td>
-                <td class="fw-bold text-end">
-                  {{ getTotal('miktar') | number:'1.2-2' }}
-                </td>
-                <td class="fw-bold text-end">
-                  {{ getTotal('onerilenMiktar') | number:'1.2-2' }}
-                </td>
-                <td class="fw-bold text-end text-success">
-                  {{ getTotal('teslimMiktari') | number:'1.2-2' }}
-                </td>
-              </tr>
-            </tfoot>
-          </table>
+        <div class="card-body p-0 ewaybill-items-body">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th class="border-0">#</th>
+                  <th class="border-0">Ürün Kodu</th>
+                  <th class="border-0">Ürün Adı</th>
+                  <th class="border-0">Birim</th>
+                  <th class="border-0 text-end">Miktar</th>
+                  <th class="border-0 text-end">Önerilen</th>
+                  <th class="border-0 text-end">Teslim</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of shipmentData.kalemler; let i = index"
+                    [class.table-primary]="i % 2 === 0">
+                  <td class="fw-semibold">{{ i + 1 }}</td>
+                  <td>
+                    <span class="badge bg-secondary">{{ item.stok.stokKodu }}</span>
+                  </td>
+                  <td>{{ item.stok.stokIsmi }}</td>
+                  <td>
+                    <span class="badge bg-light text-dark">{{ item.stok.birim }}</span>
+                  </td>
+                  <td class="text-end fw-semibold">{{ item.miktar | number:'1.2-2' }}</td>
+                  <td class="text-end text-muted">{{ item.onerilenMiktar | number:'1.2-2' }}</td>
+                  <td class="text-end text-success">{{ item.teslimMiktari | number:'1.2-2' }}</td>
+                </tr>
+              </tbody>
+              <tfoot class="table-light">
+                <tr>
+                  <td colspan="4" class="fw-bold text-end">Toplam:</td>
+                  <td class="fw-bold text-end">
+                    {{ getTotal('miktar') | number:'1.2-2' }}
+                  </td>
+                  <td class="fw-bold text-end">
+                    {{ getTotal('onerilenMiktar') | number:'1.2-2' }}
+                  </td>
+                  <td class="fw-bold text-end text-success">
+                    {{ getTotal('teslimMiktari') | number:'1.2-2' }}
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
         </div>
       </div>
+
+      <ng-template #noItemsTemplate>
+        <div class="card shadow-sm border-0 h-100 d-flex align-items-center justify-content-center text-muted">
+          <div class="py-4 text-center">
+            <i class="bi bi-cart-x fs-2 d-block mb-2"></i>
+            Kalem bulunamadı.
+          </div>
+        </div>
+      </ng-template>
     </div>
 
     <!-- ACTIONS -->
-    <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
+    <div class="d-flex justify-content-end gap-3 ewaybill-actions flex-shrink-0">
       <button
         class="btn btn-outline-secondary px-4"
         type="button"

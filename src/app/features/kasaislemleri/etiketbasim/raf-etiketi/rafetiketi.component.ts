@@ -30,7 +30,7 @@ export class RafetiketiComponent implements AfterViewInit, OnChanges {
   
     ngOnChanges(changes: SimpleChanges): void {
       if (changes['productsToPrint']) {
-        this.halfPages = this.chunk(this.productsToPrint, 12);
+        this.halfPages = this.chunk(this.productsToPrint, 1);
         this.renderBarcodesSafe();
       }
     }

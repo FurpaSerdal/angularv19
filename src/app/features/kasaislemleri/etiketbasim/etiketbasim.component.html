@@ -1,4 +1,4 @@
-<div class="container-fluid text-center mt-2 app-list-page">
+<div class="container-fluid mt-2 app-list-page">
   <div class="row">
     <!-- Etiket Tipi Seçimi -->
     <div class="col-md-4">
@@ -6,7 +6,7 @@
         <mat-form-field appearance="outline" class="w-100">
           <mat-label>Etiket Tipi Seçin</mat-label>
           <mat-select formControlName="labelType" aria-label="Etiket Tipi Seçimi">
-            <mat-option *ngFor="let labelType of etiketTip()" [value]="labelType.etiketTipi">
+            <mat-option *ngFor="let labelType of getEtiketTip()" [value]="labelType.etiketTipi">
               {{ labelType.etiketIsmi }}
             </mat-option>
           </mat-select>
@@ -17,10 +17,20 @@
     <!-- Butonlar -->
     <div class="col-md-8 d-flex justify-content-end">
       <button class="btn btn-success small-btn" (click)="openAddLineModal()">Ekle</button>
-      <button class="btn btn-primary small-btn ms-2" ngxPrint printSectionId="print_section" [useExistingCss]="true">
+      <button
+        class="btn btn-primary small-btn ms-2"
+        ngxPrint
+        printSectionId="print_section"
+        [useExistingCss]="false"
+       [styleSheetFile]="getPrintCss()">
         Yazdır
       </button>
-      <button class="btn btn-warning ms-2 small-btn text-dark" ngxPrint printSectionId="print-list">
+      <button
+        class="btn btn-warning ms-2 small-btn text-dark"
+        ngxPrint
+        printSectionId="print-list"
+        [useExistingCss]="false"
+        styleSheetFile="/assets/price-change-list-print.css">
         Listeyi Yazdır
       </button>
       <button class="btn btn-danger ms-2 small-btn" (click)="clearList()">

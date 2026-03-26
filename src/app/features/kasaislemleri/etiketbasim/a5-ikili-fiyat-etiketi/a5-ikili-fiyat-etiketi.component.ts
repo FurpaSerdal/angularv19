@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit,Component,Input,OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import JsBarcode from 'jsbarcode';
 
 @Component({
@@ -9,40 +9,92 @@ import JsBarcode from 'jsbarcode';
   templateUrl: './a5-ikili-fiyat-etiketi.component.html',
   styleUrls: ['./a5-ikili-fiyat-etiketi.component.css']
 })
-export class A5IkiliFiyatEtiketiComponent implements OnInit, AfterViewInit {
+export class A5IkiliFiyatEtiketiComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() productsToPrint: any[] = [];
-  etiketCikarmaTarihi: string = new Date().toISOString().slice(0, 16);
-  productsToPrintChunks: any[][] = [];
+  productPairs: any[][] = [];
+  labelPrintDate: string = this.getFormattedPrintDate();
 
   constructor() {
-    // Verinin doğru şekilde alındığını kontrol et
     console.log(this.productsToPrint);
   }
 
   ngOnInit(): void {
-    this.chunkProducts(this.productsToPrint);
+    this.labelPrintDate = this.getFormattedPrintDate();
+    this.productPairs = this.chunkProducts(this.productsToPrint);
   }
 
-  // Ürünleri 2'li gruplara ayırma fonksiyonu
-  chunkProducts(products: any[]) {
-    for (let i = 0; i < products.length; i += 2) {
-      this.productsToPrintChunks.push(products.slice(i, i + 2));
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['productsToPrint']) {
+      this.productPairs = this.chunkProducts(this.productsToPrint);
+      this.renderBarcodes();
     }
   }
 
-  // JsBarcode'ı sayfa yüklendikten sonra çalıştır
   ngAfterViewInit(): void {
-    // barcode id'si her ürün için dinamik olarak oluşturulacak
-    this.productsToPrint.forEach((product, index) => {
-      setTimeout(() => { // setTimeout ile küçük bir gecikme ekliyoruz
-        JsBarcode(`#barcode-${index}`, product.barcode, {
-          format: 'EAN13',
-          width: 2,
-          height: 50,
-          displayValue: true
-        });
-      }, 0); // küçük bir gecikme ile işlem yapılması sağlanır
-    });
+    this.renderBarcodes();
+  }
+
+  private getFormattedPrintDate(): string {
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    return `${day}.${month}.${year}`;
+  }
+
+  private renderBarcodes(): void {
+    setTimeout(() => {
+      this.productPairs.forEach((pair, i) => {
+        const leftProduct = pair[0];
+        const rightProduct = pair[1];
+
+        if (leftProduct) {
+          this.renderBarcode(`barcode-left-${i}`, leftProduct.barcode);
+        }
+
+        if (rightProduct) {
+          this.renderBarcode(`barcode-right-${i}`, rightProduct.barcode);
+        }
+      });
+    }, 0);
+  }
+
+  private chunkProducts(products: any[]): any[][] {
+    const pairs: any[][] = [];
+
+    for (let i = 0; i < products.length; i += 2) {
+      pairs.push(products.slice(i, i + 2));
+    }
+
+    return pairs;
+  }
+
+  private renderBarcode(targetId: string, value: any): void {
+    const barcodeValue = (value ?? '').toString();
+    if (!barcodeValue) {
+      return;
+    }
+
+    const barcodeLength = barcodeValue.length;
+    let format: 'EAN13' | 'EAN8' | 'CODE128' = 'CODE128';
+
+    if (barcodeLength === 13) {
+      format = 'EAN13';
+    } else if (barcodeLength === 8) {
+      format = 'EAN8';
+    }
+
+    try {
+      JsBarcode(`#${targetId}`, barcodeValue, {
+        format,
+        width: 1,
+        height: 35,
+        fontSize: 13,
+        displayValue: true,
+        margin: 0
+      });
+    } catch (error) {
+      console.error('Barcode oluşturulamadı:', error);
+    }
   }
 }
-

@@ -280,6 +280,86 @@
   justify-content: flex-end;
 }
 
+:host {
+  display: block;
+  height: 100%;
+  min-height: 0;
+}
+
+.ewaybill-screen {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.ewaybill-header,
+.ewaybill-alerts,
+.ewaybill-actions,
+.ewaybill-info-card {
+  flex-shrink: 0;
+}
+
+.ewaybill-form {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.ewaybill-items-wrap {
+  flex: 1.2 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.ewaybill-items-card {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ewaybill-items-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+
+.ewaybill-items-body .table {
+  margin-bottom: 0;
+}
+
+.ewaybill-items-body thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.ewaybill-actions {
+  padding-top: 0.25rem;
+}
+
+.ewaybill-alerts .alert {
+  margin-bottom: 0.5rem !important;
+}
+
+.ewaybill-info-card .card-body {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.ewaybill-info-card .form-label {
+  margin-bottom: 0.25rem;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .convert-ewaybill-container {

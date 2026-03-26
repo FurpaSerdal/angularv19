@@ -72,13 +72,12 @@
             <label class="form-label fw-semibold text-secondary mb-1" style="font-size: 0.7rem;">
               <i class="bi bi-box-seam me-1"></i>Ürün Ara
             </label>
-            <input type="text"
-                   class="form-control form-control-sm"
-                   placeholder="Ürün adı veya kodu..."
-                   [value]="arananUrun()"
-                   (input)="onSearchChange($any($event.target).value)"
-                   name="urunSearch"
-                   style="font-size: 0.8rem;">
+         <input type="text"
+       class="form-control form-control-sm"
+       placeholder="Ürün adı veya kodu..."
+       [value]="arananUrun()"
+       (input)="arananUrun.set($any($event.target).value)"
+       style="font-size: 0.8rem;">
 
             <!-- Ürün Sonuçları -->
             <div class="mt-1" *ngIf="bulunanUrunler().length > 0">
